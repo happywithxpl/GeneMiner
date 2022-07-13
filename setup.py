@@ -4,12 +4,8 @@
 # @Author  : xiepulin
 # @File    : setup.py
 # @Software: PyCharm
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# @Time    : 2022/7/6 9:58
-# @Author  : xiepulin
-# @File    : setup_zz.py
-# @Software: PyCharm
+
+
 
 """Setup the GeneMiner environment."""
 
@@ -42,7 +38,7 @@ sys.stdout.write("Python " + str(sys.version).replace("\n", " ") + "\n")
 sys.stdout.write("PLATFORM: " + " ".join(platform.uname()) + "\n")
 sys.stdout.write("Using setuptools " + str(setuptools.__version__) + "\n")
 
-scripts_to_install = ["easy353.py", "build_database.py"]
+scripts_to_install = ["geneminer.py"]
 
 setup(
     name="GeneMiner",
@@ -51,11 +47,11 @@ setup(
     author_email="xiepulin@stu.scu.edu.cn , happywithxpl@126.com",
     description="""GeneMiner : a software for extracting phylogenetic markers from next generation sequencing data""",
     license="GPL-3.0 license",
-    # 项目主页
+    # Project home
     url="https://github.com/happywithxpl/Geneminer",
     python_requires='>=3.7',
     install_requires=install_dependencies,
-    # scripts=scripts_to_install,
+    scripts=scripts_to_install,
     packages=["lib"],
     zip_safe=False
 )
