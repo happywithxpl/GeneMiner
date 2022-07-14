@@ -39,21 +39,20 @@ from Bio import pairwise2
 import PySimpleGUI as sg
 
 
-my_version = 'Version 1.0b build 20220122'
-my_cite = 'Cite: https://github.com/happywithxpl/GeneMiner'
-
 cur_path = os.path.realpath(sys.argv[0])  # 脚本当前路径
 father_path = os.path.dirname(cur_path)  # 脚本的父目录
 sys.path.append(os.path.join(father_path, "lib"))
 
-
 from lib.global_var import get_init,set_value,get_value
 from lib.basic import get_absolute,get_platform,ML_str_re
-from lib.verify_parameters import check_true,check_input,check_k1,check_scaffold,check_datasize,check_k2,check_reference,check_change_seed,check_out_dir,check_limit_count,check_limit_length,check_step_length,check_max_min_length,check_bootstrap_parameter,check_soft_boundary,check_python_version,check_threads_number,print_parameter_information,signal_handler
+from lib.verify_parameters import check_input,check_k1,check_scaffold,check_datasize,check_k2,check_reference,check_change_seed,check_out_dir,check_limit_count,check_limit_length,check_step_length,check_max_min_length,check_bootstrap_parameter,check_soft_boundary,check_python_version,check_threads_number,print_parameter_information,signal_handler
 from lib.build_reference_database import my_bulid_reference_database_pipeline
 from lib.core_pipeline import CorePipeLine
 from lib.bootstrap_pipeline import my_bootstrap_pipeline_main
 from lib.pack_results import my_pack_results_pipeline_main
+
+my_version = 'Version 1.0b build 20220122'
+my_cite = 'Cite: https://github.com/happywithxpl/GeneMiner'
 get_init()  # 在basic 中已经申明过了
 
 

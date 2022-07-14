@@ -11,9 +11,9 @@ import os
 from concurrent import futures
 import random
 from  collections import  defaultdict
-from basic import get_basename,get_fasta_file,get_file_list,is_exist,mylog,cutting_line,get_files,get_identity,get_identity_and_mutate_model
-from my_filter import  my_filter_main
-from my_assemble import  my_assemble_main
+from lib.basic import get_basename,get_fasta_file,get_file_list,is_exist,mylog,cutting_line,get_files,get_identity,get_identity_and_mutate_model
+from lib.my_filter import  my_filter_main
+from lib.my_assemble import  my_assemble_main
 
 ################################################
 #################################################

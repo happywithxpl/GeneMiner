@@ -12,7 +12,7 @@ import  time
 from collections import  defaultdict
 from  Bio.SeqRecord import SeqRecord
 
-from basic import dir_make,get_file_list,get_basename
+from lib.basic import dir_make,get_file_list,get_basename
 ##########################################################
 ##########################################################
 '''

@@ -9,7 +9,7 @@
 import csv
 from collections import defaultdict
 import os
-from basic import mylog, is_exist
+from lib.basic import mylog, is_exist
 
 
 def parse_csv(path):

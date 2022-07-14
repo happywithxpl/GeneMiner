@@ -6,9 +6,9 @@
 # @Software: PyCharm
 import os
 import shutil
-from basic import get_file_list,is_exist,get_fasta_file,get_basename
-from my_filter import  my_filter_main
-from my_assemble import  my_assemble_main
+from lib.basic import get_file_list,is_exist,get_fasta_file,get_basename
+from lib.my_filter import  my_filter_main
+from lib.my_assemble import  my_assemble_main
 class CorePipeLine():
     def __init__(self,configuration_information):
         self.configuration_information=configuration_information

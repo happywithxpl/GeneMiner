@@ -7,8 +7,8 @@
 import sys
 import os
 import multiprocessing
-from basic import check_true,is_exist,is_exist_simple,get_file_list,is_fasta,is_gb
-from global_var import get_value ,set_value, get_init
+from lib.basic import check_true,is_exist,is_exist_simple,get_file_list,is_fasta,is_gb
+from lib.global_var import get_value ,set_value, get_init
 ###############################################
 
 '''
