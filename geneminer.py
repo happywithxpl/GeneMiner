@@ -37,6 +37,7 @@ cur_path = os.path.realpath(sys.argv[0])  # 脚本当前路径
 father_path = os.path.dirname(cur_path)  # 脚本的父目录
 sys.path.append(os.path.join(father_path, "lib"))
 
+from lib.global_var import get_init,set_value,get_value
 from lib.basic import *
 from lib.verify_parameters import *
 from lib.build_reference_database import *
@@ -44,12 +45,11 @@ from lib.core_pipeline import *
 from lib.bootstrap_pipeline import *
 from lib.pack_results import *
 
-gv._init_()  # 在basic 中已经申明过了
-
+get_init()  # 在basic 中已经申明过了
 
 def main(args):
     t1=time.time()
-    gv.set_value("my_gui_flag", 1)  # 用于判定GUI是否处于运行状态，1代表运行，0代表没有运行
+    set_value("my_gui_flag", 1)  # 用于判定GUI是否处于运行状态，1代表运行，0代表没有运行
     '''
     从程序外获得的参数信息
     '''
@@ -87,7 +87,7 @@ def main(args):
     # 校验信息
     check_python_version()
     out_dir = check_out_dir(out_dir)  # 输出文件夹检测
-    gv.set_value("out_dir", out_dir)
+    set_value("out_dir", out_dir)
 
     check_input(data1, data2, single)
     check_reference(target_reference_fa, target_reference_gb)
@@ -197,7 +197,7 @@ def main(args):
 if __name__ == "__main__":
     # signal.signal(signal.SIGINT, signal_handler)  # 检测函数终止退出（ctrl+c） #必须放在主程序中
     # multiprocessing.freeze_support()  # windows上Pyinstaller打包多进程程序需要添加特殊指令
-    # gv.set_value("my_gui_flag", 0)  # 用于判定脚本是否跑完，还可以防止run双击覆盖事件
+    # set_value("my_gui_flag", 0)  # 用于判定脚本是否跑完，还可以防止run双击覆盖事件
     parser = argparse.ArgumentParser(usage="%(prog)s <-1 -2|-s>  <-rtfa|rtgb>  <-o>  [options]",
                                      description="GeneMiner: a software for extracting phylogenetic markers from next generation sequencing data\n"
                                                  "Version: 1.0.0\n"

@@ -546,7 +546,6 @@ def get_ref_info(reference_list_path, ref_length_dict):
 获取filtered reads信息 平均长度==》总长度
 '''
 
-
 def get_reads_length(file):
     infile = gzip.open(file, 'rt') if file[-3:].lower() == ".gz" else open(file, 'r')
     temp_rec = [infile.readline(), infile.readline(), infile.readline(), infile.readline()]
@@ -555,7 +554,7 @@ def get_reads_length(file):
     line_limit = 100
     for _ in infile:
         if line_number < line_limit:
-            reads_length.append(len(temp_rec[1]))
+            reads_length.append(len(temp_rec[1].strip()))
             line_number += 1
             temp_rec = [_, infile.readline(), infile.readline(),
                         infile.readline()]  # 每次读取的第一行 如果换成infile.readline(),相当于在此基础上又读了一行

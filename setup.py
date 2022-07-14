@@ -22,15 +22,38 @@ import sys
 import setuptools
 from setuptools import setup
 
+
+'''compare version'''
+def compare_version(a: str, b: str):
+    lena = len(a.split('.'))  # Get the components of the version string
+    lenb = len(b.split('.'))
+    a2 = a + '.0' * (lenb-lena)  # Completing a when b is longer than a
+    b2 = b + '.0' * (lena-lenb)
+
+    for i in range(max(lena, lenb)):  # To compare each part, you need to convert to integers for comparison
+        if int(a2.split('.')[i]) > int(b2.split('.')[i]):
+            return 1
+        elif int(a2.split('.')[i]) < int(b2.split('.')[i]):
+            return 0
+        else:						# If they are equal at the end of the comparison, the first version is returned
+            if i == max(lena, lenb)-1:
+                return 1
+
+
+
 # python libs
 install_dependencies = []
 try:
     import Bio
-    print(Bio.__version__)
+    biopython_current=Bio.__version__
+    biopython_requirement="1.70"
+    flag=compare_version(biopython_current, biopython_requirement)
+    if not flag:
+        install_dependencies.append("biopython>=1.70")     
 except ImportError:
     install_dependencies.append("biopython>=1.70")
 else:
-    sys.stdout.write("Existed module numpy " + str(Bio.__version__) + "\n")
+    sys.stdout.write("Existed module biopython " + str(Bio.__version__) + "\n")
 
 
 

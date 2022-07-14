@@ -48,15 +48,14 @@ from lib.build_reference_database import *
 from lib.core_pipeline import *
 from lib.bootstrap_pipeline import *
 from lib.pack_results import *
-gv._init_()  # 在basic 中已经申明过了
+get_init()  # 在basic 中已经申明过了
 
 
 
 
 def main(args):
-    t1 = time.time()
-    gv.set_value("my_gui_flag", 1)  # 用于判定GUI是否处于运行状态，1代表运行，0代表没有运行
-
+    t1=time.time()
+    set_value("my_gui_flag", 1)  # 用于判定GUI是否处于运行状态，1代表运行，0代表没有运行
     '''
     从程序外获得的参数信息
     '''
@@ -69,137 +68,134 @@ def main(args):
     thread_number = args.thread
     k1 = args.kmer1
     k2 = args.kmer2
-    step_length=args.step_length
-    limit_count=args.limit_count
-    limit_min_length=args.limit_min_length
-    limit_max_length=args.limit_max_length
-    scaffold_or_not=args.scaffold
+    step_length = args.step_length
+    limit_count = args.limit_count
+    limit_min_length = args.limit_min_length
+    limit_max_length = args.limit_max_length
+    scaffold_or_not = args.scaffold
 
-    
-    change_seed=args.change_seed
+    change_seed = args.change_seed
     soft_boundary = args.soft_boundary
     max_length = args.max
     min_length = args.min
     data_size = args.data_size
     bootstrap_number = args.bootstrap_number
+    quiet=False
 
 
     data1 = get_absolute(data1)
     data2 = get_absolute(data2)
     single = get_absolute(single)
-    out_dir=get_absolute(out_dir)
+    out_dir = get_absolute(out_dir)
     target_reference_fa = get_absolute(target_reference_fa)
     target_reference_gb = get_absolute(target_reference_gb)
-
 
     # 校验信息
     check_python_version()
     out_dir = check_out_dir(out_dir)  # 输出文件夹检测
-    gv.set_value("out_dir", out_dir)
+    set_value("out_dir", out_dir)
 
-    check_input(data1,data2,single)
+    check_input(data1, data2, single)
     check_reference(target_reference_fa, target_reference_gb)
-    thread_number= check_threads_number(thread_number)  # 确定线程数量
+    thread_number = check_threads_number(thread_number)  # 确定线程数量
     k1 = check_k1(k1)  # 检测k1 filter
     k2 = check_k1(k2)  # 检测k1 filter
-    step_length=check_step_length(step_length) #步长
-    limit_count = check_limit_count(limit_count)#限定reads中最低kmercount
-    limit_min_length,limit_max_length = check_limit_length(limit_min_length,limit_max_length)#限定组装contig最短百分比长度，较于ref
-    change_seed = check_change_seed(change_seed)#种子更换策略最大次数
-    scaffold_or_not=check_scaffold(scaffold_or_not) #是否做scaffold
+    step_length = check_step_length(step_length)  # 步长
+    limit_count = check_limit_count(limit_count)  # 限定reads中最低kmercount
+    limit_min_length, limit_max_length = check_limit_length(limit_min_length,
+                                                            limit_max_length)  # 限定组装contig最短百分比长度，较于ref
+    change_seed = check_change_seed(change_seed)  # 种子更换策略最大次数
+    scaffold_or_not = check_scaffold(scaffold_or_not)  # 是否做scaffold
     soft_boundary = check_soft_boundary(soft_boundary)  # 检测软边界
     check_max_min_length(max_length, min_length)  # 检测基因最大最小长度
     data_size = check_datasize(data_size)  # 检测数据量 大小
-    bootstrap_information=check_bootstrap_parameter(bootstrap_number)#自展次数
+    bootstrap_information = check_bootstrap_parameter(bootstrap_number)  # 自展次数
 
-
-    #脚本信息
+    # 脚本信息
     cur_path = os.path.realpath(sys.argv[0])  # 脚本当前路径
     cur_path = os.path.dirname(cur_path)  # 脚本的父目录,father_path 覆盖
     filter_path = os.path.join(cur_path, "lib", "my_filter.py")
     assemble_path = os.path.join(cur_path, "lib", "my_assemble.py")
     muscle_path = os.path.join(cur_path, "lib", "muscle3")  # muscle3
-    #文件夹目录
+    # 文件夹目录
     reference_database = "reference_database"
     filtered_out = "filtered_out"
     assembled_out = "assembled_out"
     bootstrap_out = "bootstrap_out"
     GM_results = "GM_results"
 
-    #文件目录
-    results_log = "results.log"                       # bootstarp  将所有Bootstrap结果写在一起的fasta
+    # 文件目录
+    results_log = "results.log"  # bootstarp  将所有Bootstrap结果写在一起的fasta
     bootstrap_data_set = "bootstrap_data_set.fasta"
     bootstrap_concensus = "bootstrap_concensus.fasta"  # 导出共识序列
 
-    #其他信息
+    # 其他信息
     my_software_name = "GM"
     system = get_platform()
-
-
-
 
     printinfo = {"project name": out_dir,
                  "data1": data1, "data2": data2, "single": single,
                  "reference (fa)": target_reference_fa, "reference (gb)": target_reference_gb,
                  "k1": k1, "k2": k2, "threads": thread_number,
-                 "step length":step_length,
-                 "limit count":limit_count,
-                 "limit min lenght":limit_min_length,
+                 "step length": step_length,
+                 "limit count": limit_count,
+                 "limit min lenght": limit_min_length,
                  "limit max lenght": limit_max_length,
-                  "change seed":change_seed,
-                  "max length": max_length, "min length": min_length,
-                  "soft boundary": soft_boundary, "data size": data_size,
-                  "bootstrap": bootstrap_information[0],
-                  "bootstrap number": bootstrap_information[1],
-                                       }
-    configuration_information ={"out_dir": out_dir,
-                                "data1": data1, "data2": data2, "single": single,
-                                "rtfa": target_reference_fa, "rtgb": target_reference_gb,
-                                "k1": k1, "k2": k2, "thread_number": thread_number,
-                                "step_length":step_length,
-                                "limit_count":limit_count,
-                                "limit_min_length":limit_min_length,
-                                "limit_max_length": limit_max_length,
-                                "scaffold_or_not":scaffold_or_not,
-                                "change_seed":change_seed,
-                                "max_length": max_length, "min_length": min_length,
-                                "soft_boundary": soft_boundary, "data_size": data_size,
-                                "bootstrap": bootstrap_information[0],"bootstrap_number": bootstrap_information[1],
-                                "reference_database":reference_database,
-                                "filtered_out": filtered_out,"assembled_out":assembled_out,
-                                "bootstrap_out":bootstrap_out,
-                                "GM_results": GM_results,
-                                "results_log": results_log,
-                                "bootstrap_data_set":bootstrap_data_set,
-                                "bootstrap_concensus": bootstrap_concensus,
-                                "my_software_name":my_software_name,
-                                "system":system,
-                                "filter_path":filter_path,"assemble_path":assemble_path,"muscle_path":muscle_path
+                 "change seed": change_seed,
+                 "max length": max_length, "min length": min_length,
+                 "soft boundary": soft_boundary, "data size": data_size,
+                 "bootstrap": bootstrap_information[0],
+                 "bootstrap number": bootstrap_information[1],
+                 }
+    configuration_information = {"out_dir": out_dir,
+                                 "data1": data1, "data2": data2, "single": single,
+                                 "rtfa": target_reference_fa, "rtgb": target_reference_gb,
+                                 "k1": k1, "k2": k2, "thread_number": thread_number,
+                                 "step_length": step_length,
+                                 "limit_count": limit_count,
+                                 "limit_min_length": limit_min_length,
+                                 "limit_max_length": limit_max_length,
+                                 "scaffold_or_not": scaffold_or_not,
+                                 "change_seed": change_seed,
+                                 "max_length": max_length, "min_length": min_length,
+                                 "soft_boundary": soft_boundary, "data_size": data_size,
+                                 "bootstrap": bootstrap_information[0], "bootstrap_number": bootstrap_information[1],
+                                 "reference_database": reference_database,
+                                 "filtered_out": filtered_out, "assembled_out": assembled_out,
+                                 "bootstrap_out": bootstrap_out,
+                                 "GM_results": GM_results,
+                                 "results_log": results_log,
+                                 "bootstrap_data_set": bootstrap_data_set,
+                                 "bootstrap_concensus": bootstrap_concensus,
+                                 "my_software_name": my_software_name,
+                                 "system": system,
+                                 "filter_path": filter_path, "assemble_path": assemble_path, "muscle_path": muscle_path,
+                                 "quiet":quiet
 
-                                }
+                                 }
 
     print_parameter_information(printinfo)
 
-    #构建参考序列基因库
+    # 构建参考序列基因库
     my_bulid_reference_database_pipeline(configuration_information)
-    #核心流程 过滤 拼接 校验
+    # 核心流程 过滤 拼接 校验
     my_core_pipeline = CorePipeLine(configuration_information)
     my_core_pipeline.filter_pipeline()
     my_core_pipeline.assemble_pipeline()
     my_core_pipeline.get_results_contig()
 
-    #自展检测
+    # 自展检测
     if bootstrap_number:
         my_bootstrap_pipeline_main(configuration_information)
 
     my_pack_results_pipeline_main(configuration_information)
 
-    t2 = time.time()
-    whole_time = format(t2 - t1, "6.2f")
+    t2=time.time()
+
+    whole_time=format(t2-t1,"6.2f")
+
     print("whole time: {}s".format(whole_time))
 
-
-    gv.set_value("my_gui_flag", 0)  # 用于判定GUI是否处于运行状态，1代表运行，0代表没有运行
 
 
 def geneminer_GUI():
@@ -410,7 +406,7 @@ def geneminer_GUI():
                     pass
             else:
                 try:
-                    file_to_show = gv.get_value("out_dir")
+                    file_to_show = get_value("out_dir")
                     if get_platform() == "windows":
                         os.startfile(file_to_show)
                     else:
@@ -425,7 +421,7 @@ def geneminer_GUI():
             ML1_length = -1
 
         # 1代表运行 0代表运行结束。
-        if event == 'Run' and gv.get_value("my_gui_flag") == 0:
+        if event == 'Run' and get_value("my_gui_flag") == 0:
             # 基本参数部分
             if values["-1-"]:
                 args.data1 = values["-1-"]
@@ -545,7 +541,7 @@ def geneminer_GUI():
 
 
         if event == "Reset":
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             values['-ML1-'] = ""
             ML1_length = -1  # 初始值赋值为-1，直接打印
             # 基础参数部分
@@ -628,7 +624,7 @@ def geneminer_GUI():
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)  # 检测函数终止退出（ctrl+c） #必须放在主程序中
     multiprocessing.freeze_support()  # windows上Pyinstaller打包多进程程序需要添加特殊指令
-    gv.set_value("my_gui_flag", 0)  # 用于判定脚本是否跑完，还可以防止run双击覆盖事件
+    set_value("my_gui_flag", 0)  # 用于判定脚本是否跑完，还可以防止run双击覆盖事件
 
 
 

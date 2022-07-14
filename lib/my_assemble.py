@@ -193,7 +193,6 @@ def get_reads_length(file, type, _number=100):
     reads_length = []
     number = 0
     number_limit = _number
-
     if type == "fastq":
         infile = gzip.open(file, 'rt') if file[-3:].lower() == ".gz" else open(file, 'r')
         for _ in infile:

@@ -22,7 +22,7 @@ def check_python_version():
             "The minimum supported Python version is {}.{}.".format(*min_version),
             "Please download the eligible version from https://www.python.org/.".format(*this_python)]
         print("ERROR: " + " ".join(message_parts))
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
 ##############################################################
@@ -72,7 +72,7 @@ def check_threads_number(thread):
             thread = int(thread)
             if thread > thread_number_all:
                 print("Number of threads exceed the  maximum, please check the -t parameter")
-                gv.set_value("my_gui_flag", 0)
+                set_value("my_gui_flag", 0)
                 sys.exit()
             elif thread <= 0:
                 print("Number of threads shuold exceed  0, please check the -t parameter")
@@ -81,7 +81,7 @@ def check_threads_number(thread):
 
         else:  #防止输入乱七八糟的东西
             print("The number of threads must be an integer greater than 0, please check the -t parameter")
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
 
     return thread_number
@@ -95,7 +95,7 @@ def check_k1(k1):
     min = 17
     if k1 < min or k1 > max:
         print("K1 ranges from 17 to 127, please check the -k1 parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     else:
         k2 = k1
@@ -109,7 +109,7 @@ def check_k2(k2):
     min=17
     if k2<min or k2>max:
         print("K2 ranges from 17 to 127, please check the -k2 parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     else:
         k2=k2
@@ -124,7 +124,7 @@ def check_step_length(step_length):
     min=1
     if step_length<min or step_length>max:
         print("Step_length ranges from 1 to 10, please check the -step_length parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     else:
         step_length=step_length
@@ -139,7 +139,7 @@ def check_limit_count(limit_count):
         min = 0
         if limit_count < min:
             print("Limit_count cannot be less than 0, please check the -limit_count parameter")
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
 
     elif isinstance(limit_count,str): #字符型
@@ -147,13 +147,13 @@ def check_limit_count(limit_count):
         set = ["auto", "AUTO", "Auto"]
         if limit_count not in set:
             print("Unsupported value encountered, please check the -limit_count parameter")
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
         else:
             limit_count="auto"
     else:
         print("Unsupported value encountered, please check the -limit_count parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
     return limit_count
@@ -167,14 +167,14 @@ def check_limit_length(limit_min_length,limit_max_length):
     min = 0
     if limit_min_length <= min:
         print("Limit_min_length is greater than 0, please check the -limit_min_length parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     else:
         limit_min_length=limit_min_length
 
     if limit_max_length <= min:
         print("Limit_max_length is greater than 0, please check the -limit_max_length parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     else:
         limit_max_length=limit_max_length
@@ -188,7 +188,7 @@ def check_change_seed(change_seed):
     min=0
     if change_seed<min :
         print("Change_seed cannot be less than 0, please check the -change_seed parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     else:
         change_seed=change_seed
@@ -201,7 +201,7 @@ def check_scaffold(scaffold):
         scaffold_or_not=scaffold_or_not
     else:
         print("Unsupported value encountered, please check the -scaffold parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     return scaffold_or_not
 
@@ -217,7 +217,7 @@ def check_soft_boundary(soft_boundary):
     if soft_boundary > max or soft_boundary < min:
         print(
             "The length of the soft boundary ranges from 0 to 200, and the recommended length is 0.5 * reads_length, please check the -b parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     else:
         soft_boundary = soft_boundary
@@ -229,17 +229,17 @@ def check_soft_boundary(soft_boundary):
 def check_max_min_length(max_length,min_length):
     if max_length<= min_length:
         print("The maximum gene length should be greater than the minimum gene length, please check the -max parameter ")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
     if max_length<=0:
         print("The maximum gene length should be greater than zero, please check the -max parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
     if min_length <= 0:
         print("The minimum gene length should not be less than zero, please check the -min parameter")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
 
@@ -258,11 +258,11 @@ def check_reference(target_reference_fa, target_reference_gb):
 
     if ref_list==[]:
         print("Please input reference,check the -rtfa,-rtgb ")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
     if len(ref_list)==2:
         print("Please choose only one parameter from -rtfa and -rtgb")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
 
@@ -272,7 +272,7 @@ def check_reference(target_reference_fa, target_reference_gb):
     for i in ref_list:
         if not is_exist_simple(i):  #没用is_exist 用的is_exit_simple
             print("{}: xx the file does not exist".format(i))
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
     # 格式是否正确   0代表文件夹 1代表文件
     if target_reference_fa in ref_list:
@@ -290,7 +290,7 @@ def check_reference(target_reference_fa, target_reference_gb):
             else:
                 Nonconforming_file = ",".join(Nonconforming_file)
                 print("{} are not in fasta format".format(Nonconforming_file))
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
     elif target_reference_gb in ref_list:
         Nonconforming_file = []  # 记录不合格的文件
@@ -307,7 +307,7 @@ def check_reference(target_reference_fa, target_reference_gb):
             else:
                 Nonconforming_file = ",".join(Nonconforming_file)
                 print("{} are not in GenBank-format".format(Nonconforming_file))
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
     else:
         pass
@@ -331,14 +331,14 @@ def check_datasize(data_size):
             print(
                 "Please check -n parameter. for better results, input data should not be less than {0} lines.".format(
                     min_data_size))
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
         else:
             ultimate_data_size = data_size - data_size % 100000  # 10w起步，保证是4的倍数
         return ultimate_data_size
     else:
         print("Please check -n parameter, it must be an integer greater than {} or 'all' ".format(min_data_size))
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
 
@@ -350,17 +350,17 @@ def check_input(data1, data2, single):
     #是否存在
     if (data1 == None or data2 == None) and single == None:
         print("Please choose only one parameter from <-1 -2> and <-s>")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
     if data1 and data2  and single:
         print("Please choose only one parameter from <-1 -2> and <-s>")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
     if (data1 == None and data2 != None) or (data1 != None and data2 == None):
         print("You must choose both the -1 and -2 ")
-        gv.set_value("my_gui_flag", 0)
+        set_value("my_gui_flag", 0)
         sys.exit()
 
     #后缀是否正确
@@ -370,13 +370,13 @@ def check_input(data1, data2, single):
     for i in input_data:
         if not is_exist(i):
             print("{}:the file does not exist".format(i))
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
         if ".fastq.gz" in i or ".fq.gz" in i or ".fq" in i  or ".fastq" in i:
             pass
         else:
             print("{}:the file need .fq/.fastq/.fq.gz/.fastq.gz as the suffix".format(i))
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
 
 
@@ -396,7 +396,7 @@ def check_bootstrap_parameter(bootstrap_number):
     else:
         if  bootstrap_number <= 0:
             print("The number must be greater than 0, please check the -bn parameter")
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit()
         else:
             flag = "Yes"
@@ -416,7 +416,7 @@ def check_out_dir(out):
             out_dir_name = out
         else:
             print("{} already exists and there are files under the folder, please check the -o parameter".format(out))
-            gv.set_value("my_gui_flag", 0)
+            set_value("my_gui_flag", 0)
             sys.exit(0)
     else:
         out_dir_name = out

@@ -18,9 +18,7 @@ import shutil
 import re
 import time
 from collections import  defaultdict
-
-import global_var as gv
-
+from global_var import get_init,set_value,get_value
 
 ################################################################
 ##################################################################
@@ -35,7 +33,7 @@ import global_var as gv
 '''
 def signal_handler(signal, frame):
     print("GeneMiner has been terminated")
-    gv.set_value("my_gui_flag", 0)
+    set_value("my_gui_flag", 0)
     sys.exit(0)
 '''
 判断文件是否为fasta格式
@@ -359,7 +357,7 @@ def get_seq_from_name(file,name_list):
 '''
 从fasta序列中获取seq，可指定条目
 '''
-def get_seq(fasta_file,max_seq_number=100,seq_count_limit=False):
+def get_seq_v01(fasta_file,max_seq_number=100,seq_count_limit=False):
     infile = open(fasta_file, 'r', encoding='utf-8', errors='ignore')
     seq, name = "", ""
     my_list = []
@@ -385,6 +383,46 @@ def get_seq(fasta_file,max_seq_number=100,seq_count_limit=False):
                 break
     infile.close()
     return my_list
+
+
+'''
+获得序列
+structure:  [{gene1:seq1},{gene2:seq2}]
+'''
+def get_seq(fasta_file, max_seq_number=100, seq_count_limit=False):
+    infile = open(fasta_file, 'r', encoding='utf-8', errors='ignore')
+    seq, name = "", ""
+    my_list = []
+    seq_number = 0
+    while True:
+        line = infile.readline()
+        line = line.strip()
+
+        line_back=line                #防止一整行都是"N"导致程序中断，从而保证退出条件仅为 "文件读完毕"
+
+        if line and line[0]!=">":
+            line = line.replace("N", "")  # 特定对于scaffold
+
+        if (line.startswith('>') or (not line and not line_back)  ) and name:  # 保证最后一条序列能能在保存后退出
+            temp = {}
+            temp = {name: seq}
+            my_list.append(temp)
+            seq_number += 1
+        if line.startswith('>'):
+            name = line[1:]  # 包含了description
+            seq = ''
+        else:
+            seq += line
+
+        if not line and not line_back: #唯一退出条件 读完文件，而非N导致
+            break
+        if seq_count_limit and max_seq_number:
+            if seq_number >= max_seq_number:
+                break
+    infile.close()
+    return my_list
+
+
 
 
 def get_gap_information(alignment_seq):

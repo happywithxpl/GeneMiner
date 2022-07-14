@@ -5,9 +5,10 @@
 # @File    : global_var.py
 # @Software: PyCharm
 
-def _init_():#初始化
+def get_init():#初始化
     global _global_dict
     _global_dict = {}
+
 
 def set_value(key,value):
     """ 定义一个全局变量 """
@@ -21,3 +22,5 @@ def get_value(key,defValue=None):
         return _global_dict[key]
     except KeyError:
         return defValue
+
+
