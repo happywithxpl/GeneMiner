@@ -2,24 +2,18 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/9/14 16:19
 # @Author  : xiepulin
-# @File    : bootstrap_verify_pipeline.py
+# @File    : bootstrap_pipeline.py
 # @Software: PyCharm
 import shutil
 import time
-import argparse
 import sys
-import subprocess
-import datetime
 import os
-from Bio import SeqIO
 from concurrent import futures
-from Bio import pairwise2
 import random
-import re
 from  collections import  defaultdict
-from basic import get_basename,get_fasta_file,run_command,get_file_list,is_exist,mylog,cutting_line,get_files,get_identity,get_identity_and_mutate_model
-from my_filter import *
-from my_assemble import *
+from basic import get_basename,get_fasta_file,get_file_list,is_exist,mylog,cutting_line,get_files,get_identity,get_identity_and_mutate_model
+from my_filter import  my_filter_main
+from my_assemble import  my_assemble_main
 
 ################################################
 #################################################

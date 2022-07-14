@@ -6,29 +6,36 @@
 # @Software: PyCharm
 
 import argparse
-import multiprocessing
-import os
-import re
-import shutil
-import signal
-import subprocess
 import sys
+import subprocess
+import datetime
+import os
+import logging
+import re
+import multiprocessing
+import signal
+import threading
+import time
+import math
 import platform
 from collections import  defaultdict
+import shutil
+import random
 import gzip
 import gc
+import csv
 import copy
-import threading
-import  math
+from concurrent.futures import ProcessPoolExecutor
+from concurrent import futures
 
 '''
 导入第三方库（非标准库）
 '''
-from Bio import pairwise2
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
-from concurrent import futures
+from Bio import pairwise2
+
 import PySimpleGUI as sg
 
 
@@ -40,14 +47,13 @@ father_path = os.path.dirname(cur_path)  # 脚本的父目录
 sys.path.append(os.path.join(father_path, "lib"))
 
 
-from lib.basic import *
 from lib.global_var import get_init,set_value,get_value
-
-from lib.verify_parameters import *
-from lib.build_reference_database import *
-from lib.core_pipeline import *
-from lib.bootstrap_pipeline import *
-from lib.pack_results import *
+from lib.basic import get_absolute,get_platform,ML_str_re
+from lib.verify_parameters import check_true,check_input,check_k1,check_scaffold,check_datasize,check_k2,check_reference,check_change_seed,check_out_dir,check_limit_count,check_limit_length,check_step_length,check_max_min_length,check_bootstrap_parameter,check_soft_boundary,check_python_version,check_threads_number,print_parameter_information,signal_handler
+from lib.build_reference_database import my_bulid_reference_database_pipeline
+from lib.core_pipeline import CorePipeLine
+from lib.bootstrap_pipeline import my_bootstrap_pipeline_main
+from lib.pack_results import my_pack_results_pipeline_main
 get_init()  # 在basic 中已经申明过了
 
 

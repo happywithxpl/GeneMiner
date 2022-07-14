@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Time    : 2022/6/17 23:04
-# @Author  : xiepulin
-# @File    : kkkk my_filter 静默输出.py
-# @Software: PyCharm
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # @Time    : 2022/3/6 15:58
 # @Author  : xiepulin
 # @File    : my_filter.py
