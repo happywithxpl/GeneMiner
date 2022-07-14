@@ -18,7 +18,9 @@ import shutil
 import re
 import time
 from collections import  defaultdict
-from global_var import get_init,set_value,get_value
+
+
+
 
 ################################################################
 ##################################################################
@@ -28,13 +30,7 @@ from global_var import get_init,set_value,get_value
 ###################################################################
 ###################################################################
 
-'''
-检测终止信号，优雅退出
-'''
-def signal_handler(signal, frame):
-    print("GeneMiner has been terminated")
-    set_value("my_gui_flag", 0)
-    sys.exit(0)
+
 '''
 判断文件是否为fasta格式
 '''

@@ -7,7 +7,17 @@
 
 import multiprocessing
 from basic import *
+from global_var import get_value ,set_value, get_init
 ###############################################
+
+'''
+检测终止信号，优雅退出
+'''
+def signal_handler(signal, frame):
+    print("GeneMiner has been terminated")
+    set_value("my_gui_flag", 0)
+    sys.exit(0)
+
 '''
 检测系统环境部分
 (1)python版本

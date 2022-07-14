@@ -32,10 +32,8 @@ from concurrent import futures
 import PySimpleGUI as sg
 
 
-
-
 my_version = 'Version 1.0b build 20220122'
-my_cite = 'Cite: https://github.com/sculab/Geneminer '
+my_cite = 'Cite: https://github.com/happywithxpl/GeneMiner'
 
 cur_path = os.path.realpath(sys.argv[0])  # 脚本当前路径
 father_path = os.path.dirname(cur_path)  # 脚本的父目录
@@ -43,6 +41,8 @@ sys.path.append(os.path.join(father_path, "lib"))
 
 
 from lib.basic import *
+from lib.global_var import get_init,set_value,get_value
+
 from lib.verify_parameters import *
 from lib.build_reference_database import *
 from lib.core_pipeline import *
