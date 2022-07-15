@@ -1,7 +1,10 @@
 # GeneMiner
-# overview
 
-GeneMiner is a software for extracting phylogenetic markers from second-generation sequencing (NGS) data.
+
+
+# Overview
+
+GeneMiner is a software for extracting phylogenetic markers from next generation sequencing (NGS) data.
 
 GeneMiner uses a K-mer filtering method to obtain reliable reads, then a weighted seed extension algorithm based on de Bruijn graph method to mine target sequences by assembling small target regions of short-read sequencing datasets, and finally the results are verified by an iterative method based on the base substitution model.
 
@@ -23,17 +26,21 @@ GeneMiner is an easy-to-use software written in python, which is is provided for
 
 Users on Windows, macOS and Linux computers can run GeneMiner directly from the command line. we also offer a more convenient GUI version for Windows and macOS users.
 
-## **GeneMiner with GUI**
+## GeneMiner with GUI
 
-We strongly recommend using the GUI version for users who are not familiar with the command line or light use.Download the corresponding version of the packaged GUI from xx and double click to run it.
+We strongly recommend using the GUI version for users who are not familiar with the command line or light use.Download the corresponding version of the packaged GUI from [here](:https://github.com/happywithxpl/GeneMiner/releases) and double click to run it.
 
 ![图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/GeneMiner_GUI.png)
 
-## GeneMiner with command line
+## **GeneMiner with command line**
 
 - option1  **Cloning the repo**
+
 - option2  **Source distribution** 
+
 - option3  **Flexible construction**
+
+  
 
 **Cloning the repo**  (support)
 
@@ -65,7 +72,7 @@ geneminer.py -h
 
 If both of the above methods fail or you want to have a deeper control of GeneMiner, you can use a more flexible method
 
-- Download the GeneMiner's distribution from here .
+- Download the GeneMiner's distribution from  [here](:https://github.com/happywithxpl/GeneMiner/releases).
 
 ```shell
 wget https://github.com/happywithxpl/GeneMiner/geneminer-1.0.0-linux-x86_64.tar.gz `
@@ -98,9 +105,11 @@ geneminer.py -h
 
 # Running GeneMiner
 
-Without any options, minimap2 takes a reference database and a query sequence file as input and produce phylogenetic markers.We have prepared a simulated dataset of Arabidopsis thaliana to help you quickly use GeneMiner.you can download them from here xx
+Without any options, GeneMiner takes a reference database and a query sequence file as input and produce phylogenetic markers.We have prepared a simulated dataset of `Arabidopsis thaliana` to help you quickly use GeneMiner.you can download them from [here](https://github.com/happywithxpl/GeneMiner-Test).
 
 
+
+## GeneMiner-cmd
 
 - Mining single target sequence from skimming whole genome sequencing (WGS).
 
@@ -113,7 +122,6 @@ geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -rtfa ITS.fasta -o 
 `-rtfa`:  reference sequences in fasta format. 
 
 `-o`:        the output directory
-
 
 
 
@@ -137,7 +145,8 @@ geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -rtgb cp.gb -o cp_o
 - Mining multiple target sequences from skimming WGS and evaluating the accuracy of the results.
 
 ```shell
-geneminer.py -1 skimming_data1.fq.gz  -2 skimming_data2.fq.gz -rtfa Ref_cp -min 300 -max 5000 -limit_count 3 -t 4 -bn 20 -o cp_verify_out3`
+geneminer.py -1 skimming_data1.fq.gz  -2 skimming_data2.fq.gz -rtfa Ref_cp 
+-min 300 -max 5000 -limit_count 3 -t 4 -bn 20 -o cp_verify_out3`
 ```
 
 `min`: The maximum length of contigs
@@ -155,12 +164,27 @@ geneminer.py -1 skimming_data1.fq.gz  -2 skimming_data2.fq.gz -rtfa Ref_cp -min 
 - Mining Angiosperm 353 genes from  transcriptome data
 
 ```shell
-geneminer.py -1 Arabidopsis_thaliana_sim_353_data1.fq.gz -2 Arabidopsis_thaliana_sim_353_data1.fq.gz -rtfa Ref_353 -k1 29 -k2 41 -t 4  -o Angiosperm_353_out4
+geneminer.py -1 Arabidopsis_thaliana_sim_353_data1.fq.gz -2 Arabidopsis_thaliana_sim_353_data1.fq.gz -rtfa Ref_353 -k1 29
+-k2 41 -t 4  -o Angiosperm_353_out4
 ```
 
 `k1`:  Specify the length of the k-mer to filter reads
 
 `k2`:  Specify the length of the k-mer to assemble reads
+
+
+
+## GeneMiner-GUI
+
+GeneMiner-GUI is easy to use and suitable for lightweight development. Considering the memory and time overhead, we recommend you to use GeneMiner-cmd when you need to run large scale data
+
+For GeneMiner-GUI, you must set `Data1`, `Data2` or `Single reads` under the `Data` module、`Ref.(fasta)` or `Ref.(gb)` under the `Reference` module and  `Output Folder` under the `Outout` module as shown in the image below
+
+![图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/run_GeneMiner_GUI.png)
+
+
+
+## View results
 
 Now, you can view the results of GeneMiner in the output directory.
 
@@ -177,3 +201,11 @@ The output directory contains  `reference_database`、`filtered_out <folder>` �
 `bootstrap_out <folder> ` :Used to store assessment results, If you have used the `-bn` parameter
 
 `results.csv <file>` :Record various information about the target sequences
+
+
+
+# User manual
+
+A more complete manual is here: https://github.com/happywithxpl/GeneMiner/blob/main/GeneMiner_User_Guide.md
+
+# Contact
