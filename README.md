@@ -151,8 +151,7 @@ geneminer.py -1 skimming_data1.fq.gz  -2 skimming_data2.fq.gz -rtfa Ref_cp
 - Mining Angiosperm 353 genes from  transcriptome data
 
 ```shell
-geneminer.py -1 Arabidopsis_thaliana_sim_353_data1.fq.gz -2 Arabidopsis_thaliana_sim_353_data1.fq.gz -rtfa Ref_353 -k1 29
--k2 41 -t 4  -o Angiosperm_353_out4
+geneminer.py -1 Arabidopsis_thaliana_sim_353_data1.fq.gz -2 Arabidopsis_thaliana_sim_353_data1.fq.gz -rtfa Ref_353 -k1 29 -k2 41 -t 4  -o Angiosperm_353_out4
 ```
 
 `k1`:  Specify the length of the k-mer to filter reads
