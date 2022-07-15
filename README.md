@@ -27,6 +27,8 @@ Users on Windows, macOS and Linux computers can run GeneMiner directly from the 
 
 We strongly recommend using the GUI version for users who are not familiar with the command line or light use.Download the corresponding version of the packaged GUI from xx and double click to run it.
 
+![图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/GeneMiner_GUI.png)
+
 ## GeneMiner with command line
 
 - option1  **Cloning the repo**
@@ -160,4 +162,18 @@ geneminer.py -1 Arabidopsis_thaliana_sim_353_data1.fq.gz -2 Arabidopsis_thaliana
 
 `k2`:  Specify the length of the k-mer to assemble reads
 
-![图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/GeneMiner_GUI.png)
+Now, you can view the results of GeneMiner in the output directory.
+
+The output directory contains  `reference_database`、`filtered_out <folder>` 、`assembled_out`、 `GM_results`、`bootstrap_out `  and `results.csv` .
+
+`reference_database <folder>  `: Used to store reference sequence datasets
+
+`filtered_out <folder>`：Used to store filtered reads
+
+`assembled_out <folder>`: Used to store assembled contigs 
+
+`GM_results <folder>`:Used to store all the target sequences mined by GeneMiner
+
+`bootstrap_out <folder> ` :Used to store assessment results, If you have used the `-bn` parameter
+
+`results.csv <file>` :Record various information about the target sequences
