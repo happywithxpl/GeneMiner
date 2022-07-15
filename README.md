@@ -107,8 +107,11 @@ geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -rtfa ITS.fasta -o 
 ```
 
 `-1`,`-2`:  the input files with paired-end reads, given in FASTQ format.
+
 `-rtfa`:  reference sequences in fasta format. 
+
 `-o`:        the output directory
+
 
 
 
@@ -132,8 +135,7 @@ geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -rtgb cp.gb -o cp_o
 - Mining multiple target sequences from skimming WGS and evaluating the accuracy of the results.
 
 ```shell
-geneminer.py -1 skimming_data1.fq.gz  -2 skimming_data2.fq.gz -rtfa Ref_cp 
--min 300 -max 5000 -limit_count 3 -t 4 -bn 20 -o cp_verify_out3`
+geneminer.py -1 skimming_data1.fq.gz  -2 skimming_data2.fq.gz -rtfa Ref_cp -min 300 -max 5000 -limit_count 3 -t 4 -bn 20 -o cp_verify_out3`
 ```
 
 `min`: The maximum length of contigs
