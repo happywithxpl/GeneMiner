@@ -160,5 +160,4 @@ geneminer.py -1 Arabidopsis_thaliana_sim_353_data1.fq.gz -2 Arabidopsis_thaliana
 
 `k2`:  Specify the length of the k-mer to assemble reads
 
-
-[图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/GeneMiner_GUI.png)
+![图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/GeneMiner_GUI.png)
