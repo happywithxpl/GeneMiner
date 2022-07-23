@@ -1,7 +1,4 @@
 
-
-[TOC]
-
 # Overview
 
 GeneMiner is a software for extracting phylogenetic markers from next generation sequencing (NGS) data. With GeneMiner, users can accurately and efficiently obtain a large number of target sequences from a wide range of histological data at a very low cost, such as: all or part of the chloroplast/mitochondrial genome, highly repetitive regions in the nuclear genome (e.g. nrDNA), etc. from shallow whole-genome sequencing data; single-low copy genes from transcriptome sequencing data, etc. GeneMiner improves existing phylogenetic research strategies at the most basic data level, and has significant advantages in reducing experimental costs and expanding phylogenetic marker selection. In addition, GeneMiner can be applied to the extraction of DNA barcodes, customs inspection and quarantine, mining of specific functional genes and other research, which has broad application prospects.
