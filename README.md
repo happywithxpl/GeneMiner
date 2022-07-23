@@ -199,7 +199,7 @@ A more complete manual is here: https://github.com/happywithxpl/GeneMiner/blob/m
 
 # Contact
 
-Please check [Geneminer's homepage](https://github.com/happywithxpl/GeneMiner) first. If your question is running specific,please do not be surprised and report it to us. We usually have quick response to bugs.
+Please check [Geneminer's homepage](https://github.com/happywithxpl/GeneMiner) first. If your question is running specific, please do not be surprised and report it to us. We usually have quick response to bugs.
 
 - Find Questions & Answers at [GeneMiner Discussions](https://github.com/happywithxpl/GeneMiner/discussions/categories/q-a): **Recommended**
 - Report Bugs & Issues at [GeneMiner Issues](https://github.com/happywithxpl/GeneMiner/issues): Please avoid repetitive or irrelevant issues
