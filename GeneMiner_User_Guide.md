@@ -1,550 +1,711 @@
-# GeneMiner
-​		Thank you for choosing miner. This document will help you learn how to use GeneMiner. Please note that GeneMiner is still in the testing stage, so this document may be updated in a future version upgrade.
-If you have any questions, you can contact xiepulin@stu.scu.edu.cn  or 15162176893@163.com
+<h1 align="center">GeneMiner Manual</h1>
+
+
 
 [TOC]
 
+# 1. Overview
+
+​		GeneMiner is a software for extracting phylogenetic markers from next generation sequencing (NGS) data.With GeneMiner, users can accurately and efficiently obtain a large number of target sequences from a wide range of histological data at a very low cost, such as: all or part of the chloroplast/mitochondrial genome, highly repetitive regions in the nuclear genome (e.g. nrDNA), etc. from shallow whole-genome sequencing data; single-low copy genes from transcriptome sequencing data, etc. GeneMiner improves existing phylogenetic research strategies at the most basic data level, and has significant advantages in reducing experimental costs and expanding phylogenetic marker selection. In addition, GeneMiner can be applied to the extraction of DNA barcodes, customs inspection and quarantine, mining of specific functional genes and other research, which has broad application prospects.
+
+# 2. Download and install
+
+​		GeneMiner is open source under the GPL-3.0 license, which is distributed through the github repository (https://github.com/happywithxpl/GeneMiner/releases). Please be sure to follow our github page to stay up-to-date with the latest code changes. We do not provide any support for previous versions of the code! Version numbers follow the notation x.y.z, where x changes with major code reorganizations, y changes when new features are added, and z changes with bug fixes.
+
+​		GeneMiner is an easy-to-use software written in python, which is is provided for x86-64 systems running GNU/Linux, macOS (version 10.13 or higher) and Windows (64-bit, version 7 or higher).
+
+​		Users on Windows, macOS and Linux computers can run GeneMiner directly from the command line. we also offer a more convenient GUI version for Windows and macOS users.
+
+## 2.1 GeneMiner with GUI
+
+​		We strongly recommend using the GUI version for users who are not familiar with the command line or light use.Download the corresponding version of the packaged GUI from [here](:https://github.com/happywithxpl/GeneMiner/releases) and double click to run it.
+
+![](picture/GeneMiner_GUI-16580658835161.png)
+
+## **2.2 GeneMiner with command line**
 
 
-# 1. About GeneMiner
 
-​	 GeneMiner (gene miner) is a software used to mine genes from next-generation sequencing (NGS) data. It can obtain high-quality specific target genes from very low-quality and deep source data. For example, accurately extract all or part of chloroplast / mitochondrial genes and highly repetitive regions in nuclear genome (such as nrDNA) from skimming genome sequencing data; A large number of single copy phylogenetic markers were extracted from transcriptome sequencing data; Obtaining environmental response genes of specific microorganisms from macrogenomic data. It can be widely used in phylogenetic and evolutionary research, customs inspection and quarantine, mining of specific functional genes, etc. it has significant advantages in reducing sequencing cost and expanding gene selection. GeneMiner's result is very accurate. In the real experimental verification, it reaches or is close to the result of next-generation sequencing. Even if the similarity between the reference sequence and the target sequence is less than 90%, it can still rely on the gradient approximation algorithm to obtain 100% accurate results. The software innovatively proposes a verification method based on self-developed detection, which can repeatedly verify the target sequence without relying on the reference sequence, and output a more reliable consistent sequence. Based on a large number of optimization at the algorithm level, GeneMiner has excellent computing speed and memory consumption. It supports multi-threaded parallelism and makes full use of computer resources. It can be deployed on high-performance computing clusters or ordinary personal computers. GeneMiner is very user-friendly and supports various mainstream operating systems of windows, MAC and Linux. Users can choose command-line interface or graphical interface.
+### **2.2.1 Cloning the repo  (support)**
 
-# 2. Downloading GeneMiner
-​		GeneMiner is open source under MIT license. It is distributed through the github Repository: https://github.com/sculab/GeneMiner , you can download the latest version at any time. Be sure to keep an eye on github to keep your code up to date. We do not provide any support for previous versions of code! The version number follows the symbol x.y.z, where x changes with major code reorganization, y changes when new features are added, and changes with bug fixes
-
-# 3. Installing GeneMiner
-
-## 3.1 For Linux users
-
-Automatic installation (recommended)
+Instead of downloading the source distribution as a compressed archive, you could clone the repo and build it as shown below.
 
 ```shell
-tar -zxvf geneminer.tar.gz  # decompression
-cd geneminer
-python setup.py   #according to the script prompt, automatically install the dependency and write GeneMiner into the environment variable
+git https://github.com/happywithxpl/GeneMiner.git
+cd GeneMiner
+python setup.py install --record logName --user
+geneminer.py -h
 ```
 
-Manual installation (used when automatic installation encounters problems)
+
+
+### **2.2.2 Source distribution** 
+
+Download the source distribution from a [release](https://github.com/bpp/bpp/releases)  and  install dependencies, use the following commands:
 
 ```shell
-tar -zxvf geneminer.tar.gz # decompression
-cd geneminer
-# Manually install the required libraries
-pip3 install  biopython --user
-pip3 install  pandas --user
-pip3 install  tqdm --user
-pip3 install  openpyxl --user
-pip3 install  pysimplegui --user
-#It can also be installed in batches according to the dependent file provided by the software
-pip3 install -r requirements.txt --user
-#Configure environment variables
+wget https://github.com/happywithxpl/Geneminer/geneminer-1.0.0-linux-x86_64.tar.gz
+tar geneminer_v1.0.0.tar.gz
+cd  GeneMiner_v1.0.0
+python setup.py install --record logName --user
+geneminer.py -h
+```
+
+
+
+### **2.2.3 Flexible construction**
+
+If both of the above methods fail or you want to have a deeper control of GeneMiner, you can use a more flexible method
+
+- Download the GeneMiner's distribution from  [here](:https://github.com/happywithxpl/GeneMiner/releases).
+
+```shell
+wget https://github.com/happywithxpl/GeneMiner/geneminer-1.0.0-linux-x86_64.tar.gz `
+tar -zvxf geneminer-1.0.0-linux-x86_64.tar.gz
+```
+
+- Use the following commands to make `geneminer.py`  executable.
+
+```shell
+cd geneminer-1.0.0
+chmod 755 geneminer.py
+```
+
+- Install python library `biopython` using pip or conda.
+
+```shell
+# install required libs
+pip install biopython --user
+```
+
+- Add `geneminer.py` to the `$PATH`.    
+
+```shell
 echo "export PATH=\$PATH:$(pwd)" >> ~/.bashrc
 source ~/.bashrc
+geneminer.py -h
 ```
 
-Close and restart the terminal to check whether the configuration is successful
+
+
+# 3. Quick start
+
+​		在使用GeneMiner挖掘特定目标序列之前，我们强烈建议您先了解自己的测序数据(来自Illumina、Roche-454、ABI或其他测序平台）的状况，包括测序方式、深度、质量、数据量大小等等，这有助于您对参数的合理选择。
+
+​		Before using GeneMiner to mine specific target sequences, we strongly recommend you to know the status of your sequencing data (from Illumina, Roche-454, ABI or other sequencing platforms), including sequencing method, depth, quality, data volume size, etc., which will help you to make a reasonable choice of parameters.
+
+​		Without any options, GeneMiner takes a reference database and a query sequence file as input and produce phylogenetic markers.We have prepared a simulated dataset of `Arabidopsis thaliana` to help you quickly use GeneMiner.you can download them from https://github.com/happywithxpl/GeneMiner-Test
+
+（1）Mining single target sequence
 
 ```shell
-geneminer -h # command line interface
+ geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta -o out
 ```
 
-## 3.2 For Mac users
+`-1`,`-2`:  the input files with paired-end reads, given in FASTQ format.
+`-rtfa`:  reference sequences in fasta format. 
+`-o`:        the output directory
 
-Download the corresponding version of the packaged graphical interface app and double-click it to run. (recommended)
-To manually configure the command line and GUI versions, use the following commands for automatic installation:
+注意：
+
+目标序列来源于近缘物种（同一个属或同一个科）的同源基因。
+
+如果一个目标序列有来源于一个或多个物种的同源基因，请把这些同源基因存放在一个fasta格式的文件里。如下：
+
+**NOTE：**Target sequences are derived from homologous genes of closely related species (same genus or family). If a target sequence has homologous genes from one or more species, please store these homologous genes in a fasta format file as a reference file .The file may look like this:
 
 ```shell
-tar -zxvf geneminer.tar.gz # decompression
-cd geneminer 
-python3 setup.py #according to the script prompt, automatically install the dependency and write GeneMiner into the environment variable
-```
-
-Install or use the following command manually:
-
-```shell
-tar -zxvf geneminer.tar.gz # decompression
-cd geneminer
-# Manually install the required libraries
-pip3 install  biopython --user
-pip3 install  pandas --user
-pip3 install  tqdm --user
-pip3 install  openpyxl --user
-pip3 install  pysimplegui --user
-#It can also be installed in batches according to the dependent file provided by the software
-pip3 install -r requirements.txt --user
-
-#Configure environment variables
-#For MacOS Catalina (10.15) and later systems:
-echo "export PATH=\$PATH:$(pwd)" >> ~/.zshrc
-source ~/.zshrc
-#For systems before MacOS Catalina (10.15):
-echo "export PATH=\$PATH:$(pwd)" >> ~/.bash_profile
-source ~/.bash_profile
-```
-
-关闭并重启终端，检测是否配置成功
-
-```shell
-geneminer -h # command line interface
-```
-
-## 3.3 For Windows users
-
-### 3.3.1 Install WSL for windows
-
-​		Because geneminer needs to use WSL in windows, it only supports windows 10 and later operating systems. WSL is not the default function of the system. You need to install WSL in the system first. For windows 10 version 2004 and later (build 19041 and later) or windows 11, you can use the following steps to install WSL. During the installation process, you need to connect to the Internet:
-
-- Run PowerShell as administrator: find windows PowerShell in the start menu, right-click and select run as administrator.
-- In the command line window that opens, enter:
-
-```shell
-wsl --install
-```
-
-- After the installation is completed, run WSL in the command line window to confirm that the installation is successful.
-
-```shell
-wsl
-```
-
-​		The first time you start a newly installed Linux distribution, a console window opens asking you to wait for the files to be extracted and stored on your computer. All future start-up times should be less than one second.
-
-​		For the old version of windows 10, it is recommended that you upgrade to the latest version or use the manual installation method of the old version. For details, please refer to the technical documents of Microsoft:
-
-- https://docs.microsoft.com/zh-cn/windows/wsl/install-manual
-
-### 3.3.2 Install packaged GUI applications (recommended)
-
-Download the corresponding version of the graphical interface application of geneminer and double-click to run it. Geneminer Windows version maual, see xxxxxxxxxxxxxxx for details
-
-### 3.3.3 Configuring command line interface applications
-
-​	To configure geneminer in the command line interface, you need to install Python version 3.6 or above in the system. You can also install Anaconda or miniconda. For the specific installation method, please refer to the official technical documents of Python and its different distributions. You can refer to the following steps to configure geneminier:
-Automatic installation
-
-- Download the windows installation package of geneminer and double-click to install automatically.
-  If the automatic installation encounters problems, you can perform a manual installation:
-
-
-Manual installation
-
-- Unzip: unzip the downloaded windows installation package to a specified folder, such as geneminer.
-- Open the command line and manually install the required libraries:
-
-```shell
-pip3 install  biopython --user
-pip3 install  pandas --user
-pip3 install  tqdm --user
-pip3 install  openpyxl --user
-pip3 install  pysimplegui --user
-#It can also be installed in batches according to the dependent file provided by the software
-pip3 install -r requirements.txt --user
-```
-
-- 将geneminer文件夹加入用户环境变量path中。
-- 关闭并重启终端，检测是否配置成功
-
-```shell
-geneminer -h # command line interface
-```
-
-# 4. Quick  start
-
-​	Before mining your sequencing data, we suggest you first understand your sequencing data, including sequencing method, depth, quality, data volume, etc. Our software is mainly applicable to the second-generation sequencing data returned by Illumina platform. Verified by a large number of test data, even for low sequencing depth (below 10x), GeneMiner can mine single copy nuclear gene, chloroplast gene and mito gene, and can also be used to mine single copy genes from transcriptome data.
-​	 The data used for hand training is stored in geneminer/example/
-
-(1) Mining single target gene
-
-```shell
- geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta 
-```
-
-data1.fq and data2.fq is the sequencing data returned from second-generation sequencing, and ref.fasta is the homologous gene of related species (same genus or same family). In this case,
-Note: each FASTA file can only store the same gene (it can be from different species) . As shown in the following example:
-
-```
->GeneA_species1
+>species1_GeneA
 ATCGATCG
->GeneA_species2
+>species2_GeneA
 ATCGATCC
->GeneA_species3
+>species3_GeneA
 ATTGATCC
+>species4_GeneA
+ATTGATCT
 ```
 
-(2) Mining multiple target genes
-Multiple files in FASTA format can be placed in one folder, and genes can be mined in batches
+
+
+(2) Mining multiple target sequences
+
+GeneMiner允许将多个参考文件存放在同一个文件夹以方便批量挖掘目标序列
+
+GeneMiner allows multiple  reference files to be stored in the same folder to facilitate batch mining of target sequences
 
 ```shell
- geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta
+#for fasta format
+geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa fasta_folder -o out
+#for GenBank format
+geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtgb GenBank_folder -o out
 ```
 
-（3）Batch mining of different types of genes
+`-rtfa`:  reference sequences in fasta format
+
+`-rtgb`:   reference sequences in GenBank format
+
+
+
+(3) Accuracy Assessment
 
 ```shell
- geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rcp cp.gb -rmito mito.gb
+geneminer.py -1 data1.fq.gz -2 data2.fq.gz  -rtfa  ref.fasta -bn 100 -o out
 ```
 
-cp.gb is the chloroplast reference genome in GenBank format, Mito GB is the mitochondrial reference genome in GenBank format, - rcp and - rmito are used to specify the reference genome type
+`-bn` Number of resampling based on base substitution model。
+
+基于核苷酸替换模型，GeneMiner对生成的结果序列反复重采样，从而在不依赖参考序列的情况下对结果进行准确性评估
+
+Based on the base substitution model, GeneMiner iteratively resamples the generated result sequences to evaluate the accuracy of the results without relying on the reference sequences
 
 
-（4）Evaluate reliability
 
-```shell
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta  -bn 10
+# 4. Detailed User Guide
+
+## 4.1 Input
+
+### 4.1.1 Reads Files
+
+​		GeneMiner assembles any type of next generation sequencing (NGS) reads, given in the FASTQ format. Giving paired or unpaired reads as input is OK, and keep in mind that GeneMiner will use pairing information. GeneMiner can direclty read compressed files in  `gzip` . Compressed files should end with  `.fq.gz` or .`fastq.gz` .
+
+```
+1	@ST-E00600:235:HFCTTALXX:1:1101:4752:1016 1:N:0:GGAGAACA
+2	NCCCTATCATTTCTGAGGGGTTACATTCTCATTCTCTCAACATAAATACAGAGACCACTTCACCAAACACACCAACTCTGTCTCTGGATGTTGATATGATAAACACATCAATTCCTGACACTCC
+	ATCTTAGTTCTTGGAGAGGCACCACT
+3	+
+4   #-FFFJJJJJJJJJJJ7JJ7J7JJJJ-J--JJ-JJJ-JJ7JJJJJJJJ-JJJ7J--J-J-JJJ-JJJ--JJJ--J--JJ-JJJJ7--J7--J7JJJJJJ77JJJJ7J-7JJ---J-JJ--JJ7-     J7JJ---JJ-JJ-JJJJJJJ-F>F>F
 ```
 
--bn : number of self-development tests. The method based on bootstrap idea is used to evaluate the accuracy of the results. The larger the self expanding detection value, the more time-consuming the calculation
 
-# 5.Detailed usage guide
 
-## 5.1 Parameter interpretation
+## 4.1.2 Reference files
 
-With geneminer-h, the computer displays all the options, and I'll explain how to use them and some tips below
+​		DNA sequences are stored in reference files in FASTA format or GenBank format. Each reference file contains one or more DNA sequence(s),which is the homologous genes from closely related species (same genus or family). In addition, GeneMiner allows multiple reference files to be stored in the same folder to facilitate batch mining of target sequences.
+
+(1)For a reference in FASTA format, it may look like this:
 
 ```shell
-geneminer -h
-usage: GeneMiner <-1 -2|-s|-12>  <-rn|rcp|-rmito|rt>  [options]
+>Aegopodium_podagraria
+TCGAATCCTGTGATAGCAGAACGACCCGCTAACTGGTAAATATATTGGGCAAGCTCATGGGGATTTTATCCCCTGTTGGTGAACCCTTGGTAGGTGGTCACTCCCCGGTTGCCACTGGCC
+>Anethum_foeniculum
+TCCTCCTTATCATTAGAGGAAGGAGAAGTCGTAACAAGGTTTCCGTAGGTGAACCTGCGG
+>Bupleurum_chinense
+AACAAGGTTTCCGTAGGTGAACCTGCGGAAGGATCATTGTCGAATCCTGAATCGAAGAGCGACCCGAGAACATGTTTTAAGACGGGGCCAGCGGTCGTCGGCCTCGGCCTGTCGGCTGCG
+>Chamaesium_paradoxum
+AAGTAACAAGGTTTCCGTAGGTGAACCTGCGGAAGGATCATTGTCGATGCCTGCAACAGCAGAATGACCCGTGAACACGTATAAAACATTGGGCTAGTAGATGGGGCGCAAGTTCCCGGA
+CATGAACCCCAGGACGGATG
+```
 
-GeneMiner: a software for extracting phylogenetic markers from skimming genome
-Version: 1.0
-Copyright (C) 2021 Pu-lin Xie
-Please contact <xiepulin@stu.edu.scu.cn>, if you have any bugs or questions
+**NOTE:** The reference's `filename` will be used as the name of the target sequence in GeneMiner.
+
+
+
+(2) For a reference in GenBank format, it may look like this:
+
+```shell
+LOCUS       Daucus_carota         155895 bp    DNA     circular UNA 28-FEB-2021
+DEFINITION  Daucus carota chloroplast, complete genome.
+ACCESSION   urn.local...2i-d2j4m7m
+VERSION     urn.local...2i-d2j4m7m
+KEYWORDS    .
+SOURCE      Daucus carota (carrot)
+  ORGANISM  Daucus carota
+            Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+            Spermatophyta; Magnoliophyta; eudicotyledons; Gunneridae;
+            Pentapetalae; asterids; campanulids; Apiales; Apiaceae; Apioideae;
+            Scandiceae; Daucinae; Daucus; Daucus sect. Daucus.
+FEATURES             Location/Qualifiers
+     source          1..155895
+                     /organism="Daucus carota"
+                     /organelle="plastid:chloroplast"
+                     /mol_type="genomic DNA"
+     tRNA            complement(6..77)
+                     /gene="trnH-GUG"
+                     /product="tRNA-His"
+                     /note="anticodon:GUG"
+                     /standard_name="trnH-GUG tRNA"
+     gene            complement(6..77)
+                     /gene="trnH-GUG"
+                     /standard_name="trnH-GUG gene"
+      ...
+
+   	ORIGIN      
+        1 ttgggcgaac gacgggaatt gaacccgcgc gtggtggatt cacaatccac tgccttgatc
+       61 cacttggcta catccgcccc gccagttttc ttttatttat ttgcatttca aaggattcct
+      121 ttttgatcat tcaaaaatat ttgtttatct aaaaaagtct taaataaata aaaaaggagc
+      181 aagaccgcct cttgatagaa caagaaagag gttattgctc cttttttaat atttcaaaaa
+      ...
+   155821 cgttcactaa aaaaaaaccc ttttgtagca aatcgtttat taagaaaaat tgataacctt
+   155881 aacacaaaag cagaa
+   //
+```
+
+**NOTE:** The `gene` name will be used as the name of the target sequence in GeneMiner.
+
+
+
+## **4.2 Explanation of parameters**
+
+Using `geneminer.py -h`, the computer will display all options.
+
+```shell
+GeneMiner: a software for extracting phylogenetic markers from next generation sequencing data
+Version: 1.0.0
+Copyright (C) 2022 Pulin Xie
+Please contact <xiepulin@stu.edu.scu.cn> if you have any questions
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help          show this help message and exit
 
 Basic option:
-  -1                    one end of paired-end reads,support fastq/fastq.gz/fastq.bz2 
-  -2                    another end of paired-end reads,support fastq/fastq.gz/fastq.bz2
-  -12                   interlaced forward and reverse paired-end reads,support fastq/fastq.gz/fastq.bz2
-  -s , --single         single-read,support fastq/fastq.gz/fastq.bz2
-  -o , --out            Specify the result folder [default='auto']
-  -rcp <file|dir>       reference of chloroplast genome,only support GenBank-format
-  -rmito <file|dir>     reference of mitochondrial genome,only support GenBank-format
-  -rtfa <file|dir>      References of target genes, only support fasta format
-  -rtgb <file|dir>      References of target genes, only support GenBank format
-  
+  -1                  File with forward paired-end reads (*.fq/.gz/.tar.gz)
+  -2                  File with reverse paired-end reads (*.fq/.gz/.tar.gz)
+  -s , --single       File with unpaired reads (*.fq/.gz/.tar.gz).
+  -o , --out          Specify the result folder 
+  -rtfa <file|dir>    References of target sequences, only support fasta format
+  -rtgb <file|dir>    References of target sequences, only support GenBank format
+
 Advanced option:
-  -n , --number         The number of rows of raw data from skimming genomes,default=1000000
-  -k , --kmer           size of a kmer  [default =31]
-  -max                  gene maximum length  [default =5000]
-  -min                  gene minimum length  [default =300]
-  -t , --thread         Specify the number of threads you want to run [default='auto']
-  -b , --boundary       extend the length to both sides of the gene while extracting                            					 genes from  Genebank file [default=75]
-  -sf                   Select the reference sequences to reduce the computation.
-                        s1: do nothing;
-                        s2,3,4: only use the reference sequence with the shortest/median/longest length;
-                        s5: remove sequences with abnormal length.[default = 's1']
-
-Gradient approximation option:
-  -in , --iterative_number
-                        Specify the number of iterative loop to gradually approximate the best results
-
-Bootstrap option:
-  -bn , --bootstrap_number 
-                        Specify the bootstrap number.Evaluate the results based on the bootstrap method
+  -k1 , --kmer1       Specify the length of the k-mer to filter reads  [default = 29]
+  -k2 , --kmer2       Specify the length of the k-mer to assemble reads   [default = 41]
+  -d , --data         Specifies the number of reads to reduce raw data. If you want to use all the data, you can set as 'all' 						  [default = 'all']
+  -step_length        Step length of the sliding window on the reads [default = 4]
+  -limit_count        limit of kmer count [default=auto]
+  -limit_min_ratio    The minimum ratio of contig length to reference average length [default = 1.0]
+  -limit_max_ratio    The maximum ratio of contig length to reference average length [default = 2.0]
+  -change_seed        Times of changing seed [default = 32]
+  -scaffold           Make scaffold
+  -max                The maximum length of contigs to be retained [default = 5000]
+  -min                The minimum length of contigs to be retained [default = 300]
+  -t , --thread       Number of threads [default = 'auto']
+  -b , --boundary     The length of the extension along both sides of the target sequence [default = 75]
+  -bn , --bootstrap   Number of resampling based on base substitution model
 ```
 
-### 5.1.1 Basic parameters
+
+
+### 4.2.1 Basic parameters
+
+- `-1`  and `-2` : The input files with paired-end reads, given in FASTQ format (\*.fq\\\*.fastq\\\*.fq.gz\\\*.fastq.gz).Make sure to keep the correct file extensions
+
+- `-s`  : The input file with unpaired readsgiven in FASTQ format(\*.fq\\\*.fastq\\\*.fq.gz\\\*.fastq.gz).Make sure to keep the correct file extensions.
+
+- `-o , --out` : The output folder.
+
+- `-rtfa`  <file|dir>  
+
+  References of target sequences, only support fasta format.(\*.fasta\\\*.fa\\\*.fas\\\*.fna).Make sure to keep the correct file extensions
+
+  **NOTE:**
+
+  (1) Target sequences are derived from homologous genes of closely related species (same genus or family).
+
+  If a target sequence has homologous genes from one or more species, please store these homologous genes in a fasta format file. As follows：
+
+  ```shell
+  >Gene_A species1
+  ATCGATCG
+  >Gene_A species2
+  ATCGATCC
+  >Gene_A species3
+  ATTGATCC
+  ```
+
+
+​		GeneMiner使用hash的方法存储参考，过多的参考将导致内存溢出。基于系统发育标记的长度特征，我们建议参考序列长度在300bp~5000bp，总条目不		超过100000。
+
+​        (2) GeneMiner uses a hash method to store references, and too many references will lead to memory overflow. Based on the length     				   		characteristics of phylogenetic markers, we suggest that the reference sequence length is 300~5000bp and the total entries do not exceed 100000.
+
+- `-rtgb`  <file|dir>  		
+
+  References of target sequences, only support GenBank format(\*.gb).Make sure to keep the correct file extensions.
+
+  **NOTE:**
+
+  GeneMiner不会组装整个质体基因组，仅仅是挖掘GenBank文件中的Gene部分。用户还可以编辑genbank文件，从而指定特定的目标序列
+
+  GeneMiner does not assemble the entire plastid genome, but only mines the `gene` portion (feature=="gene") of the GenBank file.
+
+  Users can also edit the genbank file to specify specific target sequences.
+
+  
+
+
+
+### **4.2.2 Advanced parameters**
+
+- `-k1 , --kmer1`  :用于过滤reads的k-mer长度.该参数用于筛选与参考序列高度匹配的reads。我们将参考序列拆分为K-mers并存储为hash表.随后将原始数据中的每条reads，拆分成(l-k1+1)条K-mer，其中，l为测序的读长，k1的大小与参考序列的设定一致。如果某条read的子序列在参考序列哈希表中出现，则把该条read保留并分配给特定目标序列的过滤数据集中。k1的取值与提供原始测序数据的物种和提供参考序列的物种之间的亲缘关系有关.  两者亲缘关系越近，k1的能够接受的取值上限越大；两者亲缘关系越远，k1的能够接受的取值上限越小。较大的k1有利于提高拼接的准确度
+
+- `-k2 , --kmer2`:用于组装reads的k-mer长度.k2 是de Bruijn图中节点的长度, GeneMiner 根据节点之间 k-1 mer的overlap 将k-mer组装为contig.一般来说，较小的k-mer有利于序列在较低覆盖度时的延申，但可能引入错误k-mers；较大的k2能有效处理反向重复，但可能提前终止序列的延申。k2 默认大小为31，k2的取值范围在17~127之间	
+
+  
+
+- `-d , --data` : reads的数目。GeneMiner 允许使用原始测序数据中的一部分挖掘目标序列，特别是具有中-高拷贝数的目标序列。如果您需要将全部的原始测序数据作为输入，您可以将-n设置为‘all’ .-d 默认设定为all
+
+Specify the number of reads to reduce raw data.GeneMiner allows mining target sequences, especially those with medium-high copy numbers, using a portion of the raw sequencing data. If you need to use the entire raw sequencing data as input, you can set -n as `all` .default = `all`
+
+- `-step_length`指定reads过滤过程中滑动窗口的长度,默认值为4
+
+
+
+Step length of the sliding window on the reads. With a sequence is ATCGAATTCA, when `step_length` is 1 and `kmer_size` is 5,  we can get  ATCGA, TCGAA, CGAAT, GAATT, AATTC and ATTCA; when `step_length`is 2, we will get ATCGA, GAATT, AATTCA. This parameter can be used to reduce the program runtime when the dataset is large with sufficient coverage
+
+- `-limit_count`:	k-mer频次最低阈值（limit）。在组装过程中，GeneMiner会将过滤后reads拆分为长度为`k1`的子序列(k-mer)，并统计这些k-mers出现的次数.频次低于最低阈值（limit_count）的k-mer将被剔除用户既可以自行设置`-limit_count` ，也可以选择`auto`模式.在`auto`模式下GeneMiner会基于目标序列的k-mers频数分布自行为每一个目标序列分配合理的`-limit_count`. 默认值=`auto`
+
+limit of k-mer count. This parameter is used to remove erroneous, low quality k-mers.During the assembly process, GeneMiner will split the filtered reads into subsequences (k-mers) of length `k1` and count the number of occurrences of these k-mers. The k-mers whose frequency is below the `limit_count`) will be removed.Users can either set a uniform `-limit_count` or choose the `-auto` mode. In `auto` mode, GeneMiner will assign a reasonable `-limit_count` to each target sequence based on the k-mers frequency distribution . default=`auto`
+
+
+
+
+
+- `-limit_min_ratio`:恢复的目标序列相较于参考序列平均长度的最小比值。在组装过程中，GeneMiner会舍弃比值小于`limit_min_ratio`的序列
+
+
+
+The minimum ratio of the recovered target sequence compared to the average length of the reference sequence. During the assembly process, GeneMiner discards sequences with ratios smaller than `limit_min_ratio`
+
+
+
+
+
+- `-limit_max_ratio`:恢复的目标序列相较于参考序列平均长度的最大比值。在组装过程中，GeneMiner会舍弃比值大于`limit_min_ratio`的序列
+
+
+
+The maximum ratio of the recovered target sequence compared to the average length of the reference sequence. During the assembly process, GeneMiner discards sequences with ratios larger than `limit_max_ratio`
+
+
+
+- `-change_seed`:Times of changing seed. GeneMiner会自动更换候选种子以达到最优组装效果.default=32
+
+  GeneMiner automatically replaces candidate seeds to achieve optimal assembly
+
+
+
+
+
+- `-max` :指定GeneMiner挖掘出的基因的最大长度，默认为5000bp.
+
+The maximum length of contigs to be retained.default=5000 bp
+
+- `-min`: 指定GeneMiner挖掘出的基因的最小长度，默认为300bp.
+
+The minimum length of contigs to be retained
+
+
+
+- `-t , --thread`  :指定线程数量,如果不指定的话，GeneMiner会根据计算机性能自动选择合适的线程数量.默认值为"auto"
+
+Specify the number of threads, if not specified, GeneMiner will automatically select the appropriate number of threads based on computer performance. default=`auto`
+
+
+
+- `-b , --boundary`  指定软边界的长度。沿着目标序列两侧延申的长度当沿着恢复的目标序列的两侧延申的时候，随着延申长度的增加，碱基的准确率逐渐降低.然而，准确率的降低不是断崖式的，而是在某一定长度的缓冲区内逐渐下滑。我们将保留缓冲区并将这段缓冲区称软边界。软边界取值范围在0~200之间，我们推荐大小为 05 * reads length。该参数与-rtgb参数同时使用时才生效.
+
+
+
+The length of the extension along both sides of the target sequence (length of `soft boundary`).
+
+When extending along both sides of the recovered target sequence, the accuracy of the bases gradually decreases as the extension length increases.
+
+However, the decrease in accuracy is not precipitous, but a gradual decline within a buffer of some certain length. We will keep the buffer and call this buffer  `soft boundary`.
+
+`-b` takes a range of values from 0 to 200 bp,default =75 bp. Recommended length is 0.5 * reads length
+
+NOTE: `-b` only takes effect when the user uses the `-rtgb` .
+
+
+
+- `-bn , --bootstrap`: 重采样的次数基于核苷酸替换模型。GeneMiner从Bootstrap借鉴了思想，然后创新性的提出了基于核苷酸替换模型的迭代校验方法，可以有效的评估结果的准确性[默认值=100]
+
+​	Number of resampling. GeneMiner borrowed ideas from Bootstrap, and then innovatively proposed an iterative verification method based on base substitution model, which can effectively evaluate the accuracy of the results
+
+
+
+
+
+- `-k1 , --kmer1`: Length of k-mer for filtering reads. This parameter is used to filter the reads that are highly matched with the reference sequence.We split the reference sequence into k-mers and store them as hash tables. Each reads in the original data is subsequently split into (`L`-`k1`+1) k-mers, where `L` is the read length and `k1` is of the same size as the setting of the reference sequence. If a subsequence of a read appears in the reference sequence hash table, the read is retained and assigned to a filtered dataset of a specific target sequence.The value of `k1` is related to the relationship between the species providing the original sequencing data and the species providing the reference sequence.  The closer the relationship between the two species, the larger the acceptable upper limit of `k1`; the more distant the relationship between the two species, the smaller the acceptable upper limit of `k1`. A larger `k1` is beneficial to improve the accuracy of the assembly.  `k1` takes a range of values from 17 to 127 bp,default=29.
+
+- `-k2 , --kmer2`: Length of k-mer for assembling reads. `k2` is the length of nodes in the de Bruijn graph, and GeneMiner assembles k-mer into contigs based on the overlap of k-1 mer between nodes. In general, smaller k-mer facilitates sequence extension at lower coverage, but may introduce erroneous k-mers; larger k-mer handles reverse repetition efficiently, but may terminate sequence extension early.For Illumina reads(150bp) with sufficient coverage (> 40x), we have good results with k = 41. `k2` takes a range of values from 17 to 127 bp,default=41
+
+- `-d , --data`: Specify the number of reads to reduce raw data.GeneMiner allows mining target sequences, especially those with medium-high copy numbers, using a portion of the raw sequencing data. If you need to use the entire raw sequencing data as input, you can set `-d` as `all` .default = `all`
+
+- `-step_length`: Step length of the sliding window on the reads. With a sequence is ATCGAATTCA, when `step_length` is 1 and `kmer_size` is 5,  we can get  ATCGA, TCGAA, CGAAT, GAATT, AATTC and ATTCA; when `step_length`is 2, we will get ATCGA, GAATT, AATTCA. This parameter can be used to reduce the program runtime when the dataset is large with sufficient coverage
+
+
+
+- `-limit_count`: limit of k-mer count. This parameter is used to remove erroneous, low quality k-mers.During the assembly process, GeneMiner will split the filtered reads into subsequences (k-mers) of length `k1` and count the number of occurrences of these k-mers. The k-mers whose frequency is below the `limit_count`) will be removed.Users can either set a uniform `-limit_count` or choose the `-auto` mode. In `auto` mode, GeneMiner will assign a reasonable `-limit_count` to each target sequence based on the k-mers frequency distribution .default=`auto`
+
+- `-limit_min_ratio`: The minimum ratio of the recovered target sequence compared to the average length of the reference sequence. During the assembly process, GeneMiner discards sequences with ratios smaller than `limit_min_ratio`
+
+- `-limit_max_ratio`: The maximum ratio of the recovered target sequence compared to the average length of the reference sequence. During the assembly process, GeneMiner discards sequences with ratios larger than `limit_max_ratio`
+
+- `-change_seed`:Times of changing seed. GeneMiner automatically replaces candidate seeds to achieve optimal assembly. default=32
+
+
+
+- `-max` :The maximum length of contigs to be retained.default=5000 bp
+
+- `-min`: The minimum length of contigs to be retained.default=300 bp
+
+- `-t , --thread`: Specify the number of threads, if not specified, GeneMiner will automatically select the appropriate number of threads based on computer performance. default=`auto`
+
+- `-b , --boundary` : The length of the extension along both sides of the target sequence (length of `soft boundary`).When extending along both sides of the recovered target sequence, the accuracy of the bases gradually decreases as the extension length increases.However, the decrease in accuracy is not precipitous, but a gradual decline within a buffer of some certain length. We will keep the buffer and call this buffer  `soft boundary`. Recommended length is 0.5 * reads length.`-b` takes a range of values from 0 to 200 bp,default =75 bp
+
+  **NOTE**: `-b` only takes effect when the user uses the `-rtgb` .
+
+- `-bn , --bootstrap`: Number of resampling .Number of resampling. GeneMiner borrowed ideas from Bootstrap, and then innovatively proposed an iterative verification method based on base substitution model, which can effectively evaluate the accuracy of the results.default=100
+
+
+
+
+
+
+
+## 4.3 Output
+
+The output directory contains the`reference_database`, `filtered_out`, `assembled_out` , `GM_results` , `bootstrap_out` and `results.csv`
+
+### 4.3.1 reference_database
+
+`reference_database`  \<folder\>: 用于存放参考序列数据集. GeneMiner对用户提供的近缘类群的参考序列进行预处理，并将这些目标序列写入fasta格式的文件。Used to store reference sequence datasets. GeneMiner preprocesses the reference sequences of the close taxa provided by the user and writes these target sequences to fasta-format files.
+
+### 4.3.2 filtered_out
+
+`filtered_out`  \<folder\>: 用于存放过滤数据集. GeneMiner基于参考数据集检索原始测序数据，将与参考序列高度匹配的reads分配给特定目标序列的过滤数据集。如果某个特定目标序列的过滤数据集文件大小超过10MB，GeneMiner会将它保存在big_reads中，并对其进行重新过滤.
+
+Used to store filtered datasets. GeneMiner search the raw sequencing data based on the reference dataset and assign the reads that are highly matched with the reference sequence to the filtered dataset of a specific target sequence (`specific filtered dataset`). If the file size of `specific filtered dataset` exceeds 10MB, GeneMiner will save it in `big_reads` and refilter.
+
+### 4.3.3 assembled_out
+
+`assembled_out`  \<folder\>: 用于存放组装的contigs。GeneMiner利用specific filtered dataset组装contigs.根据组装完成度的不同，assembled_out下还可以细分为`short_contig`和`contig`将恢复的目标序列同参考序列的平均长度相比，其比值大于`-limit_min_ratio`的contig 将放入contig folder, 比值小于`-limit_min_ratio`的contig 将放入short_contig folder.
+
+Used to store assembled contigs.GeneMiner assembles contigs using `specific filtered datasets`. Depending on the completion of the assembly, it can also be subdivided into `short_contig` and `contig` under `assembled_out`.Compared the recovered target sequence with the average length of the reference sequence, the contig with a ratio greater than `-limit_min_ratio` will be put into the `contig` folder, and the contig with a ratio less than `-limit_min_ratio` will be put into the `short_contig` folder.
+
+### 4.3.4 GM_results 
+
+`GM_results` \<folder\>:用于存放GeneMiner挖掘出的所有的目标序列. GM_results是最重要的文件夹之一
+
+used to store all the target sequences mined by GeneMiner.`GM_results` is one of the most important folders
+
+### 4.3.5 bootstrap_out
+
+`bootstrap_out` \<folder\>:
+
+GeneMiner对GM_results基于核苷酸替换模型对GM_results重采样，并进行迭代校验。bootstrap_out用于存放评估结果。bootstrap_out文件夹下包括：
+
+Used to store the evaluation records.GeneMiner resamples `GM_results` based on the base substitution model and performs iterative checks on `GM_results`. The `bootstrap_out` folder contains `reference_database`,`filtered_out`,`assembled_out`,`GM_results`,`high_quality_results `and `bootstrap.csv`
+
+**NOTE**：`bootstrap_out` is only generated when the ­ `-bn`/`--bootstrap` option is used
+
+(1)`reference_database` \<folder\>:  
+
+​		存放变异的参考序列数据集。首次获取目标序列后，与参考序列进行比对，得到变异率v。基于由参考序列的碱基组成建立碱基替代模型，将目标序列的以变异率v和碱基替代模型进行重采样，获取变异率同样为v的ref~1~, ref~2~.....ref~n~ 
+
+Used to store the mutated reference sequence dataset (MRSD). After the first acquisition of the target sequence, it is compared with the reference sequence to obtain the variation rate v. Based on the base substitution model built from the base composition of the reference sequence, the target sequence is resampled with the variation rate v to obtain ref~1~, ref~2~ ..... ref~n~  
+
+
+
+(2)`filtered_out` \<folder\>:  
+
+​		将变异的参考序列数据集作为新的参考序列数据集，使用GeneMiner中相同的步骤，获得新的过滤数据集.
+
+Use the  MRSD as the new reference sequence dataset and use the same steps in GeneMiner to obtain the new filtered dataset
+
+(3)`assembled_out` \<folder\>:
+
+​		GeneMiner利用新的过滤数据集完成组装，并存放新的组装结果
+
+​		GeneMiner completes the assembly using the new filtered dataset and stores the new assembly results
+
+(4)`GM_results` \<folder\>:
+
+​		用于存放使用基于核苷酸替换模型的迭代校验方法挖掘出的所有目标序列
+
+Used to store all target sequences mined by GeneMiner.  Here, GeneMine used an iterative verification method based on base substitution model.
+
+
+
+(5)`high_quality_results` \<folder\>:
+
+​	GeneMiner 比较 GM_results 和bootstrap_out/GM_results 中的目标序列，并对每一个目标序列给出得分.score=identity*100, identity代表前后生成的两条目标序列之间的一致度，得分大于99的目标序列将被存放在high_quality_results文件夹中
+
+
+
+GeneMiner compares the target sequences in `GM_results` and `bootstrap_out/GM_results`, and gives a score for each target sequence.
+
+`score=identity*100` The target sequences with score higher than 99 will be stored in the high_quality_results folder
+
+(6)`bootstrap.csv` \<file\>:
+
+​		Assessment Record Sheet
+
+### 4.3.6 results.csv 
+
+`results.csv`  \<file\>:
+
+​		Record various information about the target sequences
+
+​		This file consists of comma-separated columns containing various information on each target  sequence found. The file can be easily imported into programs such as Excel. The contents of the columns (from left to right) are explained in this table:
+
+| **Column**          | **Description**                                              |
+| ------------------- | ------------------------------------------------------------ |
+| gene                | Target sequence's name                                       |
+| k1                  | Length of kmer for filtering reads                           |
+| re_k1               | Length of kmer for filtering reads after re-filtering        |
+| richness            | Approximate sequencing depth based on the target sequence's filtered dataset |
+| limit               | Limit of k-mer count                                         |
+| seed                | GeneMiner在组装contigs的时候使用的起始序列 The starting sequence used by GeneMiner in assembling contigs |
+| k2                  | Length of kmer for assembling reads                          |
+| ref_length          | Average length of the reference sequences                    |
+| short_contig_length | Length of the short contig                                   |
+| contig_length       | Length of the contig                                         |
+| scaffold_length     | Length of the scaffold                                       |
+| bootstrap_number    | Number of resampling                                         |
+| score               | Target sequence assessment score                             |
+
+NOTE: `bootstrap_number` and `score` are  only printed when the ­ `-bn`/`--bootstrap`  option is used
+
+​		
+
+
+
+## 5.4 example
+
+### 5.4.1 Mining chloroplast genes from skimming whole genome sequencing (WGS).
+
+当有较为充足数据量和近缘的参考序列时，本软件几乎能从浅层基因组数据中恢复所有的叶绿体基因
+
+GeneMiner can recover almost all chloroplast (cp) genes from shallow genomic data when there is a sufficient coverage (>10x) and closely related reference sequences.
 
 ```shell
--1				
-One end of paired-end reads,support fastq/fastq.gz/fastq.bz2 format.Be sure to keep the correct file extension.
-example: geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa  ref.fasta
-    
--2   			
-Another end of paired-end reads,support fastq/fastq.gz/fastq.bz2.Be sure to keep the correct file extension.
-example: geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta
-
--12  			
-Interlaced forward and reverse paired-end reads,support fastq/fastq.gz/fastq.bz2.Be sure to keep the correct file extension.
-example: geneminer.py -12 data.fq.gz -rtfa  ref.fasta
-
--s   			
-Single-read,support fastq/fastq.gz/fastq.bz2.Be sure to keep the correct file extension.
-example: geneminer.py -s data1.fq.gz -rtfa  ref.fasta
-
--rcp 	<file|dir>	
-Reference of chloroplast genome,only support GenBank-format. 
-You can input a GenBank file, which can contain either one species or multiple species; You can also input multiple Genebank files into a single folder.It is worth noting that :(I) users can modify GeneBank files to keep only parts of the genes they are interested in. (ⅱ) When selecting the reference genome, try to select the closest reference genome
-example: geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rcp cp.gb
-
--rmito    <file|dir>	
-Reference of mitochondrial genome,only support GenBank-format.The specific usage is the same as -rcp
-example: geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rmito mito.gb
-
--rtfa     <file|dir>  		
-References of target genes, only support fasta format. It can be used to find genes of interest
-example: geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta
-A fasta-format file can only store the data of the same gene, as shown in the following example:
->species_a ITS
-AGCTAGCT
->species_b ITS 
-AGCTAGCC
->species_c ITS
-AGCTAGCA
-t4 species_d ITS
-AGCTAGAA
-
--rtgb     <file|dir>  		
-References of target genes, only support GenBank format.It can be used to find genes of interest.
--rtgb includes -rcp and -rmito. The reason why -rcp and -mito are independent is for the convenience of users and the extension of software functions in the later period
-example: geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtgb gb_folder
-
--o , --out            
-Specify the output folder. If you do not specify an output folder, geneminer.py will automatically use 'GM+ timestamp 'as the output folder name. But Windows and MAC GUI versions must specify the output folder.
-example: geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta -o geneminer_out
-
--sf   
-Select the reference sequences to reduce the computation.[default = 's1']
-When the number of reference sequences is too large or the difference between them is too large, it not only increases the calculation time but also affects the accuracy of the results. GeneMiner currently provides five strategies for filtering reference sequences.
-strategy 1(s1):do nothing;  
-strategy 2(s2):only use the reference sequence with the shortest length
-strategy 3(s3):only use the reference sequence with the median length
-strategy 4(s4):only use the reference sequence with the longest length
-strategy 5(s5): remove sequences with abnormal length
-example: geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta -sf s5
+#Mining single cp gene : matk
+geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -rtfa matK.fasta -t 4 -o matK_out
+#Mining multiple cp genes
+geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -rtfa Ref_cp_fasta -t 4 -o Ref_cp_fasta_out
+#Mining all cp genes
+geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -rtgb chloro.gb -t auto -b 0 -min 300 -max 5000 -o chloro_gb_out 
 ```
 
-### 5.1.2 Advanced parameters
+### 5.4.2 Mining mitochondrial genes from skimming WGS：
+
+​		线粒体基因恢复难度往往会比叶绿体基因大，其一般原因在于：（1）线粒体基因变异较大（2）原始数据未包含太多线粒体基因。针对这种情况，您可以增大原始数据大小以及选择更近源的参考序列.
+
+Mitochondrial (mito)   genes are often more difficult to recover than chloroplast genes, generally because (1) mitochondrial genes are more variable (2) the raw data does not contain too many mitochondrial genes. In this case, you can increase the size of the raw data and choose more closely related reference sequences.
 
 ```shell
--n , --number     
-Enter the number of rows for the raw data amount. The default value is 10 million rows. If you need to enter all raw data, you can set -n as all.
-After testing, good results can be obtained by selecting only a part of the original data(100w~1000w), while greatly reducing the running time of the software
-For the second-generation sequencing data with a read length of 150bp, the data volume of 1000W lines is about 800~1000MB.
-If you are interested in the number of rows of raw data, you can view your data using the following command
-zcat your_data.fq.gz|wc -l 
-example:
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta -n 2000000
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta -n all
-
--k , --kmer   
-Specifies the length of k-mer, which is the length of the node in the de Bruijn diagram. The value of kmer depends heavily on the data set.
-The default value is 31. The value of kmer ranges from 15 to 127
-example:
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta -n 2000000 -k 43
-
--max 
-Specifies the maximum length of the mined gene. Default is 5000bp.
-example:
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rcp cp.gb -n 2000000 -k 43 -max 3000
-
--min    
-Specifies the minimum length of the mined gene. Default is 300bp.
-example:
-geneminer.py  -1 data1.fq.gz  -2 data2.fq.gz -rcp mito.gb -n 2000000 -k 43 -max 3000     -min 200
-
--t , --thread  
-example:
-Specify the number of threads. If not, the software automatically selects the appropriate number of threads based on computer performance.
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rcp cp.gb -n 200000 -k 43 -max 3000 -min 200 -t 8
-
--b , --boundary   
-Specifies the length of the soft boundary.
-As the lines were traced along the sides of the excavated gene, the accuracy of the bases became less and less accurate as the lines increased. The descent is not precipitous, but gradual within a buffer zone of a certain length. We will preserve a buffer and call it a soft boundary. The recommended size is 0.5*reads‘ length, and the soft boundary ranges from 0 to 200. This parameter can be used together with -rcp,-rmito, and -rtgb
-example:
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rcp cp.gb -n 2000000 -k 43 -max 3000 -min 500 -b 75
+#Mining mito genes
+geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -rtgb mito.gb -b 0 -min 300 -max 5000 -o mito_gb_out 
 ```
 
+### 5.4.3 Mining nuclear genes from skimming WGS：
 
+GeneMiner可以挖掘核基因组中的高度重复区 (如nrDNA)
 
-### 5.1.3 Gradient approximation parameters (optional)
+GeneMiner can mine highly repetitive regions in the nuclear genome (e.g. nrDNA)
 
 ```shell
--in , ----iterative_number
-Specify the number of iterations. As the number of iterations increases, the result gradually approaches the optimal answer.
-The basic principle is: The results of GeneMiner are taken as the reference sequence of the next input. If the results of the next output are highly consistent with the results of the last output, it will stop. Otherwise, repeat the process. The maximum number of repetitions is the number specified by the user. [Default =2]
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta  -cn 2
+#mining ITS
+geneminer.py -1 skimming_data1.fq.gz -2 skimming_data2.fq.gz -t 4 -rtfa ITS.fasta -o ITS_out
 ```
 
-### 5.1.4 **Method based on bootstrap** (optional)
+
+
+### 5.4.4 Mining Angiosperm 353 genes from transcriptome data
+
+被子植物353基因是近年来在被子植物系统发育研究中被广泛采用的分子标记，由353条基因组成
+
+The angiosperm 353 genes are molecular markers that have been widely adopted in recent years in angiosperm phylogenetic studies and consist of 353 genes
 
 ```shell
--bn,--bootstrap_number  
-The verification method based on bootstrap can evaluate the accuracy of the result and verify the target sequence repeatedly without relying on the reference sequence
-[Default =10]
-example:
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rtfa ref.fasta  -bn 20
+#Mining Angiosperm 353 genes
+geneminer.py -1 Arabidopsis_thaliana_sim_353_data1.fq.gz -2 Arabidopsis_thaliana_sim_353_data1.fq.gz -rtfa Ref_353 -k1 29
+-k2 41 -t 4 -o Angiosperm_353_out4
 ```
 
 
 
-## 5.2 Interpretation of results
-
-```shell
-GeneMiner will produce a large number of files, which are divided into three main parts:
-# Part 1
-Filtered sequencing data: "data1.fq" and "data2.fq"
-
-# Part 2
-Results: Excel files ("results_information.xlsx") and logs ("log.txt") containing various statistics. 
-
-"results_information.xlsx":
-
-| Column name			    | Example    |  Explanation                                                    
-| ------------------------  | ---------- | ----------------------------------------------------------- 	
-| nuclear_gene_name         | ITS        | gene name                                                       
-| filtered_reads_number     | 300        | The number of reads after filtration                             
-| richness                  | 75.88      | richness,The average depth of genes. richness =(n*L1)/L2 
-                                           N: average length of reads,L2: The length of the gene             
-| graph_construction        | 30.766     | graph construction step(minia)                               
-| assembled_percentage      | 0.186      | Percentage of reads used for assembly                             
-| assembled_max_length      | 1181       | Maximum length of sequence after assembly
-| result_max_length         | 1181       | The maximum length of the aligned-cut(trimmed) sequence  
-| identity_trimmed_sequence | 85.83%     | The identity bewteen the reference sequence and the trimmed 	    
-                                           sequence
-| coverage_trimmed_sequence | 98.52%     | The coverage of the reference sequence over the trimmed sequence
-| Gene_extraction           | successful | Whether the gene was extracted successfully                      
-| Gene_aligned_cut          | successful | Whether the gene can be aligned and cut successfully            
 
 
-# Part 3
-Result summary files, different types of reference sequences will generate result summary files with different names.-rtfa,-rtgb, -rcp, and -rmito correspond to "tfa_genes", "tgb_genes", "cp_genes", and "mito_genes" respectively
+# 6. Methods
 
-The results summary file can also be subdivided into:
-(1) Reference sequence folder  ("reference_database")
-	GeneMiner preprocessed the reference sequence provided by the user and wrote each gene into a fasta-format file separately.
-(2) filtered folder ("filtered_out")
-	Stores reads filtered by the Filter script in fastq format
-(3) Assembled folder (" assembled_out ")
-	Store contigs and untigs generated by minia  assembly
-(4) Results folder ("GM_results")
-	Put together all the genes that have been mined.
-	First, if the target gene is not mined, no result file will be generated. If the target gene is mined, it is retained as the original result ("xxx_raw.fasta") without any processing. XXX represents a gene, and the following statement is the same.
-	Then, if the target gene is excavated but the gene does not meet various subsequent screening conditions, GeneMiner will select the best result from the original result according to the reference sequence and store it as the best original result ("xxx_raw_best.fasta"). If the target gene is mined and the gene meets various subsequent screening conditions, a) when only one sequence is obtained, a unique result ("xxx.fasta") will be generated. B) Generate candidate results ("xxx_options.fasta") when the result has multiple sequences.
-	Finally, GeneMiner trimmed the sequence from the unique result (“xxx_fasta”) or  candidate results ("xxx_options.fasta") with the references, and selected the best one  as the trimmed result ("xxx_trimmed.fasta"). It is worth noting that not all result sequences can be align and cut, and users can also align and cut depend on their specific needs.
+针对短片段的系统发育标记提取，GeneMiner结合了有参过滤和无参拼接的优势.
 
+(1)首先基于近缘的参考序列采用K-mer过滤的方法获取可靠的reads;
 
-"xxx_raw. Fasta" 		: raw result
-"xxx_raw_best.fasta "	: best raw result
-"xxx. fasta" 			: unique result (recommended)
-"xxx_options.fasta" 	: candidate result
-"xxx_trimmed.aasta" 	: Trimmed results (recommended)
+(2)然后采用a weighted seed selection and extension algorithm based on De Brujin Graph方法通过组装reads的小目标区域恢复目标序列;
 
-(5) bootstrap folder (" bootstrap_out ", optional)
-	Store results generated by method based on bootstrap, including the reference sequence library (" reference_Ddatabase "), filtering results (" filtered_out "), assembly results (" assembled_out "), and final mining results ("GM_results")
-	It is worth noting that only the trimmed sequences can be verified using the method based on bootstrap.
-(6) Gradient approximation folder ("interative_out", optional)
-	Store the results of each iteration
-
-example:
-geneminer.py -1 data1.fq  -2 data2.fq  -rtfa ref.fasta -bn 5 -cn 2 -o GeneMiner_out
-tree -L 4 GeneMiner_result/   #View the resulting file directory structure
-```
-
-## 5.3 example
-
-### 5.3.1 Chloroplast gene extraction:
-
-​		When there is a relatively sufficient amount of data and a close reference sequence, the software can almost extract all chloroplast genes from the skimming genome data at the same time in the phylogenetic research, which This provides another way to solve the problem that chloroplast assembly results are not cyclic.
-
-```shell
-#example:
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz  -rmito ref_cp.gb -b 0 -max  3000    -min 300 -o results
-```
-
-### 5.3.2 Extraction of mitochondrial genes:
-
-​		Mitochondrial genes are often much more difficult to excavate than chloroplast genes for the general reason that the original data itself does not contain many mitochondrial genes. In this case, you can appropriately increase the size of the raw data and choose a reference sequence closer to the source.
-
-```shell
-#example
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rmito mito.gb  -n 15000000
-```
-
-### 5.3.3 Nuclear gene Extraction:
-
-​		Even in low sequencing depth data, GeneMiner can mine medium and high copy number genes, such as rDNAs.
-
-```shell
-#example
-#ITS
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rn ITS_ref.fasta -o ITS_out
-#18S
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rn 18S_ref.fasta -o 18S_out
-#ETS
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rn ETS_ref.fasta -o ETS_out
-#26S
-geneminer.py -1 data1.fq.gz -2 data2.fq.gz -rn 26S_ref.fasta -o 26S_out
-```
-
-# 
-
-# 6.Methods
-
-The GeneMiner core process is divided into three steps:
-
-![流程图改改改](https://gitee.com/xiepulin/picgo_xpl/raw/master/GeneMiner_picture/流程图改改改-16453437397731.svg)
+(3)最后使用基于核苷酸替代模型的迭代方法对结果进行校验.
 
 
 
-## 6.1 Data Filtering
+​		For phylogenetic marker extraction of short sequences, GeneMiner combines the advantages of reference-based filtering and reference-free assembly. The core process of GeneMiner is divided into three main steps:
 
-​		Different from the traditional method of first assembling sequences and then mapping to the reference genome, GeneMiner chose to map the sequence to the reference genome and then assemble the sequence. First, the FASTQ format of the next generation data as the original input data, according to the actual situation, select a suitable size of data volume. Then Ukkonen's algorithm was used to construct a suffix tree from the user-provided reference genome. Subsequently, reads of length L in the original data were split into (L-K +1) sub-sequences of length K, where the size of L depends on the sequencing method and the size of K depends on the kmer set by the user. Finally, if a kmer of an reads is detected in the suffix tree, that reads is retained.
+​		(1)Firstly, reliable reads were obtained based on the reference sequences of closely related taxa using a K-mer filtering method;
 
-​		Due to the strategy of filtering before assembling, the amount of reads data to be filtered is quite large, while the amount of reads data to be assembled is significantly reduced, which means that assembling is no longer the bottleneck of calculation, and filtering is the core step to be broken through in this method. Fortunately, we reduced the algorithmic complexity of the filtering step to O (n), greatly reducing the time cost.
+​		(2) then a weighted seed selection and extension algorithm based on De Brujin Graph was used to recover the target sequences by assembling small target regions of the reads;
 
-## 6.2 Assembling and verifying
+​		(3)Finally, the results are verified using an iterative method based on the base substitution model.
 
-### 6.2.1 Assembling reads
 
-The filtered reads were assembled into contigs, and minia3 was selected as the sequence assembling software. The main reason is that, different from other sequence assembling software, such as Velvet, Spades, Soapdenovo, Minia3 has high accuracy, fast speed, smaller memory consumption, and is more suitable for short sequence assembling.
 
-### 6.2.2 Data verification
+![](picture/geneminer_workflow.svg)
 
-​		Minia3 may generate multiple contigs, and these sequences are not all the ones we need, so GeneMiner performs further processing on these contigs.
 
-**(1) Length correction**
 
-​		Contigs that are too long or too short are filtered based on the average length of the reference sequence.
 
- **(2) Direction correction**
 
-​		GeneMiner uses makeblastdb and blastn tools in BLAST+ suite to retain contigs in the same direction as the reference sequence and reverse complement contigs in the different directions.
+## 6.1 Filtering reads
 
-**(3) Align and cut contigs**
+​		GeneMiner filters reads that are highly similar to the target sequences based on the reference sequences of closely related taxa. The process consists of two stages: building the hash table and filtering reads. In building the hash table, we split the reference sequences into K-mers (k-mer is the iterative division of the reads into sequences containing K bases) and record the position information, the number of occurrences and the corresponding labels of these subsequences, finally store them as a hash table. The total number of k-mer is![img](picture/clip_image002.png), where L~i~ is the length of the i-th reference sequence, n is the total number of reference sequences, and k~f~  is set by the user.
 
-​		In order to facilitate users to directly use the results of GeneMiner, we cut contigs and GeneMiner processed contigs as follows: (1) A contig was taken out and denoted as sequence A. (2) A reference sequence was taken out and denoted as sequence B. (3) Local comparison was made between sequence A and sequence B to record the starting and ending sites of high-score fragments (HSP, High Scoring Pair). (3) If the high-scoring fragment is close to the length of the reference gene sequence, write gene_trimmed. fasta, otherwise no gene_trimmed. fasta file is generated
+## 6.2 Assembly
 
-**(4) Get the best result** 
+​		Geneminer developed a weighted seed selection and extension algorithm based on de Brujin Graph, the general flow is as follows：
 
-​		If there are more than one contig in xxx_trimmed.fasta,these contigs will be  pairwise compared with reference sequences. The contig with the highest consistency and the longest length is reserved as the best result.
+​		(Ⅰ) Make kmers. Split the filtered reads into k-mers and build a k-mer set recorded as T. The ka used here may be different from the kf used in the filtering.
 
-### **6.2.3** Gradient approximation
+​		 (II) Remove low quality kmers. The program will automatically fit the k-mers frequency distribution of the set T, and assign a minimum threshold of k-mer frequency (limit) to each target sequence based on the bottom of the first L-peak, and k-mer with frequency below the limit will be removed.
 
-​		GeneMiner optimizes the results through continuous iteration, which we call gradient approximation.
+​		 (III) Choose seed. Split the reference sequences into k-mers using ka and build a k-mer set recorded as R. The k-mer that occurs with high frequency will be considered as a presumed conservative region and kept as a candidate seed if the k-mer also occurs in the set T. GeneMiner automatically replaces candidate seeds to achieve optimal assembly. 
 
-​		Here, we define the complete process of the user entering the reference sequence into GeneMiner to generate the best result as an iteration. In the next iteration, the reference sequence is replaced by the results generated in the previous iteration, and the previous data stitching and verification process is repeated. This process is repeated for a predefined number of iterations, or until no new sequences are found. As the number of iterations increases, more reads can be matched and assembled, so the generated sequence usually grows with each iteration. The iterative method can not only extend the sequence length and retain more phylogenetic information, but also make up for some defects of the reference sequence, especially when the reference sequence is relatively distant or there are holes in the reference sequence. Through the iterative method, it is possible for us to get the optimal solution gradually
+​		(Ⅳ)Seed extend. Take each k-mer as a node and assign a weighted score according to its frequency and position in the reference sequences. The weight score is![img](picture/clip_image002-16585694867633.png), where count represents the frequency of k-mer in the set T, Pos~1~ represents the current assembly position of k-mer, and Pos~2~ represents the average position of k-mer in the set R. Using the candidate seeds as starting nodes, search the set T to find nodes with k-1 overlapping bases as adjacent nodes, where the nodes with high weight scores will be prioritized. Connect the neighboring nodes until no neighboring nodes can be found, and finally the overlap cluster (contig) with the highest cumulative weighted score will be the output.
 
-## 6.3 Method based on bootstrap
 
-​		GeneMiner innovatively proposed a verification method based on self-propagation detection, which can evaluate the accuracy of the results without relying on the reference sequence, and verify the target sequence repeatedly, so as to output a more reliable consistent sequence.
 
-(ⅰ) After the target gene was obtained for the first time, it was compared with the reference sequence to obtain the mutation rate V. In order to prevent inconvenient calculation of the difference degree due to multiple contigs or reference sequences in the results, GeneMiner selected the contig with the highest contig fit and reference sequence as the standard to calculate the difference degree according to the consistency and coverage between the sequences.
+## 6.3 Verifying results 
 
-(ⅱ) Each locus of the target gene was randomly resamaged at the variation rate V to obtain ref1 and ref2..... with the same variation rate V refn
+​		GeneMiner innovatively proposes an iterative verification method based on base substitution model, which can effectively assess the accuracy of the results. 
 
-(ⅲ) use ref1, ref2..... refn is used as a reference sequence to re-run the whole process and obtain new target genes target1 and target2.... targetn
+​		(I) After the first acquisition of the recovered target sequences, they were compared with the reference sequence to obtain the variation rate (v). 
 
-(Ⅳ) on target1 target2... targetn obtains the consistency sequence, and the consistency ratio of the site is the approval rate of the site
+​		(II) Combine the base substitution model built from the base composition of the reference sequences to resample the recovered target sequence with v to obtain ref~1~, ref~2~ .... ref~n~ 
 
-# 7. Frequently asked questions
+​		(III) Use ref~1~, ref~2~ .... ref~n~ as the new reference sequences to re-run the whole process and get the new recovered target sequences
 
-**Q: ****How do I verify the reliability of the results?**
+​		(IV) The identity of the two results will be used to evaluate the accuracy
 
-**A**: Our software sets a method based on bootstrap to check the results. If you have questions about your results, you can use the -bn option and set the self-expansion times. However, self-expansion verification requires repeated calls to GeneMiner internal scripts. At the same time,next generation sequencing data on NCBI or real first-generation data can be used as supplementary verification
 
-**Q: What if I don't get the results?**
 
-**A**: The main reasons affecting the success rate of gene mining are as follows: First, the quality of original data. Clean_data works better than raw_data. Secondly, the amount of data is too small, which may lead to insufficient gene abundance and cannot be assembled. A large amount of data may lead to a variety of splicing situations. You are advised to set -n to 100w to 1000w. Third, the choice of reference sequence. Better results can be obtained by selecting sequences of related genera or different species of the same genus as reference sequences. At the same time, when there are multiple sequences as reference sequences, the difference between reference sequences should not be too large.
+# 7. Get help
 
-**Q: What is the appropriate value for “-n“**
+Please check [Geneminer's homepage](https://github.com/happywithxpl/GeneMiner) first. If your question is running specific,please do not be surprised and report it to us. We usually have quick response to bugs.
 
-**A:** Generally speaking, the default parameter n=10000000, that is, 2500000 reads, can well meet the needs. However, for single-copy or low-copy sequences, the amount of data can be appropriately increased. We do not recommend entering all the data, because not only will it slow down a lot, but it will not get good results due to the increasing number of concatenation cases.
+- Find Questions & Answers at [GeneMiner Discussions](https://github.com/happywithxpl/GeneMiner/discussions/categories/q-a): **Recommended**
 
-# 8.Citation
+- Report Bugs & Issues at [GetOrganelle Issues](https://github.com/Kinggerm/GetOrganelle/issues):
 
-GeneMiner : a software for extracting phylogenetic markers from next generation sequencing data
+  Please avoid repetitive or irrelevant issues
+
+- QQ group (ID: 78266311): Mainly for mutual help, responses are likely to be not timely
+
+**Do NOT** directly write to us with your questions, instead please post the questions **publicly**, using above platforms  Our emails (xiepulin@scu.edu.cn, 1791173948@qq.com) are only for receiving public question alert and private data (if applied) associated with those public questions. When you send your private data to us, enclose the email with a link where you posted the question. Our only reply emails will be a receiving confirmation, while our answers will be posted in a public place.
+
+
+
+# 8. Citation
+
+When you use GeneMiner please cite:
+
+**GeneMiner : a software for extracting phylogenetic markers from next generation sequencing data**
 

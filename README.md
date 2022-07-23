@@ -1,14 +1,10 @@
-# GeneMiner
 
 
+[TOC]
 
 # Overview
 
-GeneMiner is a software for extracting phylogenetic markers from next generation sequencing (NGS) data.
-
-GeneMiner uses a K-mer filtering method to obtain reliable reads, then a weighted seed extension algorithm based on de Bruijn graph method to mine target sequences by assembling small target regions of short-read sequencing datasets, and finally the results are verified by an iterative method based on the base substitution model.
-
-With GeneMiner, users can accurately and efficiently obtain a large number of target sequences from a wide range of histological data at a very low cost, such as: all or part of the chloroplast/mitochondrial genome, highly repetitive regions in the nuclear genome (e.g. nrDNA), etc. from shallow whole-genome sequencing data; single-low copy genes from transcriptome sequencing data, etc. GeneMiner improves existing phylogenetic research strategies at the most basic data level, and has significant advantages in reducing experimental costs and expanding phylogenetic marker selection. In addition, GeneMiner can be applied to the extraction of DNA barcodes, customs inspection and quarantine, mining of specific functional genes and other research, which has broad application prospects.
+GeneMiner is a software for extracting phylogenetic markers from next generation sequencing (NGS) data. With GeneMiner, users can accurately and efficiently obtain a large number of target sequences from a wide range of histological data at a very low cost, such as: all or part of the chloroplast/mitochondrial genome, highly repetitive regions in the nuclear genome (e.g. nrDNA), etc. from shallow whole-genome sequencing data; single-low copy genes from transcriptome sequencing data, etc. GeneMiner improves existing phylogenetic research strategies at the most basic data level, and has significant advantages in reducing experimental costs and expanding phylogenetic marker selection. In addition, GeneMiner can be applied to the extraction of DNA barcodes, customs inspection and quarantine, mining of specific functional genes and other research, which has broad application prospects.
 
 
 
@@ -35,12 +31,10 @@ We strongly recommend using the GUI version for users who are not familiar with 
 ## **GeneMiner with command line**
 
 - option1  **Cloning the repo**
-
 - option2  **Source distribution** 
-
 - option3  **Flexible construction**
 
-  
+
 
 **Cloning the repo**  (support)
 
@@ -209,3 +203,24 @@ The output directory contains  `reference_database`„ÄÅ`filtered_out <folder>` „Ä
 A more complete manual is here: https://github.com/happywithxpl/GeneMiner/blob/main/GeneMiner_User_Guide.md
 
 # Contact
+
+Please check [Geneminer's homepage](https://github.com/happywithxpl/GeneMiner) first. If your question is running specific,please do not be surprised and report it to us. We usually have quick response to bugs.
+
+- Find Questions & Answers at [GeneMiner Discussions](https://github.com/happywithxpl/GeneMiner/discussions/categories/q-a): **Recommended**
+
+- Report Bugs & Issues at [GetOrganelle Issues](https://github.com/Kinggerm/GetOrganelle/issues):
+
+  Please avoid repetitive or irrelevant issues
+
+- QQ group (ID: 78266311): Mainly for mutual help, responses are likely to be not timely
+
+**Do NOT** directly write to us with your questions, instead please post the questions **publicly**, using above platforms  Our emails (xiepulin@scu.edu.cn, 1791173948@qq.com) are only for receiving public question alert and private data (if applied) associated with those public questions. When you send your private data to us, enclose the email with a link where you posted the question. Our only reply emails will be a receiving confirmation, while our answers will be posted in a public place.
+
+
+
+# Citation
+
+When you use GeneMiner please cite:
+
+**GeneMiner : a software for extracting phylogenetic markers from next generation sequencing data**
+
