@@ -38,7 +38,7 @@ We strongly recommend using the GUI version for users who are not familiar with 
 Instead of downloading the source distribution as a compressed archive, you could clone the repo and build it as shown below.
 
 ```shell
-git https://github.com/happywithxpl/GeneMiner.git
+git clone https://github.com/happywithxpl/GeneMiner.git
 cd GeneMiner
 python setup.py install --record logName --user
 ```
