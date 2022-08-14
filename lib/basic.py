@@ -55,24 +55,6 @@ def is_gb(filename):
 
 
 '''
-判断文件是否是txt文本文件，布尔值
-'''
-def is_txt_file(file):
-    try:
-        flag=1
-        suffix=os.path.splitext(file)[-1]
-        if suffix!=".txt":
-            flag=0
-    except:
-        flag=0
-    return flag
-
-
-
-
-
-
-'''
 为了防止数据质量太差，导致某一步骤做不出来结果，无法接续运行
 为了提高程序程序鲁棒性，判断文件是否存在，如果不存在或者文件大小为0，认定为无效返回0  有效返回1 
 '''
@@ -122,9 +104,6 @@ def is_exist_simple(file):
         flag=0
     return flag
 
-
-
-
 '''
 获取目录下所有文件
 '''
@@ -135,21 +114,6 @@ def get_files(ref):
             file_path = os.path.join(root, file)
             file_path_list.append(file_path)
     return file_path_list
-
-'''
-新建文件夹
-'''
-def dir_make(out_dir):
-    if os.path.exists(out_dir) and len(os.listdir(out_dir)) > 0:
-        print("\nerror! {}：the folder has already existed,and there are files under the folder.".format(out_dir))
-        sys.exit()
-    #针对于用户先创建文件夹，再使用
-    elif os.path.exists(out_dir) and len(os.listdir(out_dir))==0:
-        pass
-    else:
-        os.makedirs(out_dir)
-
-
 
 #分割线 文字内容不得大于分割线
 def cutting_line(message=""):
@@ -166,70 +130,21 @@ def cutting_line(message=""):
     return element_all
 
 
-
-
 def get_basename(file):
+    extension = (".fasta", ".fas", ".fa", ".fna", ".ffn", ".frn", ".faa")
     if is_exist(file):
-        basename=os.path.basename(file)
-        if ".fasta" in basename:
-            basename = basename.split(".fasta")[0]
-        elif ".fas" in basename:
-            basename = basename.split(".fas")[0]
-        elif ".fa" in basename:
-            basename = basename.split(".fa")[0]
+        basename = os.path.basename(file)
+        stem, suffix = os.path.splitext(basename)
+        if suffix:
+            if suffix.lower() in extension:
+                basename = stem
         else:
-            basename=basename
+            basename = basename
         return basename
 
-
 '''
-判断输入参考基因组是文件还是文件夹，0代表文件夹，1代表文件
-'''
-def file_or_directory(ref):
-    if os.path.isdir(ref):
-        files = os.listdir(ref)
-        if len(files) == 0:
-            print("the input  reference genome folder is empty")
-            sys.exit()
-        else:
-            flag = 0
-            # print("this is a dir")
-    elif os.path.isfile(ref):
-        size = os.path.getsize(ref)
-        if size == 0:
-            print("The input reference genome file is empty")
-            sys.exit()
-        else:
-            flag = 1
-            # print("this is a file")
-    else:
-        sys.exit()
-    return flag
-
-# '''
 # 获得目标陆路径 所有非空文件
-# '''
-# def get_file_list(path):
-#     file_list=[]
-#     if os.path.isdir(path):
-#         files=get_files(path)
-#         for i in files:
-#             if os.path.getsize(i)==0:
-#                 print("{} is empty".format(i))
-#                 sys.exit()
-#             else:
-#                 file_list.append(i)
-#     elif os.path.isfile(path):
-#         size = os.path.getsize(path)
-#         if size == 0:
-#             print("{}：is empty".format(path))
-#             sys.exit()
-#         else:
-#             file_list.append(path)
-#     else:
-#         sys.exit()
-#     return file_list
-
+'''
 def get_file_list(path):
     file_list = []
     if os.path.isdir(path):
@@ -311,111 +226,11 @@ def cut_align(seq, ref):
     return trimmed_contigs
 
 
-
-
-
-
 ###############################################
 '''
 计算一致度和覆盖度     平均时间 0.42290181159973145s  bootstrap
 '''
 #################################333
-
-
-#根据名字获得对应序列
-def get_seq_from_name(file,name_list):
-    infile = open(file, 'r', encoding='utf-8', errors='ignore')
-    name = ""
-    seq = ""
-    my_list=[]
-
-    while True:
-        line = infile.readline()
-        line = line.strip()
-        if (line.startswith('>') or not line) and (name in name_list):  # 保证最后一条序列能能在保存后退出,保证第一条是有效的
-            temp = {}
-            temp = {name: seq}
-            my_list.append(temp)
-        if line.startswith('>'):
-            name = line[1:]
-            seq = ''
-        else:
-            seq += line
-        if not line:
-            break
-    return  my_list  #[{gene:seq}]
-
-
-'''
-从fasta序列中获取seq，可指定条目
-'''
-def get_seq_v01(fasta_file,max_seq_number=100,seq_count_limit=False):
-    infile = open(fasta_file, 'r', encoding='utf-8', errors='ignore')
-    seq, name = "", ""
-    my_list = []
-    seq_number = 0
-    while True:
-        line = infile.readline()
-        line = line.strip()
-        line=line.replace("N","")  #特定对于scaffold
-        if (line.startswith('>') or not line) and name:  # 保证最后一条序列能能在保存后退出
-            temp = {}
-            temp = {name: seq}
-            my_list.append(temp)
-            seq_number += 1
-        if line.startswith('>'):
-            name = line[1:]
-            seq = ''
-        else:
-            seq += line
-        if not line:
-            break
-        if seq_count_limit and max_seq_number:
-            if seq_number >= max_seq_number:
-                break
-    infile.close()
-    return my_list
-
-
-'''
-获得序列
-structure:  [{gene1:seq1},{gene2:seq2}]
-'''
-def get_seq(fasta_file, max_seq_number=100, seq_count_limit=False):
-    infile = open(fasta_file, 'r', encoding='utf-8', errors='ignore')
-    seq, name = "", ""
-    my_list = []
-    seq_number = 0
-    while True:
-        line = infile.readline()
-        line = line.strip()
-
-        line_back=line                #防止一整行都是"N"导致程序中断，从而保证退出条件仅为 "文件读完毕"
-
-        if line and line[0]!=">":
-            line = line.replace("N", "")  # 特定对于scaffold
-
-        if (line.startswith('>') or (not line and not line_back)  ) and name:  # 保证最后一条序列能能在保存后退出
-            temp = {}
-            temp = {name: seq}
-            my_list.append(temp)
-            seq_number += 1
-        if line.startswith('>'):
-            name = line[1:]  # 包含了description
-            seq = ''
-        else:
-            seq += line
-
-        if not line and not line_back: #唯一退出条件 读完文件，而非N导致
-            break
-        if seq_count_limit and max_seq_number:
-            if seq_number >= max_seq_number:
-                break
-    infile.close()
-    return my_list
-
-
-
 
 def get_gap_information(alignment_seq):
     gap_number_list = re.findall(r"-", alignment_seq)  # 统计空位数量
@@ -700,12 +515,12 @@ def ML_str_re(in_str=""):
 
 #记录日志信息
 import csv
-def mylog_v1(file_path,sth):
+def mylog_v01(file_path,sth):
     with open(file_path,"a",newline='') as f:  #不同操作系统换行符不一样 linux:\n  windows:\r\n  mac \r newline参数可以统一换行符  否则中间会出现默认空白行
         writer=csv.writer(f)
         writer.writerow(sth)
 
-def mylog(file_path,sth,row=True):
+def mylog_v02(file_path,sth,row=True):
     if row==True:
         with open(file_path,"a",newline='') as f:  #不同操作系统换行符不一样 linux:\n  windows:\r\n  mac \r newline参数可以统一换行符  否则中间会出现默认空白行
             writer=csv.writer(f)
@@ -715,6 +530,15 @@ def mylog(file_path,sth,row=True):
             writer = csv.writer(f)
             writer.writerows(sth)
 
+def mylog(file_path, sth, row=True,delimiter=","):
+    if row == True:
+        with open(file_path, "a",newline='') as f:  # 不同操作系统换行符不一样 linux:\n  windows:\r\n  mac \r newline参数可以统一换行符  否则中间会出现默认空白行
+            writer = csv.writer(f, delimiter=delimiter)
+            writer.writerow(sth)
+    else:
+        with open(file_path, "a",newline='') as f:  # 不同操作系统换行符不一样 linux:\n  windows:\r\n  mac \r newline参数可以统一换行符  否则中间会出现默认空白行
+            writer = csv.writer(f, delimiter=delimiter)
+            writer.writerows(sth)
 
 
 

@@ -6,9 +6,26 @@
 # @Software: PyCharm
 import os
 import shutil
+from Bio import  SeqIO
 from lib.basic import get_file_list,is_exist,get_fasta_file,get_basename
 from lib.my_filter import  my_filter_main
 from lib.my_assemble import  my_assemble_main
+
+
+def check_length(file,min_length,max_length):
+    flag=1
+    for rec in SeqIO.parse(file,"fasta"):
+        length=len(str(rec.seq))
+        if length>=min_length and length<=max_length:
+            flag=1
+            break
+        else:
+            flag=0
+            break
+    return flag
+
+
+
 class CorePipeLine():
     def __init__(self,configuration_information):
         self.configuration_information=configuration_information
@@ -43,7 +60,6 @@ class CorePipeLine():
         #路径
         self.filter_path = configuration_information["filter_path"]
         self.assemble_path = configuration_information["assemble_path"]
-        self.muscle_path = configuration_information["muscle_path"]
         self.reference_database_path= os.path.join(self.out_dir,self.reference_database)
         self.filtered_out_path=os.path.join(self.out_dir,self.filtered_out)
         self.assembled_out_path=os.path.join(self.out_dir,self.assembled_out)
@@ -60,7 +76,6 @@ class CorePipeLine():
         step_length=self.step_length
         thread_number = self.thread_number
         data_size=self.data_size
-        filter_path=self.filter_path
         quiet=self.quiet
 
         filter_configuration_information={
@@ -86,7 +101,6 @@ class CorePipeLine():
         k2 = self.k2
         out_dir = self.out_dir
         quiet=self.quiet
-        assemble_path = self.assemble_path  # assemble.py
 
 
         files = get_file_list(filtered_out_path)
@@ -113,6 +127,10 @@ class CorePipeLine():
 
 
     def get_results_contig(self):
+        max_length=self.max_length
+        min_length=self.min_length
+        thread_number=self.thread_number
+
         path1=self.assembled_out_path
         path2=os.path.join(path1,"short_contig")
         path3=os.path.join(path1,"contig")
@@ -123,6 +141,8 @@ class CorePipeLine():
             os.mkdir(GM_results_path)
         path_list=[path2,path3,path4] #short contig scaffold
         results=[] #冗余
+        results_meet_length=[] #Meets length requirements
+
         GM_results_list=[]
         gene_name_list=[]
         for i in path_list:
@@ -132,8 +152,12 @@ class CorePipeLine():
 
         if results==[]:
             return 0
-        #contig和scaffold同时存在时  去除scaffold
+        #限定长度
         for i in results:
+            if check_length(i,min_length,max_length):
+                results_meet_length.append(i)
+        #contig和scaffold同时存在时  去除scaffold
+        for i in results_meet_length:
             name=get_basename(i)
             if name not in gene_name_list:
                 gene_name_list.append(name)
@@ -152,7 +176,7 @@ if __name__ == '__main__':
     out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\cp_out"
     rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\cp_gene"
     rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
-    # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb"
+
 
     k1=17
     k2=31
@@ -163,8 +187,8 @@ if __name__ == '__main__':
     limit_max_length=2
     change_seed=32
     scaffold_or_not=True
-    max_length = 50000
-    min_length = 0
+    max_length = 5000
+    min_length = 300
     thread_number=4
     soft_boundary = 0
     bootstrap_information=[True,10]
@@ -186,7 +210,7 @@ if __name__ == '__main__':
 
     filter_path=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\my_filter.py"
     assemble_path=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\my_assemble.py"
-    muscle_path=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\muscle3"
+
 
     #其他信息
     my_software_name = "GM"
@@ -213,13 +237,12 @@ if __name__ == '__main__':
                                  "bootstrap_data_set": bootstrap_data_set,
                                  "bootstrap_concensus": bootstrap_concensus,
                                  "my_software_name": my_software_name,
-                                 "filter_path": filter_path, "assemble_path": assemble_path, "muscle_path": muscle_path,
+                                 "filter_path": filter_path, "assemble_path": assemble_path,
                                  "quiet":quiet
 
                                  }
-    # print(configuration_information)
     my_core_pipeline=CorePipeLine(configuration_information)
-    my_core_pipeline.filter_pipeline()
-    my_core_pipeline.assemble_pipeline()
+    # my_core_pipeline.filter_pipeline()
+    # my_core_pipeline.assemble_pipeline()
     my_core_pipeline.get_results_contig()
 

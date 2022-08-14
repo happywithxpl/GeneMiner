@@ -118,7 +118,6 @@ def main(args):
     cur_path = os.path.dirname(cur_path)  # 脚本的父目录,father_path 覆盖
     filter_path = os.path.join(cur_path, "lib", "my_filter.py")
     assemble_path = os.path.join(cur_path, "lib", "my_assemble.py")
-    muscle_path = os.path.join(cur_path, "lib", "muscle3")  # muscle3
     # 文件夹目录
     reference_database = "reference_database"
     filtered_out = "filtered_out"
@@ -141,8 +140,8 @@ def main(args):
                  "k1": k1, "k2": k2, "threads": thread_number,
                  "step length": step_length,
                  "limit count": limit_count,
-                 "limit min lenght": limit_min_length,
-                 "limit max lenght": limit_max_length,
+                 "limit min ratio": limit_min_length,
+                 "limit max ratio": limit_max_length,
                  "change seed": change_seed,
                  "max length": max_length, "min length": min_length,
                  "soft boundary": soft_boundary, "data size": data_size,
@@ -155,8 +154,8 @@ def main(args):
                                  "k1": k1, "k2": k2, "thread_number": thread_number,
                                  "step_length": step_length,
                                  "limit_count": limit_count,
-                                 "limit_min_length": limit_min_length,
-                                 "limit_max_length": limit_max_length,
+                                 "limit_min_length": limit_min_length, #limit_min_ratio
+                                 "limit_max_length": limit_max_length, #limit_max_ratio
                                  "scaffold_or_not": scaffold_or_not,
                                  "change_seed": change_seed,
                                  "max_length": max_length, "min_length": min_length,
@@ -171,7 +170,7 @@ def main(args):
                                  "bootstrap_concensus": bootstrap_concensus,
                                  "my_software_name": my_software_name,
                                  "system": system,
-                                 "filter_path": filter_path, "assemble_path": assemble_path, "muscle_path": muscle_path,
+                                 "filter_path": filter_path, "assemble_path": assemble_path,
                                  "quiet":quiet
 
                                  }
@@ -222,70 +221,71 @@ if __name__ == "__main__":
     # 原始数据输入部分
     basic_option_group = parser.add_argument_group(title="Basic option")
     basic_option_group.add_argument("-1", dest="data1",
-                                    help="One end of the paired-end reads, support fastq format", metavar="")
+                                    help="File with forward paired-end reads (*.fq/*.fq.gz)", metavar="")
     basic_option_group.add_argument("-2", dest="data2",
-                                    help="Another end of the paired-end reads, support fastq format", metavar="")
+                                    help="File with reverse paired-end reads (*.fq/*.fq.gz)", metavar="")
 
     basic_option_group.add_argument("-s", "--single", dest="single",
-                                    help="Single reads, support fastq format", metavar="")
-    basic_option_group.add_argument("-o", "--out", dest="out", help="Specify the result folder ",
+                                    help="File with unpaired reads (*.fq/*.fq.gz).", metavar="")
+    basic_option_group.add_argument("-o", "--out", dest="out", help="Output folder",
                                     metavar="", required=True)
 
     basic_option_group.add_argument("-rtfa", dest="target_reference_fa",
-                                    help="References of target genes, only support fasta format", metavar="<file|dir>")
+                                    help="References of target sequences, only support fasta format", metavar="<file|dir>")
     basic_option_group.add_argument("-rtgb", dest="target_reference_gb",
-                                    help="References of target genes, only support GenBank format",
+                                    help="References of target sequences, only support GenBank format",
                                     metavar="<file|dir>")
+
+
 
     # 高级参数部分
     advanced_option_group = parser.add_argument_group(title="Advanced option")
 
     advanced_option_group.add_argument("-k1", "--kmer1", dest="kmer1",
-                                       help="Specify the size of the wordsize to filter reads  [default = 29]",
+                                       help="Length of kmer for filtering reads [default = 29]",
                                        default=29,
                                        type=int, metavar="")
     advanced_option_group.add_argument("-k2", "--kmer2", dest="kmer2",
-                                       help="Specify the size of the kmer to assemble reads  [default = 31]",
-                                       default=31,
+                                       help="Length of kmer for assembling reads [default = 41]",
+                                       default=41,
                                        type=int, metavar="")
 
     advanced_option_group.add_argument("-d", "--data", dest="data_size",
-                                       help="Specifies the number of reads to reduce raw data. If you want to use all the data, you can set as 'all' [default = 'all']",
+                                       help="Specify the number of reads to reduce raw data. If you want to use all the data, you can set as 'all' [default = 'all']",
                                        default='all', metavar="")
 
     advanced_option_group.add_argument("-step_length", metavar="", dest="step_length", type=int,
-                                       help="the length of the sliding window on the reads [default = 4]", default=4)
+                                       help="Step length of the sliding window on the reads [default = 4]", default=4)
     advanced_option_group.add_argument('-limit_count', metavar='', dest='limit_count',
-                                       help='''limit of kmer count [default=auto]''', required=False,
+                                       help='''limit of k-mer count [default=auto]''', required=False,
                                        default='auto')
-    advanced_option_group.add_argument('-limit_min_length', metavar='', dest='limit_min_length', type=float,
-                                       help='''limit of contig length''',
+    advanced_option_group.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
+                                       help='''The minimum ratio of contig length to reference average length [default = 1.0]''',
                                        required=False, default=1)
-    advanced_option_group.add_argument('-limit_max_length', metavar='', dest='limit_max_length', type=float,
-                                       help='''limit of contig length''',
+    advanced_option_group.add_argument('-limit_max_ratio', metavar='', dest='limit_max_length', type=float,
+                                       help='''The maximum ratio of contig length to reference average length [default = 2.0]''',
                                        required=False, default=2)
 
     advanced_option_group.add_argument("-change_seed", metavar="", dest="change_seed", type=int,
-                                       help='''times of changing seed [default = 32]''', required=False,
+                                       help='''Times of changing seed [default = 32]''', required=False,
                                        default=32)
-    advanced_option_group.add_argument('-scaffold', metavar="", dest="scaffold", type=str, help='''make scaffold''',
+    advanced_option_group.add_argument('-scaffold', metavar="", dest="scaffold", type=str, help='''Make scaffold''',
                                        default=False)
-
-    advanced_option_group.add_argument("-max", dest="max", help="The maximum length of contigs [default = 5000]",
+    advanced_option_group.add_argument("-max", dest="max", help="The maximum length of contigs to be retained [default = 5000]",
                                        default=5000,
                                        type=int, metavar="")
-    advanced_option_group.add_argument("-min", dest="min", help="The minimum length of contigs [default = 300]",
+    advanced_option_group.add_argument("-min", dest="min", help="The minimum length of contigs to be retained [default = 300]",
                                        default=300,
                                        type=int, metavar="")
     advanced_option_group.add_argument("-t", "--thread",
-                                       help="The number of threads [default = 'auto']",
+                                       help="Number of threads [default = 'auto']",
                                        default="auto", metavar="")
     advanced_option_group.add_argument("-b", "--boundary", dest="soft_boundary",
-                                       help="Extend the length to both sides of the gene while extracting genes from Genbank file [default = 75]",
+                                       help="The length of the extension along both sides of the target sequence [default = 75]",
                                        default=75, type=int, metavar="")
 
     advanced_option_group.add_argument("-bn", "--bootstrap", dest="bootstrap_number", type=int,
-                                       help="Specify the bootstrap number. Evaluate the results based on the bootstrap method",
+                                       help="Number of resampling based on nucleotide substitution model",
                                        metavar="")
     args = parser.parse_args()
 

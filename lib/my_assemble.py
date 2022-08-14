@@ -193,6 +193,7 @@ def get_reads_length(file, type, _number=100):
     reads_length = []
     number = 0
     number_limit = _number
+
     if type == "fastq":
         infile = gzip.open(file, 'rt') if file[-3:].lower() == ".gz" else open(file, 'r')
         for _ in infile:
@@ -462,8 +463,6 @@ def get_dis(_pos, new_pos, weight=0.5):
 权重赋分
 当出现多歧，赋分差距越大，则越倾向于保守而不是延长序列。 a:10分   b：1分  b路径可能要延长很久才能超过a
 '''
-
-
 def get_weight(_count, _pos, average_pos, _dis=0.5):
     '''
     :param _count:
@@ -478,6 +477,25 @@ def get_weight(_count, _pos, average_pos, _dis=0.5):
         dis = _dis
     weight = _count ** dis
     return weight
+
+
+'''
+for test
+'''
+# def get_weight(_count, _pos, average_pos, _dis=0.5):
+#     '''
+#     :param _count:
+#     :param _pos: 当前拼接到的位置
+#     :param average_pos:  kmer在ref上出现的平均位置,经make_assemble_hashdict处理后， 位置信息都在0,1之间 （考虑了反向互补）
+#     :param _weight:
+#     :return:
+#     '''
+#     # weight = _count
+#     weight = 1
+#     return weight
+
+
+
 
 
 def get_contig_forward(_dict, seed, iteration=1000):
@@ -1477,24 +1495,24 @@ if __name__ == '__main__':
     pars.add_argument("-o", "--out", dest="out", help="Specify the result folder <dir>",
                       metavar="", required=True)
 
-    pars.add_argument("-k2", "--kmer2", dest="kmer2", help="length of kmer[default=31]",
-                      default=31, type=int, metavar="")
+    pars.add_argument("-k2", "--kmer2", dest="kmer2", help="Length of kmer for filtering reads [default = 29]",
+                      default=41, type=int, metavar="")
     pars.add_argument("-t", "--thread", metavar="", dest="thread_number", help="Thread", type=int, default=1)
     pars.add_argument("-r", "--reference", metavar="", dest="reference", type=str, help="references  <dir>",
                       required=True)
     pars.add_argument("-i", "--input", metavar="", dest="input", type=str, help="filtered reads  <dir>", required=True)
 
-    pars.add_argument('-limit_count', metavar='', dest='limit_count', help='''limit of kmer count,[default=auto]''',
+    pars.add_argument('-limit_count', metavar='', dest='limit_count', help='''limit of k-mer count [default=auto]''',
                       required=False,
                       default='auto')
-    pars.add_argument('-limit_min_length', metavar='', dest='limit_min_length', type=float,
-                      help='''limit of contig length''',
+    pars.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
+                      help='''The minimum ratio of contig length to reference average length [default = 1.0]''',
                       required=False, default=0.5)
-    pars.add_argument('-limit_max_length', metavar='', dest='limit_max_length', type=float,
-                      help='''limit of contig length''',
+    pars.add_argument('-limit_max_ratio', metavar='', dest='limit_max_length', type=float,
+                      help='''The maximum ratio of contig length to reference average length [default = 2.0]''',
                       required=False, default=2)
     pars.add_argument("-change_seed", metavar="", dest="change_seed", type=int,
-                      help='''times of changing seed [default=32]''', required=False,
+                      help='''Times of changing seed [default=32]''', required=False,
                       default=32)
     pars.add_argument('-scaffold', metavar="", dest="scaffold", type=str, help='''make scaffold''', default=False)
     pars.add_argument("-quiet", dest="quiet", help="Do not write progress messages to stderr", default=False,action='store_true')

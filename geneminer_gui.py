@@ -104,7 +104,7 @@ def main(args):
     check_reference(target_reference_fa, target_reference_gb)
     thread_number = check_threads_number(thread_number)  # 确定线程数量
     k1 = check_k1(k1)  # 检测k1 filter
-    k2 = check_k1(k2)  # 检测k1 filter
+    k2 = check_k2(k2)  # 检测k1 filter
     step_length = check_step_length(step_length)  # 步长
     limit_count = check_limit_count(limit_count)  # 限定reads中最低kmercount
     limit_min_length, limit_max_length = check_limit_length(limit_min_length,
@@ -121,7 +121,6 @@ def main(args):
     cur_path = os.path.dirname(cur_path)  # 脚本的父目录,father_path 覆盖
     filter_path = os.path.join(cur_path, "lib", "my_filter.py")
     assemble_path = os.path.join(cur_path, "lib", "my_assemble.py")
-    muscle_path = os.path.join(cur_path, "lib", "muscle3")  # muscle3
     # 文件夹目录
     reference_database = "reference_database"
     filtered_out = "filtered_out"
@@ -144,8 +143,8 @@ def main(args):
                  "k1": k1, "k2": k2, "threads": thread_number,
                  "step length": step_length,
                  "limit count": limit_count,
-                 "limit min lenght": limit_min_length,
-                 "limit max lenght": limit_max_length,
+                 "limit min ratio": limit_min_length,
+                 "limit max ratio": limit_max_length,
                  "change seed": change_seed,
                  "max length": max_length, "min length": min_length,
                  "soft boundary": soft_boundary, "data size": data_size,
@@ -158,8 +157,8 @@ def main(args):
                                  "k1": k1, "k2": k2, "thread_number": thread_number,
                                  "step_length": step_length,
                                  "limit_count": limit_count,
-                                 "limit_min_length": limit_min_length,
-                                 "limit_max_length": limit_max_length,
+                                 "limit_min_length": limit_min_length, #limit_min_ratio
+                                 "limit_max_length": limit_max_length, #limit_max_ratio
                                  "scaffold_or_not": scaffold_or_not,
                                  "change_seed": change_seed,
                                  "max_length": max_length, "min_length": min_length,
@@ -174,7 +173,7 @@ def main(args):
                                  "bootstrap_concensus": bootstrap_concensus,
                                  "my_software_name": my_software_name,
                                  "system": system,
-                                 "filter_path": filter_path, "assemble_path": assemble_path, "muscle_path": muscle_path,
+                                 "filter_path": filter_path, "assemble_path": assemble_path,
                                  "quiet":quiet
 
                                  }

@@ -15,6 +15,12 @@ from lib.basic import get_basename,get_fasta_file,get_file_list,is_exist,mylog,c
 from lib.my_filter import  my_filter_main
 from lib.my_assemble import  my_assemble_main
 
+
+# from basic import get_basename,get_fasta_file,get_file_list,is_exist,mylog,cutting_line,get_files,get_identity,get_identity_and_mutate_model
+# from my_filter import  my_filter_main
+# from my_assemble import  my_assemble_main
+
+
 ################################################
 #################################################
 
@@ -57,28 +63,34 @@ def get_bootstrap_hashdict(reference, merSize):
                 kmer_dict[kmer]=[gene_name]
     return  kmer_dict
 
-#根据名字获得对应序列
-def get_seq_from_name(file,name_list):
+#根据名字获得对应序列,名字 [1：]
+def get_seq_from_name(file, name_list):
     infile = open(file, 'r', encoding='utf-8', errors='ignore')
     name = ""
     seq = ""
-    my_list=[]
+    my_list = []
 
     while True:
         line = infile.readline()
         line = line.strip()
-        if (line.startswith('>') or not line) and (name in name_list):  # 保证最后一条序列能能在保存后退出,保证第一条是有效的
+        line_back = line
+
+        if line and line[0] != ">":
+            line = line.replace("N", "")
+
+        if (line.startswith('>') or (not line and not line_back)) and (name in name_list):
             temp = {}
             temp = {name: seq}
             my_list.append(temp)
+
         if line.startswith('>'):
             name = line[1:]
             seq = ''
         else:
             seq += line
-        if not line:
+        if not line and not line_back:
             break
-    return  my_list  #[{gene:seq}]
+    return my_list  # [{gene:seq}]
 
 '''
 从fasta序列中获取seq，可指定条目
@@ -139,92 +151,6 @@ def bootstrap_mutate(file,mutate_model,output,bootstrap_number):
         with open(bootstrap_out_path,"a") as f:
             f.write('>'+gene_name+"_bootstrap_"+str(i)+"\n")
             f.write(seq_var+"\n")
-
-
-
-def split_mutate_sequences(input_file,out_dir):
-    '''
-    :param input_file: 合并后的变异序列
-    :param out_dir: 拆分后的序列，输出在一个文件夹下，该文件夹需要提前创建
-    :return:
-    '''
-    infile = open(input_file, 'r', encoding='utf-8', errors='ignore')
-    name=""
-    seq=""
-    my_list=[]
-    while True:
-        line = infile.readline()
-        line = line.strip()
-        if (line.startswith('>') or not line) and name:  # 保证最后一条序列能能在保存后退出
-            temp = {}
-            temp = {name: seq}
-            my_list.append(temp)
-        if line.startswith('>'):
-            name = line[1:]
-            seq = ''
-        else:
-            seq += line
-        if not line:
-            break
-    infile.close()
-
-    if my_list==[]:
-        return 0
-    number=1
-    for i in my_list:
-        header= list(i.keys())[0]
-        sequence=list(i.values())[0]
-        temp=[">"+header+"\n"+sequence]
-
-        name="bootstrap"+"_"+str(number)
-        path=os.path.join(out_dir,name+".fasta")
-        with open(path,"w") as f:
-            f.writelines(temp)
-        number+=1
-
-'''
-合并fasta文件
-'''
-def combine_fasta(input_file_list,out_put):
-    '''
-    :param input_file_list: 输入fasta文件列表
-    :param out_put:  输出，如果该文件在某一文件夹下，需要提前创建
-    :return:
-    '''
-    records=[]
-    for i in input_file_list:
-        infile = open(i, 'r', encoding='utf-8', errors='ignore')
-        seq, name = "", ""
-        my_list = []
-        while True:
-            line = infile.readline()
-            line = line.strip()
-            line = line.replace("N", "")  # 特定对于scaffold
-            if (line.startswith('>') or not line) and name:  # 保证最后一条序列能能在保存后退出
-                temp = {}
-                temp = {name: seq}
-                my_list.append(temp)
-            if line.startswith('>'):
-                name = line[1:]
-                seq = ''
-            else:
-                seq += line
-            if not line:
-                break
-        infile.close()
-
-        if my_list == []:
-            continue
-        for i in my_list:
-            header = list(i.keys())[0]
-            sequence = list(i.values())[0]
-            temp = [">" + header + "\n" + sequence+"\n"]
-            records.extend(temp)
-    if records==[]:
-        return 0
-    with open(out_put,"w") as f:
-        for i in records:
-            f.writelines(i)
 
 '''
 获得geneminer my_assmble的结果序列
@@ -346,12 +272,7 @@ class BootstrapPipeLine():
                 for z in ref_kmer_dict[i]:
                     kmer_count[z] += 1
 
-        # 获得中位数kmercount 参考序列作为平均变异度的计算
-        sorted_list = sorted(kmer_count.items(), key=lambda x: x[1], reverse=True)
-        name_list = []
-        length = len(sorted_list)  # 144
-        name_list.append(sorted_list[int(length/2)][0])  # 取kmercount中位数
-
+        #Extreme conditions
         if not kmer_count:
             limit_kmer = 17
             kmer = limit_kmer
@@ -363,6 +284,19 @@ class BootstrapPipeLine():
                         kmer_count[z] += 1
         if not kmer_count:
             return 0
+
+        # 获得中位数kmercount 参考序列作为平均变异度的计算
+        sorted_list = sorted(kmer_count.items(), key=lambda x: x[1], reverse=True)
+        name_list = []
+        length = len(sorted_list)  # 144
+        name_list.append(sorted_list[int(length/2)][0])  # 取kmercount中位数
+
+
+
+
+
+
+
         # 获得一致度，变异度
         ref_seq = get_seq_from_name(ref_path, name_list)
         ref_seq = list(ref_seq[0].values())[0]
@@ -518,7 +452,7 @@ class BootstrapPipeLine():
             bootstrap_result_seq = list(seq2[0].values())[0]
             score = format(get_identity(gm_result_seq, bootstrap_result_seq)*100,".2f") #format控制位数比round好
         else:
-            score = "failed"
+            score = "0"
         sth = [gene, bootstrap_number, str(score)]
         mylog(log_path, sth)
 
@@ -555,11 +489,11 @@ class BootstrapPipeLine():
         high_quality_results_path=os.path.join(boostrap_out_path,high_quality_results)
         if not os.path.isdir(high_quality_results_path):
             os.makedirs(high_quality_results_path)
-        bootstrap_score_threshold_value=99.5
+        bootstrap_score_threshold_value=100
         if results:
             for i in results:
                 gene_name=i[0]
-                if i[1]=="failed":
+                if i[1]=="0":
                     continue
                 else:
                     score=float(i[1])
@@ -620,7 +554,7 @@ if __name__ == '__main__':
     # single = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\A_thaliana_s_2g_single.fastq"
 
 
-    # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\geneminer_2g_t20_k2931_bn100_004"
+    # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\geneminer_2g_t20_k2931_bn100_003"
     # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\ref_Brassicaceae"
     # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
 
@@ -634,8 +568,8 @@ if __name__ == '__main__':
     limit_max_length=2
     change_seed=32
     scaffold_or_not=True
-    max_length = 50000
-    min_length = 0
+    max_length = 5000
+    min_length = 300
     thread_number=4
     soft_boundary = 0
     bootstrap_information=[True,10]
@@ -652,7 +586,7 @@ if __name__ == '__main__':
 
     filter_path=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\my_filter.py"
     assemble_path=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\my_assemble.py"
-    muscle_path=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\muscle3"
+
 
     #其他信息
     my_software_name = "GM"
@@ -675,7 +609,7 @@ if __name__ == '__main__':
                                  "GM_results": GM_results,
                                  "results_log": results_log,
                                  "my_software_name": my_software_name,
-                                 "filter_path": filter_path, "assemble_path": assemble_path, "muscle_path": muscle_path,
+                                 "filter_path": filter_path, "assemble_path": assemble_path,
                                  "quiet":quiet
                                  }
 
