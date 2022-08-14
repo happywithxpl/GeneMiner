@@ -1,296 +1,471 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Time    : 2022/5/8 10:05
+# @Time    : 2021/10/20 16:53
 # @Author  : xiepulin
-# @File    : geneminer.py
+# @File    : verify_parameters.py
 # @Software: PyCharm
-
-
-import argparse
 import sys
-import subprocess
-import datetime
 import os
-import logging
-import re
 import multiprocessing
-import signal
-import threading
-import time
-import math
-import platform
-from collections import  defaultdict
-import shutil
-import random
-import gzip
-import gc
-import csv
-import copy
-from concurrent.futures import ProcessPoolExecutor
-from concurrent import futures
+from lib.basic import check_true,is_exist,is_exist_simple,get_file_list,is_fasta,is_gb
+from lib.global_var import get_value ,set_value, get_init
+###############################################
 
 '''
-导入第三方库（非标准库）
+检测终止信号，优雅退出
 '''
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
-from Bio.Seq import Seq
-from Bio import pairwise2
+def signal_handler(signal, frame):
+    print("GeneMiner has been terminated")
+    set_value("my_gui_flag", 0)
+    sys.exit(0)
 
+'''
+检测系统环境部分
+(1)python版本
+'''
+##############################################
+def check_python_version():
+    this_python = sys.version_info[:2]
+    min_version = (3, 6)
+    if this_python < min_version:
+        message_parts = [
+            "GeneMiner does not work on Python {}.{}.".format(*this_python),            #*可以用来接受元组
+            "The minimum supported Python version is {}.{}.".format(*min_version),
+            "Please download the eligible version from https://www.python.org/.".format(*this_python)]
+        print("ERROR: " + " ".join(message_parts))
+        set_value("my_gui_flag", 0)
+        sys.exit()
 
-# import PySimpleGUI as sg
-cur_path = os.path.realpath(sys.argv[0])  # 脚本当前路径
-father_path = os.path.dirname(cur_path)  # 脚本的父目录
-sys.path.append(os.path.join(father_path, "lib"))
-
-from lib.global_var import get_init,set_value,get_value
-from lib.basic import get_absolute,get_platform
-from lib.verify_parameters import check_input,check_k1,check_scaffold,check_datasize,check_k2,check_reference,check_change_seed,check_out_dir,check_limit_count,check_limit_length,check_step_length,check_max_min_length,check_bootstrap_parameter,check_soft_boundary,check_python_version,check_threads_number,print_parameter_information
-from lib.build_reference_database import my_bulid_reference_database_pipeline
-from lib.core_pipeline import CorePipeLine
-from lib.bootstrap_pipeline import my_bootstrap_pipeline_main
-from lib.pack_results import my_pack_results_pipeline_main
-
-my_version = 'Version 1.0b build 20220122'
-my_cite = 'Cite: https://github.com/happywithxpl/GeneMiner'
-get_init()  # 在basic 中已经申明过了
-
-def main(args):
-    t1=time.time()
-    set_value("my_gui_flag", 1)  # 用于判定GUI是否处于运行状态，1代表运行，0代表没有运行
-    '''
-    从程序外获得的参数信息
-    '''
-    data1 = args.data1
-    data2 = args.data2
-    single = args.single
-    target_reference_fa = args.target_reference_fa
-    target_reference_gb = args.target_reference_gb
-    out_dir = args.out
-    thread_number = args.thread
-    k1 = args.kmer1
-    k2 = args.kmer2
-    step_length = args.step_length
-    limit_count = args.limit_count
-    limit_min_length = args.limit_min_length
-    limit_max_length = args.limit_max_length
-    scaffold_or_not = args.scaffold
-
-    change_seed = args.change_seed
-    soft_boundary = args.soft_boundary
-    max_length = args.max
-    min_length = args.min
-    data_size = args.data_size
-    bootstrap_number = args.bootstrap_number
-    quiet=False
-
-
-    data1 = get_absolute(data1)
-    data2 = get_absolute(data2)
-    single = get_absolute(single)
-    out_dir = get_absolute(out_dir)
-    target_reference_fa = get_absolute(target_reference_fa)
-    target_reference_gb = get_absolute(target_reference_gb)
-
-    # 校验信息
-    check_python_version()
-    out_dir = check_out_dir(out_dir)  # 输出文件夹检测
-    set_value("out_dir", out_dir)
-
-    check_input(data1, data2, single)
-    check_reference(target_reference_fa, target_reference_gb)
-    thread_number = check_threads_number(thread_number)  # 确定线程数量
-    k1 = check_k1(k1)  # 检测k1 filter
-    k2 = check_k2(k2)  # 检测k1 filter
-    step_length = check_step_length(step_length)  # 步长
-    limit_count = check_limit_count(limit_count)  # 限定reads中最低kmercount
-    limit_min_length, limit_max_length = check_limit_length(limit_min_length,
-                                                            limit_max_length)  # 限定组装contig最短百分比长度，较于ref
-    change_seed = check_change_seed(change_seed)  # 种子更换策略最大次数
-    scaffold_or_not = check_scaffold(scaffold_or_not)  # 是否做scaffold
-    soft_boundary = check_soft_boundary(soft_boundary)  # 检测软边界
-    check_max_min_length(max_length, min_length)  # 检测基因最大最小长度
-    data_size = check_datasize(data_size)  # 检测数据量 大小
-    bootstrap_information = check_bootstrap_parameter(bootstrap_number)  # 自展次数
-
-    # 脚本信息
-    cur_path = os.path.realpath(sys.argv[0])  # 脚本当前路径
-    cur_path = os.path.dirname(cur_path)  # 脚本的父目录,father_path 覆盖
-    filter_path = os.path.join(cur_path, "lib", "my_filter.py")
-    assemble_path = os.path.join(cur_path, "lib", "my_assemble.py")
-    # 文件夹目录
-    reference_database = "reference_database"
-    filtered_out = "filtered_out"
-    assembled_out = "assembled_out"
-    bootstrap_out = "bootstrap_out"
-    GM_results = "GM_results"
-
-    # 文件目录
-    results_log = "results.log"  # bootstarp  将所有Bootstrap结果写在一起的fasta
-    bootstrap_data_set = "bootstrap_data_set.fasta"
-    bootstrap_concensus = "bootstrap_concensus.fasta"  # 导出共识序列
-
-    # 其他信息
-    my_software_name = "GM"
-    system = get_platform()
-
-    printinfo = {"project name": out_dir,
-                 "data1": data1, "data2": data2, "single": single,
-                 "reference (fa)": target_reference_fa, "reference (gb)": target_reference_gb,
-                 "k1": k1, "k2": k2, "threads": thread_number,
-                 "step length": step_length,
-                 "limit count": limit_count,
-                 "limit min ratio": limit_min_length,
-                 "limit max ratio": limit_max_length,
-                 "change seed": change_seed,
-                 "max length": max_length, "min length": min_length,
-                 "soft boundary": soft_boundary, "data size": data_size,
-                 "bootstrap": bootstrap_information[0],
-                 "bootstrap number": bootstrap_information[1],
-                 }
-    configuration_information = {"out_dir": out_dir,
-                                 "data1": data1, "data2": data2, "single": single,
-                                 "rtfa": target_reference_fa, "rtgb": target_reference_gb,
-                                 "k1": k1, "k2": k2, "thread_number": thread_number,
-                                 "step_length": step_length,
-                                 "limit_count": limit_count,
-                                 "limit_min_length": limit_min_length, #limit_min_ratio
-                                 "limit_max_length": limit_max_length, #limit_max_ratio
-                                 "scaffold_or_not": scaffold_or_not,
-                                 "change_seed": change_seed,
-                                 "max_length": max_length, "min_length": min_length,
-                                 "soft_boundary": soft_boundary, "data_size": data_size,
-                                 "bootstrap": bootstrap_information[0], "bootstrap_number": bootstrap_information[1],
-                                 "reference_database": reference_database,
-                                 "filtered_out": filtered_out, "assembled_out": assembled_out,
-                                 "bootstrap_out": bootstrap_out,
-                                 "GM_results": GM_results,
-                                 "results_log": results_log,
-                                 "bootstrap_data_set": bootstrap_data_set,
-                                 "bootstrap_concensus": bootstrap_concensus,
-                                 "my_software_name": my_software_name,
-                                 "system": system,
-                                 "filter_path": filter_path, "assemble_path": assemble_path,
-                                 "quiet":quiet
-
-                                 }
-
-    print_parameter_information(printinfo)
-
-    # 构建参考序列基因库
-    my_bulid_reference_database_pipeline(configuration_information)
-    # 核心流程 过滤 拼接 校验
-    my_core_pipeline = CorePipeLine(configuration_information)
-    my_core_pipeline.filter_pipeline()
-    my_core_pipeline.assemble_pipeline()
-    my_core_pipeline.get_results_contig()
-
-    # 自展检测
-    if bootstrap_number:
-        my_bootstrap_pipeline_main(configuration_information)
-
-    my_pack_results_pipeline_main(configuration_information)
-
-    t2=time.time()
-
-    whole_time=format(t2-t1,"6.2f")
-
-    print("whole time: {}s".format(whole_time))
+##############################################################
 
 
 
 
 
-if __name__ == "__main__":
-    # signal.signal(signal.SIGINT, signal_handler)  # 检测函数终止退出（ctrl+c） #必须放在主程序中
-    # multiprocessing.freeze_support()  # windows上Pyinstaller打包多进程程序需要添加特殊指令
-    # set_value("my_gui_flag", 0)  # 用于判定脚本是否跑完，还可以防止run双击覆盖事件
-    parser = argparse.ArgumentParser(usage="%(prog)s <-1 -2|-s>  <-rtfa|rtgb>  <-o>  [options]",
-                                     description="GeneMiner: a software for extracting phylogenetic markers from next generation sequencing data\n"
-                                                 "Version: 1.0.0\n"
-                                                 "Copyright (C) 2022 Pulin Xie\n"
-                                                 "Please contact <xiepulin@stu.edu.scu.cn> if you have any questions",
+##############################################################
+'''
+第一部分 检测各项参数是否正确,正确后打印参数
+1.检测线程数量默认为所有线程数量的1/4 默认不大于4
+2限定kmer的大小 k1过滤  k2拼接
+3 限定步长
+4 限定limit count
+5 限定limit length
+6 限定change_seed
+7 检测软边界 默认为75 范围为0~200之间
+8 检测长度
+9 参考基因组格式是否对应  
+10 检测数据量大小 -d
+11 检测输入
+12.检测自展参数
+13.检测输出文件夹 out
 
-                                     formatter_class=argparse.RawTextHelpFormatter,
-                                     # help信息中会自动取消掉换行符和空格，argparse.RawTextHelpFormatter
-                                     # 可以将help信息恢复为原始的文本信
-
-                                     # epilog="xiepulin", #参数说明之后，显示程序的其他说明
-                                     # add_help=False   #禁用帮助信息
-                                     )
-    # 原始数据输入部分
-    basic_option_group = parser.add_argument_group(title="Basic option")
-    basic_option_group.add_argument("-1", dest="data1",
-                                    help="File with forward paired-end reads (*.fq/*.fq.gz)", metavar="")
-    basic_option_group.add_argument("-2", dest="data2",
-                                    help="File with reverse paired-end reads (*.fq/*.fq.gz)", metavar="")
-
-    basic_option_group.add_argument("-s", "--single", dest="single",
-                                    help="File with unpaired reads (*.fq/*.fq.gz).", metavar="")
-    basic_option_group.add_argument("-o", "--out", dest="out", help="Output folder",
-                                    metavar="", required=True)
-
-    basic_option_group.add_argument("-rtfa", dest="target_reference_fa",
-                                    help="References of target sequences, only support fasta format", metavar="<file|dir>")
-    basic_option_group.add_argument("-rtgb", dest="target_reference_gb",
-                                    help="References of target sequences, only support GenBank format",
-                                    metavar="<file|dir>")
+'''
+#############################################################
 
 
+'''
+1.检测线程数量默认为所有线程数量的1/4 默认不大于4
+'''
+def check_threads_number(thread):
+    thread_number = 1  # 初始化，至少一个
+    thread_number_all = multiprocessing.cpu_count()
+    if thread == "auto":
+        thread_number = int(thread_number_all * 0.25)
+        if thread_number == 0:
+            thread_number = thread_number + 1
+        elif thread_number>=4:
+            thread_number=4
+        else:
+            thread_number=thread_number
+    else:
+        thread=str(thread)
+        if thread.isdigit():         #判断是否为纯数字
+            thread = int(thread)
+            if thread > thread_number_all:
+                print("Number of threads exceed the  maximum, please check the -t parameter")
+                set_value("my_gui_flag", 0)
+                sys.exit()
+            elif thread <= 0:
+                print("Number of threads shuold exceed  0, please check the -t parameter")
+            else:
+                thread_number = thread
 
-    # 高级参数部分
-    advanced_option_group = parser.add_argument_group(title="Advanced option")
+        else:  #防止输入乱七八糟的东西
+            print("The number of threads must be an integer greater than 0, please check the -t parameter")
+            set_value("my_gui_flag", 0)
+            sys.exit()
 
-    advanced_option_group.add_argument("-k1", "--kmer1", dest="kmer1",
-                                       help="Length of kmer for filtering reads [default = 29]",
-                                       default=29,
-                                       type=int, metavar="")
-    advanced_option_group.add_argument("-k2", "--kmer2", dest="kmer2",
-                                       help="Length of kmer for assembling reads [default = 41]",
-                                       default=41,
-                                       type=int, metavar="")
+    return thread_number
 
-    advanced_option_group.add_argument("-d", "--data", dest="data_size",
-                                       help="Specify the number of reads to reduce raw data. If you want to use all the data, you can set as 'all' [default = 'all']",
-                                       default='all', metavar="")
+'''
+2限定kmer的大小 k1过滤  k2拼接
+2.1 filter k1 [17,127]
+'''
+def check_k1(k1):
+    max = 127
+    min = 17
+    if k1 < min or k1 > max:
+        print("K1 ranges from 17 to 127, please check the -k1 parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    else:
+        k2 = k1
+    return k2
 
-    advanced_option_group.add_argument("-step_length", metavar="", dest="step_length", type=int,
-                                       help="Step length of the sliding window on the reads [default = 4]", default=4)
-    advanced_option_group.add_argument('-limit_count', metavar='', dest='limit_count',
-                                       help='''limit of k-mer count [default=auto]''', required=False,
-                                       default='auto')
-    advanced_option_group.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
-                                       help='''The minimum ratio of contig length to reference average length [default = 1.0]''',
-                                       required=False, default=1)
-    advanced_option_group.add_argument('-limit_max_ratio', metavar='', dest='limit_max_length', type=float,
-                                       help='''The maximum ratio of contig length to reference average length [default = 2.0]''',
-                                       required=False, default=2)
+'''
+2.2 assemble k2 [17,127]
+'''
+def check_k2(k2):
+    max=127
+    min=17
+    if k2<min or k2>max:
+        print("K2 ranges from 17 to 127, please check the -k2 parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    else:
+        k2=k2
+    return k2
 
-    advanced_option_group.add_argument("-change_seed", metavar="", dest="change_seed", type=int,
-                                       help='''Times of changing seed [default = 32]''', required=False,
-                                       default=32)
-    advanced_option_group.add_argument('-scaffold', metavar="", dest="scaffold", type=str, help='''Make scaffold''',
-                                       default=False)
-    advanced_option_group.add_argument("-max", dest="max", help="The maximum length of contigs to be retained [default = 5000]",
-                                       default=5000,
-                                       type=int, metavar="")
-    advanced_option_group.add_argument("-min", dest="min", help="The minimum length of contigs to be retained [default = 300]",
-                                       default=300,
-                                       type=int, metavar="")
-    advanced_option_group.add_argument("-t", "--thread",
-                                       help="Number of threads [default = 'auto']",
-                                       default="auto", metavar="")
-    advanced_option_group.add_argument("-b", "--boundary", dest="soft_boundary",
-                                       help="The length of the extension along both sides of the target sequence [default = 75]",
-                                       default=75, type=int, metavar="")
 
-    advanced_option_group.add_argument("-bn", "--bootstrap", dest="bootstrap_number", type=int,
-                                       help="Number of resampling based on nucleotide substitution model",
-                                       metavar="")
-    args = parser.parse_args()
+'''
+3 限定步长
+'''
+def check_step_length(step_length):
+    max=10
+    min=1
+    if step_length<min or step_length>max:
+        print("Step_length ranges from 1 to 10, please check the -step_length parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    else:
+        step_length=step_length
+    return step_length
 
-    main(args)
-    # geneminer_GUI()
+'''
+4 限定limit count
+'''
+def check_limit_count(limit_count):
+    if limit_count.isdigit(): #数字型
+        limit_count=int(limit_count)
+        min = 0
+        if limit_count < min:
+            print("Limit_count cannot be less than 0, please check the -limit_count parameter")
+            set_value("my_gui_flag", 0)
+            sys.exit()
+
+    elif isinstance(limit_count,str): #字符型
+        limit_count=str(limit_count)
+        set = ["auto", "AUTO", "Auto"]
+        if limit_count not in set:
+            print("Unsupported value encountered, please check the -limit_count parameter")
+            set_value("my_gui_flag", 0)
+            sys.exit()
+        else:
+            limit_count="auto"
+    else:
+        print("Unsupported value encountered, please check the -limit_count parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+    return limit_count
+
+
+
+'''
+5 限定limit length
+'''
+def check_limit_length(limit_min_length,limit_max_length):
+    min = 0
+    if limit_min_length <= min:
+        print("Limit_min_length is greater than 0, please check the -limit_min_length parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    else:
+        limit_min_length=limit_min_length
+
+    if limit_max_length <= min:
+        print("Limit_max_length is greater than 0, please check the -limit_max_length parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    else:
+        limit_max_length=limit_max_length
+    return limit_min_length,limit_max_length
+
+
+'''
+6 限定change_seed
+'''
+def check_change_seed(change_seed):
+    min=0
+    if change_seed<min :
+        print("Change_seed cannot be less than 0, please check the -change_seed parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    else:
+        change_seed=change_seed
+    return change_seed
+
+
+def check_scaffold(scaffold):
+    scaffold_or_not=check_true(scaffold)
+    if  scaffold_or_not == True or scaffold_or_not == False:
+        scaffold_or_not=scaffold_or_not
+    else:
+        print("Unsupported value encountered, please check the -scaffold parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    return scaffold_or_not
+
+
+
+'''
+7 检测软边界 默认为75 范围为0~200之间
+'''
+def check_soft_boundary(soft_boundary):
+    soft_boundary = int(soft_boundary)
+    max = 200
+    min = 0
+    if soft_boundary > max or soft_boundary < min:
+        print(
+            "The length of the soft boundary ranges from 0 to 200, and the recommended length is 0.5 * reads_length, please check the -b parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    else:
+        soft_boundary = soft_boundary
+    return soft_boundary
+
+'''
+8 检测长度
+'''
+def check_max_min_length(max_length,min_length):
+    if max_length<= min_length:
+        print("The maximum gene length should be greater than the minimum gene length, please check the -max parameter ")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+    if max_length<=0:
+        print("The maximum gene length should be greater than zero, please check the -max parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+    if min_length <= 0:
+        print("The minimum gene length should not be less than zero, please check the -min parameter")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+
+
+
+'''
+9 参考基因组格式是否对应  
+(1)二选一
+（2）路径是否真实存在
+（3）后缀格式
+'''
+def check_reference(target_reference_fa, target_reference_gb):
+    #二选一
+    temp=[target_reference_fa,target_reference_gb]
+    ref_list = [i for i in temp if i!=None]
+
+    if ref_list==[]:
+        print("Please input reference,check the -rtfa,-rtgb ")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+    if len(ref_list)==2:
+        print("Please choose only one parameter from -rtfa and -rtgb")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+
+
+
+    #路径是否真实存在
+    for i in ref_list:
+        if not is_exist_simple(i):  #没用is_exist 用的is_exit_simple
+            print("{}:the file does not exist".format(i))
+            set_value("my_gui_flag", 0)
+            sys.exit()
+    # 格式是否正确   0代表文件夹 1代表文件
+    if target_reference_fa in ref_list:
+        Nonconforming_file = []  # 记录不合格的文件
+        files=get_file_list(target_reference_fa)
+        for  file in  files:
+            if not is_fasta(file):
+                Nonconforming_file.append(file)
+        if Nonconforming_file!=[]:
+            print("references should be in fasta format,please check -rtfa parameter")
+            Nonconforming_file = [os.path.basename(file) for file in Nonconforming_file]
+            if len(Nonconforming_file) == 1:
+                Nonconforming_file = "".join(Nonconforming_file)
+                print("{} is not in fasta format".format(Nonconforming_file))
+            else:
+                Nonconforming_file = ",".join(Nonconforming_file)
+                print("{} are not in fasta format".format(Nonconforming_file))
+            set_value("my_gui_flag", 0)
+            sys.exit()
+    elif target_reference_gb in ref_list:
+        Nonconforming_file = []  # 记录不合格的文件
+        files = get_file_list(target_reference_gb)
+        for file in files:
+            if not is_gb(file):
+                Nonconforming_file.append(file)
+        if Nonconforming_file !=[]:
+            print("references should be in GenBank-format, please check -rtgb parameter")
+            Nonconforming_file = [os.path.basename(file) for file in Nonconforming_file]
+            if len(Nonconforming_file) == 1:
+                Nonconforming_file = "".join(Nonconforming_file)
+                print("{} is not in GenBank-format".format(Nonconforming_file))
+            else:
+                Nonconforming_file = ",".join(Nonconforming_file)
+                print("{} are not in GenBank-format".format(Nonconforming_file))
+            set_value("my_gui_flag", 0)
+            sys.exit()
+    else:
+        pass
+
+
+
+'''
+10 检测数据量大小 -d
+'''
+def check_datasize(data_size):
+    data_size=str(data_size) # 先把数字或者"all" 都转为字符串处理   防止'int' object has no attribute 'isdigit'
+
+    min_data_size = 1000000
+    if data_size.lower()=="all":
+        ultimate_data_size=data_size.lower()
+        return ultimate_data_size
+
+    elif data_size.isdigit():
+        data_size=int(data_size)
+        if data_size < min_data_size:
+            print(
+                "Please check -n parameter. for better results, input data should not be less than {0} lines.".format(
+                    min_data_size))
+            set_value("my_gui_flag", 0)
+            sys.exit()
+        else:
+            ultimate_data_size = data_size - data_size % 100000  # 10w起步，保证是4的倍数
+        return ultimate_data_size
+    else:
+        print("Please check -n parameter, it must be an integer greater than {} or 'all' ".format(min_data_size))
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+
+'''
+11 检测输入
+ -1 -2   -single 是否真实存在，是否正确选择
+'''
+def check_input(data1, data2, single):
+    #是否存在
+    if (data1 == None or data2 == None) and single == None:
+        print("Please choose only one parameter from <-1 -2> and <-s>")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+    if data1 and data2  and single:
+        print("Please choose only one parameter from <-1 -2> and <-s>")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+    if (data1 == None and data2 != None) or (data1 != None and data2 == None):
+        print("You must choose both the -1 and -2 ")
+        set_value("my_gui_flag", 0)
+        sys.exit()
+
+    #后缀是否正确
+    temp=[data1,data2,single]
+    input_data=[i for i in temp if i!=None]
+
+    for i in input_data:
+        if not is_exist(i):
+            print("{}:the file does not exist".format(i))
+            set_value("my_gui_flag", 0)
+            sys.exit()
+        if ".fastq.gz" in i or ".fq.gz" in i or ".fq" in i  or ".fastq" in i:
+            pass
+        else:
+            print("{}:the file need .fq/.fastq/.fq.gz/.fastq.gz as the suffix".format(i))
+            set_value("my_gui_flag", 0)
+            sys.exit()
+
+
+
+
+
+
+
+'''
+12.检测自展参数 -bn
+'''
+def check_bootstrap_parameter(bootstrap_number):
+    if bootstrap_number==None or bootstrap_number=="None":
+        flag = "No"
+        bootstrap_number = "None"
+        bootstrap_information = [flag, bootstrap_number]
+    else:
+        if  bootstrap_number <= 0:
+            print("The number must be greater than 0, please check the -bn parameter")
+            set_value("my_gui_flag", 0)
+            sys.exit()
+        else:
+            flag = "Yes"
+            bootstrap_number = bootstrap_number
+            bootstrap_information = [flag, bootstrap_number]
+
+    return bootstrap_information
+
+
+
+'''
+13.检测输出文件夹 out
+'''
+def check_out_dir(out):
+    if os.path.isdir(out):
+        if len(os.listdir(out)) == 0:  # 文件夹存在但里面为空是能够使用的
+            out_dir_name = out
+        else:
+            print("{} already exists and there are files under the folder, please check the -o parameter".format(out))
+            set_value("my_gui_flag", 0)
+            sys.exit(0)
+    else:
+        out_dir_name = out
+
+    return out_dir_name
+
+
+
+'''
+参数校验合格之后，打印参数表
+在extract_raw_data之前
+'''
+def print_parameter_information(parameter_information_dict):
+    temp={}
+    for key,value in parameter_information_dict.items():
+        if parameter_information_dict[key] != None:
+            temp[key] = value
+    message_all = []
+    for key, value in temp.items():
+        message = "{0:<22}:{1:<}".format(key, value) #左对齐 22位宽  target_reference最长 16位宽
+        message_all.append(message)
+
+    symbol="-"
+    print(symbol*22,flush=True)
+    header="GeneMiner: a software for extracting phylogenetic markers from next generation sequencing data\n" \
+           "Version: 1.0\n" \
+           "Copyright (C) 2022 Pulin Xie"
+
+
+    print(header,flush=True)
+    for i in message_all:
+        # i=i.replace("_"," ")
+        i=i.capitalize()#首字母大写
+        print(i, flush=True)
+    print(symbol * 22, flush=True)
+
+
+
 
 
 
