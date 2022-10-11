@@ -113,7 +113,7 @@ GeneMiner takes the reference and fastq format sequencing files as input and the
 
 
 
-## GeneMiner-cmd
+## Running GeneMiner-cmd
 
 - Mining single target gene from genome skimming.
 
@@ -176,7 +176,7 @@ geneminer.py -1 Arabidopsis_thaliana_sim_353_data1.fq.gz -2 Arabidopsis_thaliana
 
 
 
-## GeneMiner-GUI
+## Running GeneMiner-GUI
 
 GeneMiner-GUI is straightforward, simple to use, and ideal for lightweight users. Considering the memory limit and the excessive time overhead, we recommend you utilize GeneMiner-cmd when you run large-scale data
 
