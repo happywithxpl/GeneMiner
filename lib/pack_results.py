@@ -9,7 +9,8 @@
 import csv
 from collections import defaultdict
 import os
-from lib.basic import mylog, is_exist
+from lib.basic import mylog, is_exist,get_fasta_file
+# from basic import mylog, is_exist,get_fasta_file
 
 
 def parse_csv(path):
@@ -68,6 +69,7 @@ class PackResultsPipeline():
         self.filtered_out = configuration_information["filtered_out"]
         self.assembled_out = configuration_information["assembled_out"]
         self.boostrap_out = configuration_information["bootstrap_out"]
+        self.GM_results = configuration_information["GM_results"]
 
         '''
         路径
@@ -77,6 +79,7 @@ class PackResultsPipeline():
         self.assemble_csv_path = os.path.join(self.out_dir, self.assembled_out, "assemble.csv")
         self.bootstrap_csv_path = os.path.join(self.out_dir, self.boostrap_out, "bootstrap.csv")
         self.results_csv_path = os.path.join(self.out_dir, "results.csv")
+        self.GM_results_path=os.path.join(self.out_dir,self.GM_results)
 
     def get_csv_all_info(self):
         path1 = self.filter_csv_path
@@ -104,16 +107,31 @@ class PackResultsPipeline():
         else:
             pass
 
+    def print_recovered_info(self):
+        path=self.GM_results_path
+        recovered_genes=0
+        if is_exist(path):
+            files=get_fasta_file(path)
+            recovered_genes=len(files)
+        else:
+            pass
+        return  recovered_genes
+
+
+
 
 def my_pack_results_pipeline_main(configuration_information):
     my_pack_results_pipeline = PackResultsPipeline(configuration_information)
-    my_pack_results_pipeline.get_csv_all_info()
+    my_pack_results_pipeline.get_csv_all_info() #get csv file
+    recovered_genes=my_pack_results_pipeline.print_recovered_info()#get recovered genes's number
+    return recovered_genes
+
 
 
 if __name__ == '__main__':
-    data1 = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\data1_2000w.fq"
-    data2 = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\data2_2000w.fq"
-    single = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\data1.fq"
+    data1 = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_500w.fq"
+    data2 = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data2_500w.fq"
+    single = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_500w.fq"
 
     '''
     for bootstrap
@@ -130,12 +148,12 @@ if __name__ == '__main__':
     '''
     for pack_results
     '''
-    out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\cp_out_11"
-    rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\cp_gene"
+    out_dir = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_out"
+    rtfa = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_gene"
     rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
 
-    k1 = 17
-    k2 = 31
+    k1 = 29
+    k2 = 41
     data_size = 'all'
     step_length = 4
     limit_count = "auto"
@@ -158,9 +176,8 @@ if __name__ == '__main__':
     GM_results = "GM_results"
     results_log = "results.log"
 
-    filter_path = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\my_filter.py"
-    assemble_path = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\my_assemble.py"
-    muscle_path = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\lib\muscle3"
+    filter_path = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\lib\my_filter.py"
+    assemble_path = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\lib\my_assemble.py"
 
     # 其他信息
     my_software_name = "GM"
@@ -183,13 +200,15 @@ if __name__ == '__main__':
                                  "GM_results": GM_results,
                                  "results_log": results_log,
                                  "my_software_name": my_software_name,
-                                 "filter_path": filter_path, "assemble_path": assemble_path, "muscle_path": muscle_path
+                                 "filter_path": filter_path, "assemble_path": assemble_path
                                  }
 
 
     # my_pack_results_pipeline=PackResultsPipeline(configuration_information)
     # my_pack_results_pipeline.get_csv_all_info()
-    my_pack_results_pipeline_main(configuration_information)
+    # recovered_genes = my_pack_results_pipeline.print_recovered_info()
+    recovered_genes=my_pack_results_pipeline_main(configuration_information)
+    print(recovered_genes)
 
 
 

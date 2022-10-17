@@ -837,7 +837,7 @@ def my_filter_main(configuration_information):
 
     size = get_size(reference)  # 3.500
     ref_limit_size = 3.53 * 1024 * 1024  # 353*10*1000bp
-    combine_flag = 1
+    combine_flag = 1  #合并多线程输出的结果
 
     if sys.platform in ('darwin'):
         multiprocessing.set_start_method('fork')

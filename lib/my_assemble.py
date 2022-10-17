@@ -265,6 +265,7 @@ def cutting_line(message=""):
 def My_Log_Recorder(message,keep_quiet=True,path="",stage="",printout_flag=True,stored_flag=False,make_a_newline=True,use_cutting_line=False):
     '''
     :param message: 需要打印/记录的信息
+    :param keep_quiet: 静默
     :param path:  log路径
     :param stage:  当前阶段（注释信息）
     :param printout_flag: 是否打印
@@ -1054,7 +1055,6 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                     limit_count_max = limit_count + 32
                 else:
                     limit_count_max = 33
-
                 # 加大limit
                 for temp_limit in range(limit_count + 1, limit_count_max):
                     # 备份上一次的结果
@@ -1065,9 +1065,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                     new_seed = best_seed
                     new_contig = best_contig
                     new_length = len(new_contig)
-
                     # print(new_length)
-
                     # 对filtered_dict再次精简
                     _filter = [x for x in filtered_dict if filtered_dict[x][0] <= temp_limit]
                     for x in _filter:
@@ -1160,10 +1158,10 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                     limit_count = 5
                 elif limit_count >= 5:
                     limit_count -= 1
-                elif limit_count > 2:
+                elif limit_count > 1:
                     limit_count -= 1
                 else:
-                    break  # limit_count=2 跳出循环
+                    break  # limit_count=1 跳出循环
 
     # 静态Limit
     else:
@@ -1495,7 +1493,7 @@ if __name__ == '__main__':
     pars.add_argument("-o", "--out", dest="out", help="Specify the result folder <dir>",
                       metavar="", required=True)
 
-    pars.add_argument("-k2", "--kmer2", dest="kmer2", help="Length of kmer for filtering reads [default = 29]",
+    pars.add_argument("-k2", "--kmer2", dest="kmer2", help="Length of kmer for filtering reads [default = 41]",
                       default=41, type=int, metavar="")
     pars.add_argument("-t", "--thread", metavar="", dest="thread_number", help="Thread", type=int, default=1)
     pars.add_argument("-r", "--reference", metavar="", dest="reference", type=str, help="references  <dir>",
@@ -1507,10 +1505,10 @@ if __name__ == '__main__':
                       default='auto')
     pars.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
                       help='''The minimum ratio of contig length to reference average length [default = 1.0]''',
-                      required=False, default=0.5)
+                      required=False, default=1.0)
     pars.add_argument('-limit_max_ratio', metavar='', dest='limit_max_length', type=float,
                       help='''The maximum ratio of contig length to reference average length [default = 2.0]''',
-                      required=False, default=2)
+                      required=False, default=2.0)
     pars.add_argument("-change_seed", metavar="", dest="change_seed", type=int,
                       help='''Times of changing seed [default=32]''', required=False,
                       default=32)

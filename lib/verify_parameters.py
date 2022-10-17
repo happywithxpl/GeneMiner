@@ -172,7 +172,7 @@ def check_limit_count(limit_count):
 
 
 '''
-5 限定limit length
+5 限定limit length (limit_min_ratio limit_max_ratio)
 '''
 def check_limit_length(limit_min_length,limit_max_length):
     min = 0
@@ -235,7 +235,7 @@ def check_soft_boundary(soft_boundary):
     return soft_boundary
 
 '''
-8 检测长度
+8 检测长度 max min 
 '''
 def check_max_min_length(max_length,min_length):
     if max_length<= min_length:
@@ -248,7 +248,7 @@ def check_max_min_length(max_length,min_length):
         set_value("my_gui_flag", 0)
         sys.exit()
 
-    if min_length <= 0:
+    if min_length < 0:
         print("The minimum gene length should not be less than zero, please check the -min parameter")
         set_value("my_gui_flag", 0)
         sys.exit()
@@ -340,7 +340,7 @@ def check_datasize(data_size):
         data_size=int(data_size)
         if data_size < min_data_size:
             print(
-                "Please check -n parameter. for better results, input data should not be less than {0} lines.".format(
+                "Please check -n parameter. The number of reads should not be less than {0}".format(
                     min_data_size))
             set_value("my_gui_flag", 0)
             sys.exit()
@@ -348,7 +348,7 @@ def check_datasize(data_size):
             ultimate_data_size = data_size - data_size % 100000  # 10w起步，保证是4的倍数
         return ultimate_data_size
     else:
-        print("Please check -n parameter, it must be an integer greater than {} or 'all' ".format(min_data_size))
+        print("Please check -n parameter, it must be an integer greater than {} or set as 'all' ".format(min_data_size))
         set_value("my_gui_flag", 0)
         sys.exit()
 
@@ -433,6 +433,24 @@ def check_out_dir(out):
         out_dir_name = out
 
     return out_dir_name
+
+# def check_out_dir(out):
+#     if out:
+#         if os.path.isdir(out):
+#             if len(os.listdir(out)) == 0:  # 文件夹存在但里面为空是能够使用的
+#                 out_dir_name = out
+#             else:
+#                 print("{} already exists and there are files under the folder, please check the -o parameter".format(out))
+#                 set_value("my_gui_flag", 0)
+#                 sys.exit(0)
+#         else:
+#             out_dir_name = out
+#     else:
+#         print("You should specify the output folder, please check the -o parameter".format(out))
+#         set_value("my_gui_flag", 0)
+#         sys.exit(0)
+#
+#     return out_dir_name
 
 
 

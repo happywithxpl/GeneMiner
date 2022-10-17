@@ -13,8 +13,8 @@ import  time
 from collections import  defaultdict
 from  Bio.SeqRecord import SeqRecord
 from concurrent.futures import ProcessPoolExecutor
-from lib.basic import get_file_list,get_basename
-# from basic import get_file_list,get_basename
+# from lib.basic import get_file_list,get_basename
+from basic import get_file_list,get_basename
 
 ##########################################################
 ##########################################################
@@ -352,11 +352,11 @@ if __name__ == '__main__':
 
     # my_bulid_reference_database_pipeline(configuration_information)
 
-    # target1 = Extract_reference(configuration_information)
-    # target1.extract_reference_from_gb_parallel()
-
     target1 = Extract_reference(configuration_information)
-    target1.extract_reference_from_fasta()
+    target1.extract_reference_from_gb_parallel()
+
+    # target1 = Extract_reference(configuration_information)
+    # target1.extract_reference_from_fasta()
 
 
 

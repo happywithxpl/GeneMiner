@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/10/20 16:58
 # @Author  : xiepulin
-# @File    : geneminer.py
+# @File    : geneminer_gui.py
 # @Software: PyCharm
 
 import argparse
@@ -192,13 +192,19 @@ def main(args):
     if bootstrap_number:
         my_bootstrap_pipeline_main(configuration_information)
 
-    my_pack_results_pipeline_main(configuration_information)
+    recovered_genes = my_pack_results_pipeline_main(configuration_information)
+    t2 = time.time()
+    whole_time = format(t2 - t1, ".2f")
 
-    t2=time.time()
-
-    whole_time=format(t2-t1,"6.2f")
-
-    print("whole time: {}s".format(whole_time))
+    if recovered_genes > 0:
+        message = "Thanks for using GeneMiner! GeneMiner has successfully mined {} target gene in {}s.".format(
+            recovered_genes,
+            whole_time) if recovered_genes == 1 else "Thanks for using GeneMiner! GeneMiner has successfully mined {} target genes in {}s.".format(
+            recovered_genes, whole_time)
+    else:
+        message = "GeneMiner has failed to mine the target gene within {}s. Please check the manual for a solution.".format(
+            whole_time)
+    print(message)
 
 
 
@@ -211,7 +217,7 @@ def geneminer_GUI():
         # -1
         [sg.Text('Data1:', size=(11, 1), justification='right', font=("Arial", 12)),
          sg.Input(key='-1-', size=(20, 1), font=("Arial", 12), expand_x=True,
-                  tooltip='One end of the paired-end reads, support fastq/fastq.gz/fastq.bz2',
+                  tooltip='File with forward paired-end reads (*.fq/*.fq.gz)',
                   readonly=False),
          sg.FileBrowse("File", font=("Arial", 12), target='-1-', file_types=(
              ("-1", "*.fq"), ("-1", "*.fastq"), ("-1", "*.fq.gz"), ("-1", "*.fastq.gz"),
@@ -220,7 +226,7 @@ def geneminer_GUI():
         # -2
         [sg.Text('Data2:', size=(11, 1), justification='right', font=("Arial", 12)),
          sg.Input(key='-2-', size=(20, 1), font=("Arial", 12), expand_x=True,
-                  tooltip="Another end of the  paired-end reads, support fastq/fastq.gz/fastq.bz2",
+                  tooltip="File with reverse paired-end reads (*.fq/*.fq.gz)",
                   readonly=False, ),
          sg.FileBrowse("File", font=("Arial", 12), target='-2-', file_types=(
              ("-2", "*.fq"), ("-2", "*.fastq"), ("-2", "*.fq.gz"), ("-2", "*.fastq.gz"),))],
@@ -228,7 +234,7 @@ def geneminer_GUI():
         # -Single -s
         [sg.Text('Single reads:', size=(11, 1), justification='right', font=("Arial", 12)),
          sg.Input(key='-s-', size=(20, 1), font=("Arial", 12), expand_x=True,
-                  tooltip="Single-reads, support fastq/fastq.gz/fastq.bz2",
+                  tooltip="File with unpaired reads (*.fq/*.fq.gz)",
                   readonly=False, ),
          sg.FileBrowse("File", font=("Arial", 12), target='-s-', file_types=(
              ("-s", "*.fq"), ("-s", "*.fastq"), ("-s", "*.fq.gz"), ("-s", "*.fastq.gz"),))]
@@ -237,7 +243,7 @@ def geneminer_GUI():
         # -rtfa
         [sg.Text('Ref. (fasta):', size=(11, 1), justification='right', font=("Arial", 12)),
          sg.Input(key='-rtfa-', size=(20, 1), font=("Arial", 12), expand_x=True,
-                  tooltip="Reference sequences, only support fasta format",
+                  tooltip="References of target sequences, only support fasta format",
                   readonly=False, ),
          sg.FileBrowse("File", font=("Arial", 12), target='-rtfa-', file_types=(
              ("rtfa", "*.fasta"), ("rtfa", "*.fa"), ("rtfa", "*.fas"), ("rtfa", "*.FASTA"), ("rtfa", "*.FAS"),
@@ -246,7 +252,7 @@ def geneminer_GUI():
         # -rtgb
         [sg.Text('Ref. (gb):', size=(11, 1), justification='right', font=("Arial", 12)),
          sg.Input(key='-rtgb-', size=(20, 1), font=("Arial", 12), expand_x=True,
-                  tooltip="Reference sequences,only support GenBank format",
+                  tooltip="References of target sequences, only support GenBank format",
                   readonly=False, ),
          sg.FileBrowse("File", font=("Arial", 12), target='-rtgb-', file_types=(("rtgb", "*.gb"),)),
          sg.FolderBrowse("Folder", font=("Arial", 12), target='-rtgb-')],
@@ -256,7 +262,7 @@ def geneminer_GUI():
         # -OUT -o
         [sg.Text('Output Folder:', size=(11, 1), justification='right', font=("Arial", 12)),
          sg.Input(key='-o-', size=(20, 1), font=("Arial", 12), expand_x=True,
-                  tooltip="Specify the result folder ", readonly=False, ),
+                  tooltip="Output folder ", readonly=False, ),
          sg.FolderBrowse("Folder", font=("Arial", 12), target="-o-")]
     ]
 
@@ -264,27 +270,27 @@ def geneminer_GUI():
         [
             sg.Text('K1:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(29, key='-k1-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="The length of a word-size  [default=29]"),
+                     tooltip="Length of kmer for filtering reads [default = 29]"),
             sg.Text('Reads:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input("all", key='-n-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="The number of reads.\nSet to 'all' if you want to use all the data."),
+                     tooltip="Specify the number of reads to reduce raw data. \nIf you want to use all the data, you can set as 'all' [default = 'all']"),
             sg.Text('Step:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(4, key='-step-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="the length of the sliding window on the reads [default = 4]"),
+                     tooltip="Step length of the sliding window on the reads [default = 4]"),
         ]
     ]
 
     assemble_frame = [
         [
             sg.Text('K2:', size=(8, 1), justification='right', font=("Arial", 12)),
-            sg.Input(31, key='-k2-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="The size of a k-mer [default=31]"),
+            sg.Input(41, key='-k2-', size=(6, 1), font=("Arial", 12), expand_x=False,
+                     tooltip="Length of kmer for assembling reads [default = 41]"),
             sg.Text('Limit:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input('auto', key='-limit-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="limit of kmer count [default=auto]]"),
+                     tooltip="limit of k-mer count [default=auto]"),
             sg.Text('Seed:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(32, key='-seed-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="times of changing seed [default = 32]"),
+                     tooltip="Times of changing seed [default = 32]"),
         ],
     ]
 
@@ -292,7 +298,7 @@ def geneminer_GUI():
         [
             sg.Text('Bootstrap:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(10, key='-bn-', size=(6, 1), font=("Arial", 12), expand_x=False, readonly=False,
-                     tooltip="Specify the bootstrap number. Evaluate the results based on the bootstrap method"),
+                     tooltip="Number of resampling based on nucleotide substitution model"),
             sg.CB(' ', font=("Arial", 12), size=(3, 1), key='-cbbn-', enable_events=True)
         ],
 
@@ -301,31 +307,31 @@ def geneminer_GUI():
     others_frame = [
         [
             sg.Text('Boundary:', size=(8, 1), justification='right', font=("Arial", 12)),
-            sg.Input(75, key='-b-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="Extend the length to both sides of the gene while extracting genes from Genbank file [default=75]"),
+            sg.Input(0, key='-b-', size=(6, 1), font=("Arial", 12), expand_x=False,
+                     tooltip="The length of the extension along both sides of the target sequence [default = 0]"),
             sg.Text('Min:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(300, key='-min-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="The minimum length of a gene  [default=300]"),
+                     tooltip="The minimum length of contigs to be retained [default = 300]"),
             sg.Text('Max:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(5000, key='-max-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="The maximum length of a gene [default=5000]"),
+                     tooltip="The maximum length of contigs to be retained [default = 5000]"),
         ],
 
         [
-            sg.Text('limit_min:', size=(8, 1), justification='right', font=("Arial", 12)),
-            sg.Input(1, key='-limit_min-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="limit of contig length [default=1]"),
-            sg.Text('limit_max:', size=(8, 1), justification='right', font=("Arial", 12)),
-            sg.Input(2, key='-limit_max-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="limit of contig length [default=1]"),
+            sg.Text('min_ratio:', size=(8, 1), justification='right', font=("Arial", 12)),
+            sg.Input(1.0, key='-limit_min-', size=(6, 1), font=("Arial", 12), expand_x=False,
+                     tooltip="The minimum ratio of contig length to reference average length [default = 1.0]"),
+            sg.Text('max_ratio:', size=(8, 1), justification='right', font=("Arial", 12)),
+            sg.Input(2.0, key='-limit_max-', size=(6, 1), font=("Arial", 12), expand_x=False,
+                     tooltip="The maximum ratio of contig length to reference average length [default = 2.0]"),
             sg.Text('Threads:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input("auto", key='-t-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="Specify the number of threads you want to run [default=auto]"),
+                     tooltip="Number of threads [default = auto ]"),
         ],
-        [
-            sg.Text('Scaffold:', size=(8, 1), justification='right', font=("Arial", 12)),
-            sg.CB(' ', font=("Arial", 12), size=(3, 1), key='-cbscaffold-', enable_events=True)
-        ],
+        # [
+        #     sg.Text('Scaffold:', size=(8, 1), justification='right', font=("Arial", 12)),
+        #     sg.CB(' ', font=("Arial", 12), size=(3, 1), key='-cbscaffold-', enable_events=True)
+        # ],
 
     ]
 
@@ -474,13 +480,13 @@ def geneminer_GUI():
             if values["-step-"]:
                 args.steo_length = int(values["-step-"])
             else:
-                args.steo_length = 29
+                args.steo_length = 4
 
             #assemble
             if values["-k2-"]:
                 args.kmer2 = int(values["-k2-"])
             else:
-                args.kmer2  = 31
+                args.kmer2  = 41
 
             if values["-limit-"]:
                 if values["-limit-"].upper() == "AUTO":
@@ -515,17 +521,17 @@ def geneminer_GUI():
             if values["-limit_min-"]:
                 args.limit_min_length = float(values["-limit_min-"])
             else:
-                args.limit_min_length = 1
+                args.limit_min_length = 1.0
             if values["-limit_max-"]:
-                args.limit_max_length = int(values["-limit_max-"])
+                args.limit_max_length = float(values["-limit_max-"])
             else:
-                args.limit_max_length = 2
+                args.limit_max_length = 2.0
 
 
             if values["-b-"]:
                 args.soft_boundary = int(values["-b-"])
             else:
-                args.soft_boundary = 75
+                args.soft_boundary = 0
 
 
             if values["-t-"]:
@@ -536,10 +542,10 @@ def geneminer_GUI():
             else:
                 args.thread = "auto"
 
-            if values['-cbscaffold-']:
-                args.scaffold=True
-            else:
-                args.scaffold=False
+            # if values['-cbscaffold-']:
+            #     args.scaffold=True
+            # else:
+            #     args.scaffold=False
 
             threading.Thread(target=main, args=(args,), daemon=True).start()
 
@@ -561,7 +567,7 @@ def geneminer_GUI():
             window['-n-'].update('all')
             window['-step-'].update('4')
             #assemble
-            window['-k2-'].update("31")
+            window['-k2-'].update("41")
             window['-limit-'].update("auto")
             window['-seed-'].update("32")
             #verify
@@ -570,13 +576,13 @@ def geneminer_GUI():
 
 
             #others
-            window['-b-'].update("75")
+            window['-b-'].update("0")
             window['-min-'].update("300")
             window['-max-'].update("5000")
-            window['-limit_min-'].update("1")
-            window['-limit_max-'].update("2")
+            window['-limit_min-'].update("1.0")
+            window['-limit_max-'].update("2.0")
             window['-t-'].update("auto")
-            window['-cbscaffold-'].update(False)
+            # window['-cbscaffold-'].update(False)
 
             # 输出部分
             # 清空输出界面 ML2复制的ML1，所以清空ML1就等效于清空ML2(实时刷新的时候)
@@ -588,31 +594,31 @@ def geneminer_GUI():
             清空参数空间
             '''
             #基础参数
-            args.data1 = None
-            args.data2 = None
-            args.single = None
-            args.target_reference_fa = None
-            args.target_reference_gb = None
-            args.out = None
+            args.data1 = ""
+            args.data2 = ""
+            args.single = ""
+            args.target_reference_fa = ""
+            args.target_reference_gb = ""
+            args.out = ""
             #高级参数
             #filter
             args.kmer1 = 29
             args.data_size='all'
             args.step_length=4
             #assemble
-            args.kmer2=31
-            args.limit_count=2
+            args.kmer2=41
+            args.limit_count='auto'
             args.change_seed=32
             #verify
             args.bootstrap_number=10
             #others
-            args.soft_boundary = 75
+            args.soft_boundary = 0
             args.min = 300
             args.max = 5000
-            args.limit_max_length=1
-            args.limit_max_length=2
-            args.thread = "auto"
-            args.scaffold = False
+            args.limit_max_length=1.0
+            args.limit_max_length=2.0
+            args.thread = 'auto'
+            # args.scaffold = False
 
         '''
         打印实时输出，需要判断后一次的输出是否比前一次的输出长，如果是才实时刷新
@@ -629,12 +635,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)  # 检测函数终止退出（ctrl+c） #必须放在主程序中
     multiprocessing.freeze_support()  # windows上Pyinstaller打包多进程程序需要添加特殊指令
     set_value("my_gui_flag", 0)  # 用于判定脚本是否跑完，还可以防止run双击覆盖事件
-
-
-
-
-
-    parser = argparse.ArgumentParser(usage="%(prog)s <-1 -2|-s>  <-rtfa|rtgb>  <-o>  [options]",
+    parser = argparse.ArgumentParser(usage="%(prog)s <-1 -2|-s>  <-rtfa|-rtgb>  <-o>  [options]",
                                      description="GeneMiner: a software for extracting phylogenetic markers from next generation sequencing data\n"
                                                  "Version: 1.0.0\n"
                                                  "Copyright (C) 2022 Pulin Xie\n"
@@ -650,67 +651,74 @@ if __name__ == "__main__":
     # 原始数据输入部分
     basic_option_group = parser.add_argument_group(title="Basic option")
     basic_option_group.add_argument("-1", dest="data1",
-                                    help="One end of the paired-end reads, support fastq format", metavar="")
+                                    help="File with forward paired-end reads (*.fq/*.fq.gz)", metavar="")
     basic_option_group.add_argument("-2", dest="data2",
-                                    help="Another end of the paired-end reads, support fastq format", metavar="")
+                                    help="File with reverse paired-end reads (*.fq/*.fq.gz)", metavar="")
 
     basic_option_group.add_argument("-s", "--single", dest="single",
-                                    help="Single reads, support fastq format", metavar="")
-    basic_option_group.add_argument("-o", "--out", dest="out", help="Specify the result folder ",
-                                     metavar="")       #图形界面版本需要去掉required==True
+                                    help="File with unpaired reads (*.fq/*.fq.gz) ", metavar="")
+    basic_option_group.add_argument("-o", "--out", dest="out", help="Output folder",
+                                    metavar="")
 
     basic_option_group.add_argument("-rtfa", dest="target_reference_fa",
-                                    help="References of target genes, only support fasta format", metavar="<file|dir>")
+                                    help="Reference of the target gene(s) only supports FASTA format",
+                                    metavar="<file|dir>")
     basic_option_group.add_argument("-rtgb", dest="target_reference_gb",
-                                    help="References of target genes, only support GenBank format", metavar="<file|dir>")
+                                    help="Reference of the target gene(s) only supports GenBank format",
+                                    metavar="<file|dir>")
 
     # 高级参数部分
     advanced_option_group = parser.add_argument_group(title="Advanced option")
 
-    advanced_option_group.add_argument("-k1", "--kmer1", dest="kmer1", help="Specify the size of the wordsize to filter reads  [default = 29]", default=29,
+    advanced_option_group.add_argument("-k1", "--kmer1", dest="kmer1",
+                                       help="Length of kmer for filtering reads [default = 29]",
+                                       default=29,
                                        type=int, metavar="")
-    advanced_option_group.add_argument("-k2", "--kmer2", dest="kmer2", help="Specify the size of the kmer to assemble reads  [default = 31]", default=31,
+    advanced_option_group.add_argument("-k2", "--kmer2", dest="kmer2",
+                                       help="Length of kmer for assembling reads [default = 41]",
+                                       default=41,
                                        type=int, metavar="")
 
-    advanced_option_group.add_argument("-d", "--data",dest="data_size",
-                                       help="Specifies the number of reads to reduce raw data. If you want to use all the data, you can set as 'all' [default = 'all']",
+    advanced_option_group.add_argument("-d", "--data", dest="data_size",
+                                       help="Specify the number of reads to reduce raw data. If you want to use all the data, you can set as 'all' [default = 'all']",
                                        default='all', metavar="")
 
     advanced_option_group.add_argument("-step_length", metavar="", dest="step_length", type=int,
-                      help="the length of the sliding window on the reads [default = 4]", default=4)
-    advanced_option_group.add_argument('-limit_count', metavar='',dest='limit_count', help='''limit of kmer count [default=auto]''', required=False,
-                      default='auto')
-    advanced_option_group.add_argument('-limit_min_length', metavar='', dest='limit_min_length',type=float, help='''limit of contig length''',
-                      required=False, default=1)
-    advanced_option_group.add_argument('-limit_max_length', metavar='',dest='limit_max_length', type=float, help='''limit of contig length''',
-                      required=False, default=2)
+                                       help="Step length of the sliding window on the reads [default = 4]", default=4)
+    advanced_option_group.add_argument('-limit_count', metavar='', dest='limit_count',
+                                       help='''limit of the k-mer count [default = auto]''', required=False,
+                                       default='auto')
+    advanced_option_group.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
+                                       help='''Minimum ratio of the recovered target gene(s) to the reference's average length [default = 1.0]''',
+                                       required=False, default=1.0)
+    advanced_option_group.add_argument('-limit_max_ratio', metavar='', dest='limit_max_length', type=float,
+                                       help='''Maximum ratio of the recovered target gene(s) to the reference's average length [default = 2.0]''',
+                                       required=False, default=2.0)
 
-    advanced_option_group.add_argument("-change_seed", metavar="", dest="change_seed",type=int, help='''times of changing seed [default = 32]''', required=False,
-                      default=32)
-    advanced_option_group.add_argument('-scaffold', metavar="",dest="scaffold",type=str,help='''make scaffold''', default=False)
-
-    advanced_option_group.add_argument("-max", dest="max", help="The maximum length of contigs [default = 5000]", default=5000,
+    advanced_option_group.add_argument("-change_seed", metavar="", dest="change_seed", type=int,
+                                       help='''Times of changing seed [default = 32]''', required=False,
+                                       default=32)
+    advanced_option_group.add_argument('-scaffold', metavar="", dest="scaffold", type=str, help='''Make scaffold''',
+                                       default=False)
+    advanced_option_group.add_argument("-max", dest="max",
+                                       help="The maximum length of contigs to be retained [default = 5000]",
+                                       default=5000,
                                        type=int, metavar="")
-    advanced_option_group.add_argument("-min", dest="min", help="The minimum length of contigs [default = 300]", default=300,
+    advanced_option_group.add_argument("-min", dest="min",
+                                       help="The minimum length of contigs to be retained [default = 0]",
+                                       default=0,
                                        type=int, metavar="")
     advanced_option_group.add_argument("-t", "--thread",
-                                       help="The number of threads [default = 'auto']",
+                                       help="Number of threads [default = auto ]",
                                        default="auto", metavar="")
     advanced_option_group.add_argument("-b", "--boundary", dest="soft_boundary",
-                                       help="Extend the length to both sides of the gene while extracting genes from Genbank file [default = 75]",
-                                       default=75, type=int, metavar="")
+                                       help="Length of the extension along both sides of the target gene [default = 0]",
+                                       default=0, type=int, metavar="")
 
     advanced_option_group.add_argument("-bn", "--bootstrap", dest="bootstrap_number", type=int,
-                                        help="Specify the bootstrap number. Evaluate the results based on the bootstrap method",
-                                        metavar="")
-
-
+                                       help="Specify the bootstrap number. Evaluate the assembly results based on the base substitution model and repeated resampling",
+                                       metavar="")
     args = parser.parse_args()
-
-
-
-
-
 
     # main(args)
     geneminer_GUI()
