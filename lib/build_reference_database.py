@@ -13,8 +13,8 @@ import  time
 from collections import  defaultdict
 from  Bio.SeqRecord import SeqRecord
 from concurrent.futures import ProcessPoolExecutor
-# from lib.basic import get_file_list,get_basename
-from basic import get_file_list,get_basename
+from lib.basic import get_file_list,get_basename
+# from basic import get_file_list,get_basename
 
 ##########################################################
 ##########################################################
