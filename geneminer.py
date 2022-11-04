@@ -264,8 +264,8 @@ if __name__ == "__main__":
                                        help='''limit of the k-mer count [default = auto]''', required=False,
                                        default='auto')
     advanced_option_group.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
-                                       help='''Minimum ratio of the recovered target gene(s) to the reference's average length [default = 1.0]''',
-                                       required=False, default=1.0)
+                                       help='''Minimum ratio of the recovered target gene(s) to the reference's average length [default = 0.9]''',
+                                       required=False, default=0.9)
     advanced_option_group.add_argument('-limit_max_ratio', metavar='', dest='limit_max_length', type=float,
                                        help='''Maximum ratio of the recovered target gene(s) to the reference's average length [default = 2.0]''',
                                        required=False, default=2.0)
@@ -287,8 +287,8 @@ if __name__ == "__main__":
                                        help="Number of threads [default = auto ]",
                                        default="auto", metavar="")
     advanced_option_group.add_argument("-b", "--boundary", dest="soft_boundary",
-                                       help="Length of the extension along both sides of the target gene [default = 0]",
-                                       default=0, type=int, metavar="")
+                                       help="Length of the extension along both sides of the target gene [default = 75]",
+                                       default=75, type=int, metavar="")
 
     advanced_option_group.add_argument("-bn", "--bootstrap", dest="bootstrap_number", type=int,
                                        help="Specify the bootstrap number. Evaluate the assembly results based on the base substitution model and repeated resampling",

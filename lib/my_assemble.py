@@ -259,10 +259,14 @@ def cutting_line(message=""):
     print(element_all)
     return element_all
 
+
 '''
 控制信息的打印状况与保存
 '''
-def My_Log_Recorder(message,keep_quiet=True,path="",stage="",printout_flag=True,stored_flag=False,make_a_newline=True,use_cutting_line=False):
+
+
+def My_Log_Recorder(message, keep_quiet=True, path="", stage="", printout_flag=True, stored_flag=False,
+                    make_a_newline=True, use_cutting_line=False):
     '''
     :param message: 需要打印/记录的信息
     :param keep_quiet: 静默
@@ -275,22 +279,32 @@ def My_Log_Recorder(message,keep_quiet=True,path="",stage="",printout_flag=True,
     :return:
     '''
 
-    if keep_quiet==True :
+    if keep_quiet == True:
         return 0
-    if printout_flag==True:
-        if make_a_newline==True:
-            print(message,flush=True)
+    if printout_flag == True:
+        if make_a_newline == True:
+            print(message, flush=True)
         else:
-            print(message,flush=True,end='\r')
-    if stored_flag==True and path:
-        my_time=time.localtime()
-        time_header=str(my_time.tm_year)+"-"+str(my_time.tm_mon)+"-"+str(my_time.tm_mday)+"-"+str(my_time.tm_hour)+"-"+str(my_time.tm_min)+"-"+str(my_time.tm_sec)
-        stored_message=time_header+" "+stage+":"+message+"\n"
-        with open(path,"a") as f:
+            print(message, flush=True, end='\r')
+    if stored_flag == True and path:
+        my_time = time.localtime()
+        time_header = str(my_time.tm_year) + "-" + str(my_time.tm_mon) + "-" + str(my_time.tm_mday) + "-" + str(
+            my_time.tm_hour) + "-" + str(my_time.tm_min) + "-" + str(my_time.tm_sec)
+        stored_message = time_header + " " + stage + ":" + message + "\n"
+        with open(path, "a") as f:
             f.write(stored_message)
     if use_cutting_line:
         cutting_line(message)
 
+
+# 计算分位数
+def quantile_p(data, p):
+    pos = (len(data) + 1) * p
+    # pos = 1 + (len(data)-1)*p
+    pos_integer = int(math.modf(pos)[1])
+    pos_decimal = pos - pos_integer
+    Q = data[pos_integer - 1] + (data[pos_integer] - data[pos_integer - 1]) * pos_decimal
+    return Q
 
 
 # 反向互补
@@ -330,7 +344,7 @@ data_structure {"kmer1":[kmer1_count,pos1,gene_name1,gene_name2,gene_name3],
 
 
 # 创建哈西字典,将reference存入字典,并记录位置信息
-def gethashdict(reference, merSize, get_rc=False, pos=False, print_info=False,keep_quiet=False):
+def gethashdict(reference, merSize, get_rc=False, pos=False, print_info=False, keep_quiet=False):
     files = get_file_list(reference)
     if files == []:
         return 0
@@ -379,18 +393,19 @@ def gethashdict(reference, merSize, get_rc=False, pos=False, print_info=False,ke
                         temp_list = [1, -(j + 1) / len(refseq), file_name] if pos else [1, 0, file_name]
                         kmer_dict[sys.intern(kmer)] = temp_list  # sys,inter利用了地址信息，保证相同元素出现在同一地址
             if print_info:
-                message1=" " * 100
-                My_Log_Recorder(message=message1,keep_quiet=keep_quiet,path="",stage="",printout_flag=True,stored_flag=False,make_a_newline=False,use_cutting_line=False)
-                message2="Memory:{0},G, Number of Seq:{1}".format(round(6 * sys.getsizeof(kmer_dict) / 1024 / 1024 / 1024, 4),gene_number)
-                My_Log_Recorder(message=message2, keep_quiet=keep_quiet,path="", stage="", printout_flag=True, stored_flag=False,make_a_newline=False, use_cutting_line=False)
-
+                message1 = " " * 100
+                My_Log_Recorder(message=message1, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
+                                stored_flag=False, make_a_newline=False, use_cutting_line=False)
+                message2 = "Memory:{0},G, Number of Seq:{1}".format(
+                    round(6 * sys.getsizeof(kmer_dict) / 1024 / 1024 / 1024, 4), gene_number)
+                My_Log_Recorder(message=message2, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
+                                stored_flag=False, make_a_newline=False, use_cutting_line=False)
 
                 # print(" " * 100, flush=True, end='\r')
                 # print('Memory:', round(6 * sys.getsizeof(kmer_dict) / 1024 / 1024 / 1024, 4), 'G, Number of Seq',
                 #       gene_number, end='\r', flush=True)  # 6倍率
         infile.close()
     return kmer_dict
-
 
 
 '''
@@ -431,6 +446,7 @@ def make_assemble_hashdict(filtered_out, merSize, ref_dict, get_rc=False):
                         else:
                             temp_list = [1, temp_len]
                             kmer_dict[kmer] = temp_list
+
                         if kmer in ref_dict:
                             temp_len[0] = 1 + ref_dict[kmer][1] / ref_dict[kmer][0] if ref_dict[kmer][1] < 0 else \
                                 ref_dict[kmer][1] / ref_dict[kmer][0]
@@ -462,22 +478,26 @@ def get_dis(_pos, new_pos, weight=0.5):
 
 '''
 权重赋分
+1.位点的抉择
+位置信息由reference决定，但理应是次要因素
+reads数量由sequencing data决定，是组装最真实的基础，理应是主要因素
+2.切断 or 延申？
 当出现多歧，赋分差距越大，则越倾向于保守而不是延长序列。 a:10分   b：1分  b路径可能要延长很久才能超过a
 '''
-def get_weight(_count, _pos, average_pos, _dis=0.5):
-    '''
-    :param _count:
-    :param _pos: 当前拼接到的位置
-    :param average_pos:  kmer在ref上出现的平均位置,经make_assemble_hashdict处理后， 位置信息都在0,1之间 （考虑了反向互补）
-    :param _weight:
-    :return:
-    '''
-    if average_pos and _pos:
-        dis = (1 - abs(_pos - average_pos))
-    else:
-        dis = _dis
-    weight = _count ** dis
-    return weight
+# def get_weight(_count, _pos, average_pos, _dis=0.5):
+#     '''
+#     :param _count:
+#     :param _pos: 当前拼接到的位置
+#     :param average_pos:  kmer在ref上出现的平均位置,经make_assemble_hashdict处理后， 位置信息都在0,1之间 （考虑了反向互补）
+#     :param _weight:
+#     :return:
+#     '''
+#     if average_pos and _pos:
+#         dis = (1 - abs(_pos - average_pos))
+#     else:
+#         dis = _dis
+#     weight = _count * dis
+#     return weight
 
 
 '''
@@ -495,16 +515,34 @@ for test
 #     weight = 1
 #     return weight
 
-
-
-
-
-def get_contig_forward(_dict, seed, iteration=1000):
+def get_weight(_count, current_pos, average_pos, _dis=0):
     '''
-    :param _dict:  filtered_out哈希字典    {["kmer1":[kmer1_count,[pos1]],["kmer2":[kmer2_count,[pos2]]  }       {'TATACCTGTCAACGGAT': [17, [0]]}
+    :param _count:
+    :param current_pos: 当前拼接到的位置
+    :param average_pos:  kmer在ref上出现的平均位置,经make_assemble_hashdict处理后， 位置信息都在0,1之间 （考虑了反向互补）
+    :param _weight:
+    :return:
+    '''
+    if average_pos and current_pos:
+        dis = (1 - abs(current_pos - average_pos))
+    else:
+        dis = _dis
+    weight = _count * math.exp(dis)
+    return weight
+
+
+def get_contig_forward(_dict, seed, soft_boundary=0, iteration=1000):
+    '''
+    :param _dict:  filtered_out哈希字典    {"kmer1":[kmer1_count,[pos1]],"kmer2":[kmer2_count,[pos2]  }       {'TATACCTGTCAACGGAT': [17, [0]]}
     :param seed:   seed
+    :param soft_boundary: 软边界
     :param iteration:  迭代次数 之前指最大递归次数
     :return:
+        best_seq: 最高权重路径
+        reads_list： k_mers 使用列表
+        best_kmc: 累计最高得分
+        best_pos: 锚定kmer 在参考上的位置
+        best_used_kmercount ：最佳路径共计使用K-mer数量 但用于统计目标基因测序深度不一定准确，其他分歧路径用reads可能没有被收录，但是这些reads是有价值的。反向互补可能是filtered reads数量大增，且不一定是线性关系，具体还不清楚
     '''
 
     '''
@@ -518,75 +556,152 @@ def get_contig_forward(_dict, seed, iteration=1000):
     best_seq:记录最佳路径
     cur_seq:记录当前路径
 
-    核心，kmer的组装是按照权重组装的，权重由reads的kmercout 和reads在ref上的位置决定
+    核心
+    1：kmer的组装是按照权重组装的，权重由reads的kmercout 和reads在ref上的位置决定
+    version1: _dict[i][0] ** get_dis(_pos, _dict[i][1][0], weight)  没有位置信息，将开根号处理（默认0.5）;    核心思想距离越近，kmercount越大的权重越大 （bug：严重受到参考的影响）
+    version2: _dict[i][0] * math.exp(  (1 - abs(current_pos - average_pos))  )   不再使用默认权重，weight=0 ,强调了reads真实数量的重要性
 
-    _dict[i][0] ** get_dis(_pos, _dict[i][1][0], weight)  没有位置信息，将开根号处理（默认0.5）;    核心思想距离越近，kmercount越大的权重越大
+    2：序列不能无限制延申，无位置信息kmer参与组装的数量需要受到严格的限制  核心区间的变异碱基（未在ref上出现）+两翼延申的碱基 <= N
 
+    3: 序列延申的驱动力
+    基于补齐生成器，从seed出发，不断产生新的k-mer，并在filtered_reads库中查找。如果能找到，作为节点，否则作为叶子节点。
+    某一个碱基位点的节点选择可能不止一种，至多ATCG四种，则依次迭代遍历。期间会不断遇到分歧子节点，GeneMiner选择深度搜索，直到叶子节点为止。
+    使用权重模型计算累计权重得分，取权重得分最高的路径,这也是多歧节点能够选择的原因
+    期间会不停的从叶子节点回溯路径，从而得到contig
+
+    4：结束判定
+    （1）不断生成的kmer存放在stack_list中，当stack_list空了，就意味着遍历和回溯结束。 node ==>> 子节点，node 为空 ==>> 叶子节点
+    （2）iteration超过上限
+    （3）pos_without_record_node 超过 Termination_Signal_Number 不允许过度组装. 提前终止树的深度搜索
     '''
 
     temp_list, reads_list, stack_list = [seed], [seed], []
     best_kmc, cur_kmc, best_pos, cur_pos, best_seq, cur_seq = [], [], [], [], [], []
-    _pos, node_distance = 0, 0
+    # _pos, node_distance = 0, 0
+    # _pos, node_distance = 0.00001, 0 #_pos 为一个接近0的数 可以规避权重公式中认为seed未在ref中出现的bug
+    if seed in _dict:
+        _pos, node_distance = _dict[seed][1][0], 0  # seed 本身就有位置信息
+    else:
+        _pos, node_distance = 0.00001, 0  # 规避一些意外情况
+
     best_used_kmercount, cur_used_kmercount = [], []  # 增添用于assemble的kmer计数
+
+    best_node, cur_node = [], []  # 增添用于修剪两翼的方法:score断崖下降的一个节点 断崖：大概时math.exp(dis)/math.exp(0)倍  eg. best_node [ [(kmer1,cur_pos1, weight1，kmercount1), (kmer2,cur_pos1, weight2，kmercount2)],  [(kmer3,cur_pos2, weight2，kmercount2)]   ]
+
+    Termination_Signal_Number, whole_pos_record_node, whole_without_pos_record_node, cur_pos_record_node, cur_without_pos_record_node = 200, [], [], [], []  # 设定 非位置信息k-mer组装的数量限制
 
     while True:
         # node = sorted([(i, _dict[i][1][0], _dict[i][0] ** get_dis(_pos, _dict[i][1][0], weight), _dict[i][0]) for i in forward(temp_list[-1]) if i in _dict], key=lambda _: _[2], reverse=True)
         node = sorted([(i, _dict[i][1][0], get_weight(_dict[i][0], _pos, _dict[i][1][0]), _dict[i][0]) for i in
                        forward(temp_list[-1]) if i in _dict], key=lambda _: _[2], reverse=True)
-        # node  [ "kmer",cur_pos, weight，kmercount]  [('GTTTTGACTGTATCGCA', 0.001199040767386091, 24.995845787996004,146)]
+        # node  [ (kmer1,cur_pos, weight1，kmercount1), (kmer2,cur_pos, weight2，kmercount2) ]     eg. [('GTTTTGACTGTATCGCA', 0.001199040767386091, 24.995845787996004,146)]
+
+        '''
+        是否提前终止深度遍历 开关
+        '''
+        # if sum(cur_without_pos_record_node) >= Termination_Signal_Number: #方法：树的的深度遍历  从找不到下一个kmer作为树的叶子节点 ==>> 非位置k-mer数量达到使用上限
+        #     node=[] #提前到遍历到"叶子节点"
+
         while node:
-            if node[0][0] in temp_list:
+            if node[0][0] in temp_list:  # 一定程度可以规避简单重复,避免成环  AAAAAAAAAAAAAA ===>> AAAAAAAAAAAAAA
                 node.pop(0)
             else:
                 break
-        if not node:
+
+        if not node:  # 如果node为空 开始回溯
             iteration -= 1
             if sum(cur_kmc) > sum(best_kmc):
                 best_kmc, best_seq, best_pos = cur_kmc.copy(), cur_seq.copy(), cur_pos.copy()
                 best_used_kmercount = cur_used_kmercount.copy()
-            # [(temp_list.pop(), cur_kmc.pop(), cur_seq.pop(), cur_pos.pop()) for _ in range(node_distance)]
-            [(temp_list.pop(), cur_kmc.pop(), cur_seq.pop(), cur_pos.pop(), cur_used_kmercount.pop()) for _ in
-             range(node_distance)]  # 新增Kmercount计数
+
+                whole_pos_record_node = cur_pos_record_node.copy()
+                whole_without_pos_record_node = cur_without_pos_record_node.copy()
+
+                best_node = cur_node.copy()
+
+            # [(temp_list.pop(), cur_kmc.pop(), cur_seq.pop(), cur_pos.pop(), cur_used_kmercount.pop()) for _ in range(node_distance)]  # 遍历子节点的所有可能性后，回退到子节点分歧处，计算累计权重并保留最佳的路径
+            # temp=[(temp_list.pop(), cur_kmc.pop(), cur_seq.pop(), cur_pos.pop(), cur_used_kmercount.pop() ) for _ in range(node_distance)] # 遍历子节点的所有可能性后，回退到子节点分歧处，计算累计权重并保留最佳的路径
+            temp = [
+                (temp_list.pop(), cur_kmc.pop(), cur_seq.pop(), cur_pos.pop(), cur_used_kmercount.pop(), cur_node.pop())
+                for _ in range(node_distance)]  # 遍历子节点的所有可能性后，回退到子节点分歧处，计算累计权重并保留最佳的路径; 新增最佳节点记录
+
+            if temp:
+                [cur_pos_record_node.pop() if i[3] > 0 else cur_without_pos_record_node.pop() for i in temp]
+
             if stack_list:
                 node, node_distance, _pos = stack_list.pop()
             else:
                 break
+
         if len(node) >= 2:
             stack_list.append((node[1:], node_distance, _pos))
             node_distance = 0
+
         if node[0][1] > 0:
             _pos = node[0][1]
+            cur_pos_record_node.append(1)
 
-        temp_list.append(node[0][0])
-        reads_list.append(node[0][0])
-        cur_pos.append(node[0][1])  # 要么有位置信息，要么未出现在ref上则为0  有位置信息的会被优先组装，随后在原有基础上向两边延申
-        cur_kmc.append(node[0][2])
-        cur_seq.append(node[0][0][-1])
+        else:
+            cur_without_pos_record_node.append(1)
+
+
+        temp_list.append(node[0][0])  # 一次新增node列表中0号位元素的k-mer（最佳节点）
+        reads_list.append(node[0][0])  # 一次新增node列表中0号位元素的k-mer（最佳节点）
+        cur_pos.append(node[0][1])  # 记录当前组装位置
+        cur_kmc.append(node[0][2])  # 记录当前累计权重 即k-mer 基于reads数量信息和位置信息生成的权重分的总和
+        cur_seq.append(node[0][0][-1])  # 每次记录 增加k-mer的最后一个碱基
         cur_used_kmercount.append(node[0][3])  # 新增kmercount计数
+        cur_node.append(node)  # 新增最佳节点记录
 
         node_distance += 1
+        if not iteration:
+            break
 
-        if not iteration: break
+    '''2022-10-31 新增两翼剪切方法与软边界 原理：利用有无位置信息的节点 和四分位点的权重分数'''
+    try:
+        quantile_score= quantile_p(best_kmc,0.25)
+        index = len(best_node)
+        for i in best_node[::-1]:
+            if i[0][1] == 0 and i[0][2] < quantile_score:
+                pass
+            else:
+                index = (best_node.index(i))
+                break
+        temp = [i[0][0][-1] for i in best_node[0:index + 1 + soft_boundary]]
+        best_seq = temp
+    except: #主要情况: 某些seed无法延申
+        pass
+
+
 
     return best_seq, reads_list, best_kmc, best_pos, best_used_kmercount
 
 
-def get_contig(_dict, seed, iteration=1000, weight=0.5):
+def get_contig(_dict, seed, soft_boundary=0, iteration=1000, weight=0.5):
     '''
     :param _dict:  filtered_dict
     :param seed:  seed
+    :param soft_boundary: 软边界
     :param iteration:  迭代次数
     :param weight:   权重（kmer在ref上的位置+kmer频次）
     :return: contig contig在ref上的最小位置，contig在ref上的最大位置，kmer_list
     '''
 
-    right, reads_list_1, k_1, pos_1, best_used_kmercount_1 = get_contig_forward(_dict, seed,
+    right, reads_list_1, k_1, pos_1, best_used_kmercount_1 = get_contig_forward(_dict, seed, soft_boundary,
                                                                                 iteration)  # best_seq, reads_list, best_kmc, best_pos,best_used_kmercount
     left, reads_list_2, k_2, pos_2, best_used_kmercount_2 = get_contig_forward(_dict, reverse_complement_limit(seed),
+                                                                               soft_boundary,
                                                                                iteration)
 
-    # print("pos_1:{}".format(pos_1))   #[0.1,0.2,0.3...0.9, 0 , 0, 0, 0 .0 ,0 ,0 ]
-    # print("pos_2:{}".format(pos_2))   #[0 , 0, 0, 0 .0 ,0 ,0 ]
+    # # 清理两端的低质量序列
+    # l_q_1=quantile_p(k_1,0.25)
+    # l_q_2=quantile_p(k_2,0.25)
+    #
+    # try:
+    #     while (k_1[-1] < l_q_1 and pos_1[-1] == 0) and len(k_1) > 0: right.pop(), k_1.pop(), pos_1.pop()
+    #     while (k_2[-1] < l_q_2 and pos_2[-1] == 0) and len(k_2) > 0: left.pop(), k_2.pop(),  pos_2.pop()
+    # except:
+    #     pass
 
     _pos = [x for x in pos_1 + pos_2 if x > 0]
     min_pos, max_pos = 0, 1
@@ -600,7 +715,8 @@ def get_scaffold(_dict, seed_list, limit, ref_length, iteration=1000, weight=0.5
     # for seed in seed_list:
     #     if abs(seed[2] - 0.5) < min_dis:
     #         mid_seed, min_dis = seed, abs(seed[2] - 0.5)
-    contig, min_pos, max_pos, read_list, best_used_kmercount = get_contig(_dict, mid_seed[0], iteration, weight)
+    contig, min_pos, max_pos, read_list, best_used_kmercount = get_contig(_dict, mid_seed[0], soft_boundary, iteration,
+                                                                          weight)
 
     for i in read_list:
         if i in _dict[i]: del _dict[i]
@@ -614,7 +730,8 @@ def get_scaffold(_dict, seed_list, limit, ref_length, iteration=1000, weight=0.5
             new_seed = x
     while new_seed:
         # 将使用过的reads剔除
-        contig, _min_pos, _max_pos, read_list, best_used_kmercount = get_contig(_dict, new_seed[0], iteration, weight)
+        contig, _min_pos, _max_pos, read_list, best_used_kmercount = get_contig(_dict, new_seed[0], soft_boundary,
+                                                                                iteration, weight)
         for i in read_list:
             if i in _dict[i]:
                 del _dict[i]
@@ -638,7 +755,8 @@ def get_scaffold(_dict, seed_list, limit, ref_length, iteration=1000, weight=0.5
         if x[2] / x[1] > max_pos and x[1] > limit:
             new_seed = x
     while new_seed:
-        contig, _min_pos, _max_pos, read_list, best_used_kmercount = get_contig(_dict, new_seed[0], iteration, weight)
+        contig, _min_pos, _max_pos, read_list, best_used_kmercount = get_contig(_dict, new_seed[0], soft_boundary,
+                                                                                iteration, weight)
         for i in read_list:
             if i in _dict[i]:
                 del _dict[i]
@@ -706,38 +824,52 @@ def dynamic_limit_v1(_dict, smoother_level=4, smoother_size=64):
 
 
 # F0=F1+F2+length*rate rate取值为2的时候，比较宽松.
-def dynamic_limit_v2(_dict, ref_length, assemble_kmer, reads_length, ref_rate=15, list_size=64):
-    '''
-    :param _dict:   filtered dict
-    :param ref_length:   参考序列
-    :param N:       filtered_kmer_count
-    :param ref_rate:   参考序列倍率
-    :param list_size:  记录kmer频次分布
-    :return: (limit,deepth)
-    理论支撑：
-    F0-f1-f2= rate * ref_length*2  2代表2倍，因为计算了反向互补  rate 误差，取决于经验值（逻辑:基因组种类数约等于基因组长度）
-    该方法对深度计算结果欠佳
-    '''
-    # 计算kmercount 频次分布图,默认记录kmer最大频次为256
+# def dynamic_limit_v2(_dict, ref_length, assemble_kmer, reads_length, ref_rate=15, list_size=64):
+#     '''
+#     :param _dict:   filtered dict
+#     :param ref_length:   参考序列
+#     :param N:       filtered_kmer_count
+#     :param ref_rate:   参考序列倍率
+#     :param list_size:  记录kmer频次分布
+#     :return: (limit,deepth)
+#     理论支撑：
+#     F0-f1-f2= rate * ref_length*2  2代表2倍，因为计算了反向互补  rate 误差，取决于经验值（逻辑:基因组种类数约等于基因组长度）
+#     该方法对深度计算结果欠佳
+#     '''
+#     # 计算kmercount 频次分布图,默认记录kmer最大频次为256
+#     count_list = [0] * list_size
+#     for x in _dict:
+#         if _dict[x][0] <= list_size:
+#             count_list[_dict[x][0] - 1] += 1  # [46516, 5624, 1334, 376, 630, 108, 72, 44, 98, 94, 2,2,2,2,2,2,0,0,0,0,2]
+#     # 计算器
+#     KmerSum, F0, sum_f, sum_k, sum_k2 = 0, len(_dict), 0, 0, 0  # 总kmer数,kmer种类数,当前频次kmer数,累计kmer数
+#     for x in range(list_size):
+#         sum_f += count_list[x]
+#         sum_k += count_list[x]
+#         sum_k2 += count_list[x] * (x + 1)
+#         if (F0 - sum_k) / 2 < ref_length * ref_rate:  # ref_rate越大，limit越小，越是保守
+#             return max(2, x)  # 返回Limit,deepth
+#     return 2  # 返回Limit
+
+
+def dynamic_limit_v2(_dict, ref_length, N, ref_rate = 1.5, list_size = 256):
     count_list = [0] * list_size
     for x in _dict:
-        if _dict[x][0] <= list_size:
-            count_list[
-                _dict[x][0] - 1] += 1  # [46516, 5624, 1334, 376, 630, 108, 72, 44, 98, 94, 2,2,2,2,2,2,0,0,0,0,2]
+        if _dict[x][0] <= list_size: count_list[_dict[x][0]-1] += 1
     # 计算器
-    KmerSum, F0, sum_f, sum_k, sum_k2 = 0, len(_dict), 0, 0, 0  # 总kmer数,kmer种类数,当前频次kmer数,累计kmer数
+    F0, sum_f, sum_k = len(_dict), 0, 0
     for x in range(list_size):
-        sum_f += count_list[x]
-        sum_k += count_list[x]
-        sum_k2 += count_list[x] * (x + 1)
-        if (F0 - sum_k) / 2 < ref_length * ref_rate:  # ref_rate越大，limit越小，越是保守
-            return max(2, x)  # 返回Limit,deepth
+        sum_f += count_list[x] #当前频次kmer数量
+        sum_k += count_list[x] * (x + 1) #当前kmer总数
+        if (F0-sum_f)/2 < ref_length * ref_rate:
+            return max(2, x), round((N - sum_k)/ref_length/ref_rate/2, 2)
+    return 2, round((N - sum_k)/ref_length/ref_rate/2,2)
 
-    return 2  # 返回Limit
+
 
 
 # 自动识别浅层或者深层
-def dynamic_limit_v3(_dict, ref_length, assemble_kmer, reads_length, ref_rate=15, list_size=65536):
+def dynamic_limit_v3(_dict, ref_length,  N, reads_length,assemble_kmer, ref_rate=1.5, list_size=65536):
     count_list = [0] * list_size
     for x in _dict:
         if _dict[x][0] <= list_size:
@@ -754,6 +886,10 @@ def dynamic_limit_v3(_dict, ref_length, assemble_kmer, reads_length, ref_rate=15
     tran_threshold_1 = 0.6  # 深层数据kmercount值会比较大，常常在200以上大范围集中
     tran_threshold_2 = 0.5
     kmer_threshold = 0.5 * reads_length
+
+    # print(count_list)
+
+
     for x in range(list_size):
         KmerSum += count_list[x] * (x + 1)
         KmerSum_temp += count_list[x] * (x + 1)
@@ -762,9 +898,6 @@ def dynamic_limit_v3(_dict, ref_length, assemble_kmer, reads_length, ref_rate=15
         if x == level_2 - 1:
             KmerSum_level_2 = KmerSum_temp
 
-    # print(KmerSum_level_1/KmerSum,"k_l1")
-    # print(KmerSum_level_2/KmerSum, "k_l2")
-    # print(KmerSum,"k_all")
     # 当kmer过大，没有对应的kmercount
     if KmerSum == 0:
         limit = 2
@@ -796,36 +929,38 @@ def dynamic_limit_v3(_dict, ref_length, assemble_kmer, reads_length, ref_rate=15
         else:
             flag = 0
 
-    # 深层 limit用平滑曲线评估limit，由于数据质量高，用KmerSum计算深度
+    # 深层 limit用平滑曲线评估limit，由于数据质量高depth 用KmerSum计算深度比较准确 （很准确）
     if flag == 1:
-        limit = dynamic_limit_v1(_dict, 4, 64)
-        for x in range(limit + 1):
+        limit1 = dynamic_limit_v1(_dict, 4, 64)
+        for x in range(limit1 + 1):
             sum_f += count_list[x]
             sum_k += count_list[x]
             sum_k2 += count_list[x] * (x + 1)
-        deepth = round((KmerSum - sum_k2) * reads_length / (reads_length - assemble_kmer + 1) / ref_length / 2,
-                       2)  # 适合深层
+        deepth1 = round((KmerSum - sum_k2) * reads_length / (reads_length - assemble_kmer + 1) / ref_length / 2,2)  # 适合深层
+        limit2, deepth2 = dynamic_limit_v2(_dict, ref_length, N, ref_rate=1.5, list_size=256)
+        limit, deepth = limit1, min(deepth1,deepth2)  # dynamic_limit_v1动态曲线的limit更为准确  dynamic_limit_v2测序深度depth更为准确,小值
 
-        # print("used_kmer:{}".format(KmerSum-sum_k2))
+        # print("Deep data： Limit1:{} depth1:{}\tLimit2:{} depth2:{}\nAt last: limit:{} depth:{}".format(limit1, deepth1,limit2, deepth2,limit, deepth))
 
 
-    # 浅层 用kmer种类的方法评估Limit.由于数据质量低，用F0计算深度
+    # 浅层 浅层的kmer分布只要集中在k64,limit取值不用太大; depth 用KmerSum计算深度比较准确
     else:
-        limit_test = dynamic_limit_v1(_dict, 4, 64)  # 此处Limit用于计算深度，不作为真实的limit
-        for x in range(limit_test + 1):
+        limit1 = dynamic_limit_v1(_dict, 4, 64)  # 此处Limit用于计算深度，不作为真实的limit
+        for x in range(limit1 + 1):
             sum_f += count_list[x]
             sum_k += count_list[x]
             sum_k2 += count_list[x] * (x + 1)
-        deepth = round((KmerSum - sum_k2) * reads_length / (reads_length - assemble_kmer + 1) / ref_length / 2,
-                       2)  # 适合深层
-        # print("used_kmer:{}".format(KmerSum - sum_k2))
-        limit = dynamic_limit_v2(_dict, ref_length, assemble_kmer, reads_length, ref_rate=15, list_size=64)
-        # print("limit_dy2:{}".format(limit))
+        deepth1 = round((KmerSum - sum_k2) * reads_length / (reads_length - assemble_kmer + 1) / ref_length / 2,2)  # 适合深层
+        limit2,deepth2 = dynamic_limit_v2(_dict, ref_length, N, ref_rate = 1.5, list_size = 256)
+
+        limit,deepth=min(limit1,limit2) if abs(limit1-limit2)<=3 else 3, max(deepth1,deepth2)  #Limit:如果两者算出来偏差很大，倾向全局保守，limit==3. depth 根据实际经验，depth值更大，更准确
+        # print("Shallow data： Limit1:{} depth1:{}\tLimit2:{} depth2:{}\nAt last: limit:{} depth:{}".format(limit1,deepth1, limit2, deepth2,limit,deepth))
+
 
     return limit, deepth
 
 
-def static_limit_v1(_dict, ref_length, assemble_kmer, limit, reads_length=150, ref_rate=15, list_size=65536):
+def static_limit_v1(_dict, ref_length, N, reads_length, assemble_kmer, limit, ref_rate=1.5, list_size=65536):
     limit_static = copy.deepcopy(limit)
     count_list = [0] * list_size
     for x in _dict:
@@ -833,8 +968,6 @@ def static_limit_v1(_dict, ref_length, assemble_kmer, limit, reads_length=150, r
             count_list[
                 _dict[x][0] - 1] += 1  # [46516, 5624, 1334, 376, 630, 108, 72, 44, 98, 94, 2,2,2,2,2,2,0,0,0,0,2]
 
-    # print(count_list, "dynamic_limit_v3_count_list")
-
     level_1, level_2, level_max = 32, 64, list_size
     KmerSum_temp, KmerSum_level_1, KmerSum_level_2, KmerSum = 0, 0, 0, 0
     F0, sum_f, sum_k, sum_k2 = len(_dict), 0, 0, 0
@@ -850,10 +983,6 @@ def static_limit_v1(_dict, ref_length, assemble_kmer, limit, reads_length=150, r
             KmerSum_level_1 = KmerSum_temp
         if x == level_2 - 1:
             KmerSum_level_2 = KmerSum_temp
-
-    # print(KmerSum_level_1/KmerSum,"k_l1")
-    # print(KmerSum_level_2/KmerSum, "k_l2")
-    # print(KmerSum,"k_all")
     # 当kmer过大，没有对应的kmercount
     if KmerSum == 0:
         limit = 2
@@ -885,27 +1014,32 @@ def static_limit_v1(_dict, ref_length, assemble_kmer, limit, reads_length=150, r
         else:
             flag = 0
 
-    # 深层 limit用平滑曲线评估limit，由于数据质量高，用KmerSum计算深度
+    # 深层 limit用平滑曲线评估limit，由于数据质量高depth 用KmerSum计算深度比较准确
     if flag == 1:
-        limit = dynamic_limit_v1(_dict, 4, 64)
-        for x in range(limit + 1):
+        limit1 = dynamic_limit_v1(_dict, 4, 64)
+        for x in range(limit1 + 1):
             sum_f += count_list[x]
             sum_k += count_list[x]
             sum_k2 += count_list[x] * (x + 1)
-        deepth = round((KmerSum - sum_k2) * reads_length / (reads_length - assemble_kmer + 1) / ref_length / 2,
-                       2)  # 适合深层
+        deepth1 = round((KmerSum - sum_k2) * reads_length / (reads_length - assemble_kmer + 1) / ref_length / 2,2)  # 适合深层
+        limit2, deepth2 = dynamic_limit_v2(_dict, ref_length, N, ref_rate=1.5, list_size=256)
 
-    # 浅层 用kmer种类的方法评估Limit.由于数据质量低，用F0计算深度
+        deepth =  min(deepth1,deepth2)  # dynamic_limit_v1动态曲线的limit更为准确  dynamic_limit_v2测序深度depth更为准确,小值
+
+        # print("Deep data： Limit1:{} depth1:{}\tLimit2:{} depth2:{}\nAt last: limit:{} depth:{}".format(limit1, deepth1,limit2, deepth2,limit, deepth))
+
+    # 浅层 浅层的kmer分布只要集中在k64,limit取值不用太大; depth 用KmerSum计算深度比较准确
     else:
-        limit_test = dynamic_limit_v1(_dict, 4, 64)  # 此处Limit用于计算深度，不作为真实的limit
-        for x in range(limit_test + 1):
+        limit1 = dynamic_limit_v1(_dict, 4, 64)  # 此处Limit用于计算深度，不作为真实的limit
+        for x in range(limit1 + 1):
             sum_f += count_list[x]
             sum_k += count_list[x]
             sum_k2 += count_list[x] * (x + 1)
-        deepth = round((KmerSum - sum_k2) * reads_length / (reads_length - assemble_kmer + 1) / ref_length / 2,
-                       2)  # 适合深层
-        # limit = dynamic_limit_v2(_dict, ref_length, assemble_kmer, reads_length, ref_rate=15, list_size=64)
-        # print("limit_dy2:{}".format(limit))
+        deepth1 = round((KmerSum - sum_k2) * reads_length / (reads_length - assemble_kmer + 1) / ref_length / 2,2)  # 适合深层
+        limit2,deepth2 = dynamic_limit_v2(_dict, ref_length, N, ref_rate = 1.5, list_size = 256)
+
+        deepth=max(deepth1,deepth2)  #Limit:如果两者算出来偏差很大，倾向全局保守，limit==2. depth 根据实际经验，depth2值更大，更准确
+        # print("Shallow data： Limit1:{} depth1:{}\tLimit2:{} depth2:{}\nAt last: limit:{} depth:{}".format(limit1,deepth1, limit2, deepth2,limit,deepth))
     return limit_static, deepth
 
 
@@ -919,8 +1053,8 @@ def dynamic_weight(_dict):  # 匹配上的reads越多， 值越小。
 
 
 def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limit_max_length,
-                ref_length_dict, assembled_out_path, reads_length, unique_identity, change_seed=32,
-                scaffold_or_not=True,keep_quiet=False):
+                ref_length_dict, assembled_out_path, reads_length, unique_identity, soft_boundary, change_seed=32,
+                scaffold_or_not=True, keep_quiet=False):
     '''
     :param ref_path:
     :param filtered_path:
@@ -931,6 +1065,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
     :param ref_length_dict:
     :param assembled_out_path:
     :param reads_length:
+    :param soft_boundary:
     :param change_seed:
     :param scaffold_or_not:
     :param keep_quiet:
@@ -943,7 +1078,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
     '''
 
     gene_name = get_basename(ref_path)
-    ref_dict = gethashdict(ref_path, k2, get_rc=True, pos=True, print_info=False,keep_quiet=keep_quiet)
+    ref_dict = gethashdict(ref_path, k2, get_rc=True, pos=True, print_info=False, keep_quiet=keep_quiet)
     filtered_dict, filtered_kmer_count = make_assemble_hashdict(filtered_path, k2, ref_dict, get_rc=True)
 
     filtered_dict_back = copy.deepcopy(filtered_dict)  # 备份
@@ -966,8 +1101,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
             ref_dict[i][0] = 0
 
     if limit_count == "auto":
-        limit_count, deepth = dynamic_limit_v3(filtered_dict, ref_length, k2, reads_length, ref_rate=15,
-                                               list_size=1024)  # ref_rate的选择非常关键
+        limit_count, deepth = dynamic_limit_v3(filtered_dict, ref_length, filtered_kmer_count, reads_length, k2,ref_rate=2, list_size=256)  # ref_rate的选择非常关键
         # print("limit_count:{} deepth:{}".format(limit_count,deepth))
         while (limit_count):
             filtered_dict = copy.deepcopy(filtered_dict_back)  # 重新赋值
@@ -996,13 +1130,13 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
             # 速度与允许迭代次数高度正相关，python最大递归1000次，我们改写为循环后，可突破上限
 
             best_contig, min_pos, max_pos, read_list, best_used_kmercount = get_contig(filtered_dict, best_seed[0],
+                                                                                       soft_boundary,
                                                                                        iteration=1000,
                                                                                        weight=cur_weight)  # for test
 
             best_length = len(best_contig)
 
             # 对于过短的处理,更换seed
-
             if best_length < ref_length_min:
 
                 # 更换seed
@@ -1016,6 +1150,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                     last_seed = seed
                     new_contig, min_pos, max_pos, read_list, new_best_used_kmercount = get_contig(filtered_dict,
                                                                                                   last_seed[0],
+                                                                                                  soft_boundary,
                                                                                                   iteration=1000,
                                                                                                   weight=cur_weight)
 
@@ -1076,6 +1211,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                     # cur_weight = assemble.dynamic_weight(filtered_dict)
                     contig, min_pos, max_pos, read_list, new_best_used_kmercount = get_contig(filtered_dict,
                                                                                               best_seed[0],
+                                                                                              soft_boundary,
                                                                                               iteration=1000,
                                                                                               weight=cur_weight)
                     new_seed = best_seed
@@ -1116,12 +1252,14 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                 message1 = " " * 100
                 My_Log_Recorder(message=message1, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
                                 stored_flag=False, make_a_newline=False, use_cutting_line=False)
-                message2 = "{0} best_seed: {1}... best_length: {2} ref_length: {3}".format(gene_name, best_seed[0][0:8],best_length,ref_length)
+                message2 = "{0} best_seed: {1}... best_length: {2} ref_length: {3}".format(gene_name, best_seed[0][0:8],
+                                                                                           best_length, ref_length)
                 My_Log_Recorder(message=message2, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
                                 stored_flag=False, make_a_newline=True, use_cutting_line=False)
 
                 with open(contig_path, "w") as f:
-                    f.write('>' + unique_identity+ "_" + gene_name + '_contig_k' + str(k2) + '_' + str(best_length) + '\n')
+                    f.write(
+                        '>' + unique_identity + "_" + gene_name + '_contig_k' + str(k2) + '_' + str(best_length) + '\n')
                     f.write(best_contig + '\n')
 
                 break  # 跳出循环
@@ -1137,17 +1275,18 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                 message1 = " " * 100
                 My_Log_Recorder(message=message1, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
                                 stored_flag=False, make_a_newline=False, use_cutting_line=False)
-                message2 = "{0} limit_count: {1} best_seed: {2}... best_length: {3} ref_length: {4}".format(gene_name,limit_count,best_seed[0][0:8],
-                                                                                                       best_length,
-                                                                                                       ref_length)
+                message2 = "{0} limit_count: {1} best_seed: {2}... best_length: {3} ref_length: {4}".format(gene_name,
+                                                                                                            limit_count,
+                                                                                                            best_seed[
+                                                                                                                0][0:8],
+                                                                                                            best_length,
+                                                                                                            ref_length)
                 My_Log_Recorder(message=message2, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
                                 stored_flag=False, make_a_newline=True, use_cutting_line=False)
 
-
-
-
                 with open(short_contig_path, "w") as f:
-                    f.write('>' + unique_identity+ "_" + gene_name + '_short_contig_k' + str(k2) + '_' + str(best_length) + '\n')
+                    f.write('>' + unique_identity + "_" + gene_name + '_short_contig_k' + str(k2) + '_' + str(
+                        best_length) + '\n')
                     f.write(best_contig + '\n')
 
                 del filtered_dict
@@ -1164,10 +1303,11 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                     break  # limit_count=1 跳出循环
 
     # 静态Limit
+
     else:
         limit_count = int(limit_count)
-        limit_count, deepth = static_limit_v1(filtered_dict, ref_length, k2, limit_count, reads_length,
-                                              ref_rate=15, list_size=1024)
+        limit_count, deepth = static_limit_v1(filtered_dict, ref_length,  filtered_kmer_count, reads_length, k2, limit_count,
+                                              ref_rate=1.5, list_size=1024)
 
         _filter = [x for x in filtered_dict if filtered_dict[x][0] <= limit_count]
         for x in _filter:
@@ -1186,6 +1326,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
         cur_weight = dynamic_weight(filtered_dict) if filtered_dict else 0.5  # 0.52
         best_seed = seed_list[0]  # ('TTTGGTGGAGTTGTTGG', 95, 81.74894261950934)
         best_contig, min_pos, max_pos, read_list, best_used_kmercount = get_contig(filtered_dict, best_seed[0],
+                                                                                   soft_boundary,
                                                                                    iteration=1000,
                                                                                    weight=cur_weight)  # for test
 
@@ -1208,6 +1349,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                 # print("last_seed:{}".format(last_seed))
                 new_contig, min_pos, max_pos, read_list, new_best_used_kmercount = get_contig(filtered_dict,
                                                                                               last_seed[0],
+                                                                                              soft_boundary,
                                                                                               iteration=1000,
                                                                                               weight=cur_weight)
 
@@ -1268,6 +1410,7 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                 # 此处更新权重影响很小，不更新
                 # cur_weight = assemble.dynamic_weight(filtered_dict)
                 contig, min_pos, max_pos, read_list, new_best_used_kmercount = get_contig(filtered_dict, best_seed[0],
+                                                                                          soft_boundary,
                                                                                           iteration=1000,
                                                                                           weight=cur_weight)
 
@@ -1308,13 +1451,13 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
                             stored_flag=False, make_a_newline=False, use_cutting_line=False)
 
             message2 = "{0} best_seed: {1}... best_length: {2} ref_length: {3}".format(gene_name, best_seed[0][0:8],
-                                                                                  best_length,
-                                                                                  ref_length)
+                                                                                       best_length,
+                                                                                       ref_length)
             My_Log_Recorder(message=message2, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
                             stored_flag=False, make_a_newline=True, use_cutting_line=False)
 
             with open(contig_path, "w") as f:
-                f.write('>'  + unique_identity+ "_" + gene_name + '_contig_k' + str(k2) + '_' + str(best_length) + '\n')
+                f.write('>' + unique_identity + "_" + gene_name + '_contig_k' + str(k2) + '_' + str(best_length) + '\n')
                 f.write(best_contig + '\n')
         else:
             # print(" " * 100, flush=True, end='\r')  # 之前的信息比较长，冲刷掉
@@ -1326,15 +1469,15 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
             My_Log_Recorder(message=message1, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
                             stored_flag=False, make_a_newline=False, use_cutting_line=False)
 
-            message2 ="{0} best_seed: {1}... best_length: {2} ref_length: {3}".format(gene_name, best_seed[0][0:8],
-                                                                                  best_length,
-                                                                                  ref_length)
+            message2 = "{0} best_seed: {1}... best_length: {2} ref_length: {3}".format(gene_name, best_seed[0][0:8],
+                                                                                       best_length,
+                                                                                       ref_length)
             My_Log_Recorder(message=message2, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
                             stored_flag=False, make_a_newline=True, use_cutting_line=False)
 
-
             with open(short_contig_path, "w") as f:
-                f.write('>' + unique_identity + "_" + gene_name + '_short_contig_k' + str(k2) + '_' + str(best_length) + '\n')
+                f.write('>' + unique_identity + "_" + gene_name + '_short_contig_k' + str(k2) + '_' + str(
+                    best_length) + '\n')
                 f.write(best_contig + '\n')
 
     if scaffold_or_not:
@@ -1357,9 +1500,10 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
         with open(scaffold_path, 'w') as out:
             scaffold_length = len(scaffold.replace("N", ""))
             if scaffold_length >= ref_length_min:
-                out.write('>' + unique_identity+ "_" +gene_name + '_scaffold_k' + str(k2) + '_' + str(scaffold_length) + '\n')
+                out.write('>' + unique_identity + "_" + gene_name + '_scaffold_k' + str(k2) + '_' + str(
+                    scaffold_length) + '\n')
                 out.write(scaffold + '\n')
-                message="{}: try scaffold. scaffold length: {}".format(gene_name, scaffold_length)
+                message = "{}: try scaffold. scaffold length: {}".format(gene_name, scaffold_length)
                 My_Log_Recorder(message=message, keep_quiet=keep_quiet, path="", stage="", printout_flag=True,
                                 stored_flag=False, make_a_newline=True, use_cutting_line=False)
 
@@ -1402,8 +1546,8 @@ def do_assemble(ref_path, filtered_path, k2, limit_count, limit_min_length, limi
 
 def do_assemble_parallel(ref_all_path, filtered_all_path, k2, limit_count, limit_min_length,
                          limit_max_length, ref_length_dict, assembled_out_path, reads_length, thread_number,
-                         unique_identity, change_seed=32,
-                         scaffold_or_not=True,keep_quiet=False):
+                         unique_identity, soft_boundary, change_seed=32,
+                         scaffold_or_not=True, keep_quiet=False):
     files = get_fasta_file(filtered_all_path)
     if files == []:
         return 0
@@ -1433,8 +1577,9 @@ def do_assemble_parallel(ref_all_path, filtered_all_path, k2, limit_count, limit
         ref_path = os.path.join(ref_all_path, name + ".fasta")
         task_pool.append(
             executor.submit(do_assemble, ref_path, i, k2, limit_count, limit_min_length, limit_max_length,
-                            ref_length_dict, assembled_out_path, reads_length, unique_identity, change_seed,
-                            scaffold_or_not,keep_quiet))
+                            ref_length_dict, assembled_out_path, reads_length, unique_identity, soft_boundary,
+                            change_seed,
+                            scaffold_or_not, keep_quiet))
     for i in task_pool:
         results.append(i.result())
     executor.shutdown()
@@ -1452,7 +1597,8 @@ def my_assemble_main(configuration_information):
     change_seed = configuration_information["change_seed"]
     scaffold_or_not = configuration_information["scaffold_or_not"]
     out_dir = configuration_information["out_dir"]
-    quiet=configuration_information["quiet"]
+    quiet = configuration_information["quiet"]
+    soft_boundary = configuration_information["soft_boundary"]
 
     reads_length = 150  # 默认值
     if out_dir:
@@ -1474,11 +1620,13 @@ def my_assemble_main(configuration_information):
         reads_length = get_reads_length(files[0], type="fasta", _number=100)
 
     do_assemble_parallel(reference, filtered_path, k2, limit_count, limit_min_length, limit_max_length, ref_length_dict,
-                         assembled_out_path, reads_length, thread_number, unique_identity, change_seed, scaffold_or_not,quiet)
+                         assembled_out_path, reads_length, thread_number, unique_identity, soft_boundary, change_seed,
+                         scaffold_or_not,
+                         quiet)
 
     t2 = time.time()
     used_temp_time = format((t2 - t1), ".2f")
-    message="Assemble time used: {}s".format(used_temp_time)
+    message = "Assembly reads time used: {}s".format(used_temp_time)
     My_Log_Recorder(message=message, keep_quiet=quiet, path="", stage="", printout_flag=True,
                     stored_flag=False, make_a_newline=True, use_cutting_line=False)
 
@@ -1487,6 +1635,7 @@ def my_assemble_main(configuration_information):
 
 if __name__ == '__main__':
     # -i -r 中的文件名必须是xx.fasta 同名
+    #eg.  python my_assemble.py -i example\demo_b75_k127\filtered_out  -r example\demo_b75_k127\reference_database -o example\demo_b75_k127\out1 -b 75
     pars = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description="assemble",
                                    usage="%(prog)s <-i> <-r> <-o> [options]")
 
@@ -1504,16 +1653,21 @@ if __name__ == '__main__':
                       required=False,
                       default='auto')
     pars.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
-                      help='''The minimum ratio of contig length to reference average length [default = 1.0]''',
-                      required=False, default=1.0)
+                      help='''The minimum ratio of contig length to reference average length [default = 0.9]''',
+                      required=False, default=0.9)
     pars.add_argument('-limit_max_ratio', metavar='', dest='limit_max_length', type=float,
                       help='''The maximum ratio of contig length to reference average length [default = 2.0]''',
                       required=False, default=2.0)
+
+    pars.add_argument("-b", "--boundary", dest="soft_boundary",
+                      help="Length of the extension along both sides of the target gene [default = 75]",
+                      default=75, type=int, metavar="")
     pars.add_argument("-change_seed", metavar="", dest="change_seed", type=int,
                       help='''Times of changing seed [default=32]''', required=False,
                       default=32)
     pars.add_argument('-scaffold', metavar="", dest="scaffold", type=str, help='''make scaffold''', default=False)
-    pars.add_argument("-quiet", dest="quiet", help="Do not write progress messages to stderr", default=False,action='store_true')
+    pars.add_argument("-quiet", dest="quiet", help="Do not write progress messages to stderr", default=False,
+                      action='store_true')
 
     args = pars.parse_args()
 
@@ -1528,8 +1682,9 @@ if __name__ == '__main__':
     limit_max_length = args.limit_max_length
     change_seed = args.change_seed
     scaffold_or_not = args.scaffold
-    quiet=args.quiet
+    quiet = args.quiet
     reads_length = 150  # 默认值
+    soft_boundary = args.soft_boundary
 
     True_set = ["yes", "y", "Yes", "true", "True", "1", 1]
     if scaffold_or_not in True_set:
@@ -1547,7 +1702,8 @@ if __name__ == '__main__':
         "change_seed": change_seed,
         "scaffold_or_not": scaffold_or_not,
         "out_dir": "",
-        "quiet":quiet
+        "quiet": quiet,
+        "soft_boundary": soft_boundary
 
     }
     my_assemble_main(assemble_configuration_information)

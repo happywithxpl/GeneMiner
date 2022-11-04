@@ -219,15 +219,15 @@ def check_scaffold(scaffold):
 
 
 '''
-7 检测软边界 默认为75 范围为0~200之间
+7 检测软边界 默认为0 测序深度深，参考序列丰富建议-b 设置为0.5*reads 测序深度浅，参考序列不够丰富，建议设置为1000 一个比较大的值
 '''
 def check_soft_boundary(soft_boundary):
     soft_boundary = int(soft_boundary)
-    max = 200
+    max = 10000
     min = 0
-    if soft_boundary > max or soft_boundary < min:
+    if soft_boundary < min:
         print(
-            "The length of the soft boundary ranges from 0 to 200, and the recommended length is 0.5 * reads_length, please check the -b parameter")
+            "The length of the soft boundary should be no less than 0, and the recommended length is 0.5 * reads_length, please check the -b parameter")
         set_value("my_gui_flag", 0)
         sys.exit()
     else:

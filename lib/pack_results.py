@@ -128,87 +128,87 @@ def my_pack_results_pipeline_main(configuration_information):
 
 
 
-if __name__ == '__main__':
-    data1 = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_500w.fq"
-    data2 = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data2_500w.fq"
-    single = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_500w.fq"
-
-    '''
-    for bootstrap
-    '''
-    # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\demo"
-    # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\cp_gene"
-    # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
-
-    # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\matk_bootstrap"
-    # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\matk_ref"
-    # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
-
-
-    '''
-    for pack_results
-    '''
-    out_dir = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_out"
-    rtfa = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_gene"
-    rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
-
-    k1 = 29
-    k2 = 41
-    data_size = 'all'
-    step_length = 4
-    limit_count = "auto"
-    limit_min_length = 0.5
-    limit_max_length = 2
-    change_seed = 32
-    scaffold_or_not = True
-    max_length = 50000
-    min_length = 0
-    thread_number = 4
-    soft_boundary = 0
-    bootstrap_information = [True, 10]
-    bootstrap = bootstrap_information[0]
-    bootstrap_number = bootstrap_information[1]
-
-    reference_database = "reference_database"
-    filtered_out = "filtered_out"
-    assembled_out = "assembled_out"
-    bootstrap_out = "bootstrap_out"
-    GM_results = "GM_results"
-    results_log = "results.log"
-
-    filter_path = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\lib\my_filter.py"
-    assemble_path = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\lib\my_assemble.py"
-
-    # 其他信息
-    my_software_name = "GM"
-    configuration_information = {"out_dir": out_dir,
-                                 "data1": data1, "data2": data2, "single": single,
-                                 "rtfa": rtfa, "rtgb": rtgb,
-                                 "k1": k1, "k2": k2, "thread_number": thread_number,
-                                 "step_length": step_length,
-                                 "limit_count": limit_count,
-                                 "limit_min_length": limit_min_length,
-                                 "limit_max_length": limit_max_length,
-                                 "change_seed": change_seed,
-                                 "scaffold_or_not": scaffold_or_not,
-                                 "max_length": max_length, "min_length": min_length,
-                                 "soft_boundary": soft_boundary, "data_size": data_size,
-                                 "bootstrap": bootstrap_information[0], "bootstrap_number": bootstrap_information[1],
-                                 "reference_database": reference_database,
-                                 "filtered_out": filtered_out, "assembled_out": assembled_out,
-                                 "bootstrap_out": bootstrap_out,
-                                 "GM_results": GM_results,
-                                 "results_log": results_log,
-                                 "my_software_name": my_software_name,
-                                 "filter_path": filter_path, "assemble_path": assemble_path
-                                 }
-
-
-    # my_pack_results_pipeline=PackResultsPipeline(configuration_information)
-    # my_pack_results_pipeline.get_csv_all_info()
-    # recovered_genes = my_pack_results_pipeline.print_recovered_info()
-    recovered_genes=my_pack_results_pipeline_main(configuration_information)
-    print(recovered_genes)
+# if __name__ == '__main__':
+#     data1 = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_500w.fq"
+#     data2 = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data2_500w.fq"
+#     single = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_500w.fq"
+#
+#     '''
+#     for bootstrap
+#     '''
+#     # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\demo"
+#     # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\cp_gene"
+#     # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
+#
+#     # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\matk_bootstrap"
+#     # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\matk_ref"
+#     # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
+#
+#
+#     '''
+#     for pack_results
+#     '''
+#     out_dir = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\xpl1"
+#     rtfa = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_gene"
+#     rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
+#
+#     k1 = 29
+#     k2 = 41
+#     data_size = 'all'
+#     step_length = 4
+#     limit_count = "auto"
+#     limit_min_length = 0.5
+#     limit_max_length = 2
+#     change_seed = 32
+#     scaffold_or_not = True
+#     max_length = 50000
+#     min_length = 0
+#     thread_number = 4
+#     soft_boundary = 0
+#     bootstrap_information = [True, 10]
+#     bootstrap = bootstrap_information[0]
+#     bootstrap_number = bootstrap_information[1]
+#
+#     reference_database = "reference_database"
+#     filtered_out = "filtered_out"
+#     assembled_out = "assembled_out"
+#     bootstrap_out = "bootstrap_out"
+#     GM_results = "GM_results"
+#     results_log = "results.log"
+#
+#     filter_path = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\lib\my_filter.py"
+#     assemble_path = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\lib\my_assemble.py"
+#
+#     # 其他信息
+#     my_software_name = "GM"
+#     configuration_information = {"out_dir": out_dir,
+#                                  "data1": data1, "data2": data2, "single": single,
+#                                  "rtfa": rtfa, "rtgb": rtgb,
+#                                  "k1": k1, "k2": k2, "thread_number": thread_number,
+#                                  "step_length": step_length,
+#                                  "limit_count": limit_count,
+#                                  "limit_min_length": limit_min_length,
+#                                  "limit_max_length": limit_max_length,
+#                                  "change_seed": change_seed,
+#                                  "scaffold_or_not": scaffold_or_not,
+#                                  "max_length": max_length, "min_length": min_length,
+#                                  "soft_boundary": soft_boundary, "data_size": data_size,
+#                                  "bootstrap": bootstrap_information[0], "bootstrap_number": bootstrap_information[1],
+#                                  "reference_database": reference_database,
+#                                  "filtered_out": filtered_out, "assembled_out": assembled_out,
+#                                  "bootstrap_out": bootstrap_out,
+#                                  "GM_results": GM_results,
+#                                  "results_log": results_log,
+#                                  "my_software_name": my_software_name,
+#                                  "filter_path": filter_path, "assemble_path": assemble_path
+#                                  }
+#
+#
+#     # my_pack_results_pipeline=PackResultsPipeline(configuration_information)
+#     # my_pack_results_pipeline.get_csv_all_info()
+#     # recovered_genes = my_pack_results_pipeline.print_recovered_info()
+#     recovered_genes=my_pack_results_pipeline_main(configuration_information)
+#     print(recovered_genes)
 
 
 

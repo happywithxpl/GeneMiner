@@ -34,7 +34,8 @@ class Extract_reference():
         self.out_dir=configuration_information["out_dir"]  #最大一级的输出文件夹
         self.rtfa=configuration_information["rtfa"]                   #参考基因组
         self.rtgb = configuration_information["rtgb"]  # 参考基因组
-        self.soft_boundary=configuration_information["soft_boundary"] #软边界
+        # self.soft_boundary=configuration_information["soft_boundary"] #软边界
+        self.soft_boundary=0  #2022-10-31 在my_assemble中新增更广义的软边界，即处理组装结果而不是参考序列
         self.gene_max_length=configuration_information["max_length"]  #基因最大长度
         self.gene_min_length=configuration_information["min_length"]   #基因最小长度
         self.reference_database=configuration_information["reference_database"]  #"reference_database"
@@ -324,44 +325,43 @@ def my_bulid_reference_database_pipeline(configuration_information):
         pass
 
 
-if __name__ == '__main__':
-    t1 = time.time()
-    out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\reference4"
-    out_dir=r"D:\Happy_life_and_work\scu\python\Gene_Miner\test_for_performance\353\shallow_cp_gold"
-    rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\test_for_performance\353\skimming_cp_ref\cp_ref.gb"
-    # rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo.gb"
-    # rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo2.gb"
-    # rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo2"
-    rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\test_for_performance\353\cp_gold.gb"
-
-    rtfa=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\ITS_ref.fasta"
-    # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo1"
-    rtfa=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\ref_Brassicaceae"
-
-
-    soft_boundary = 0
-    max_length = 5000
-    min_length = 0
-    reference_database = "reference_database"
-    thread_number=4
-
-    configuration_information = {"out_dir": out_dir, "rtfa": rtfa, "rtgb": rtgb, "soft_boundary": soft_boundary,
-                                 "max_length": max_length, "min_length": min_length,
-                                 "reference_database": reference_database,
-                                 "thread_number":thread_number}
-
-    # my_bulid_reference_database_pipeline(configuration_information)
-
-    target1 = Extract_reference(configuration_information)
-    target1.extract_reference_from_gb_parallel()
-
-    # target1 = Extract_reference(configuration_information)
-    # target1.extract_reference_from_fasta()
-
-
-
-    t2 = time.time()
-    print(t2 - t1)
+# if __name__ == '__main__':
+#     t1 = time.time()
+#     out_dir = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\shallow"
+#     rtgb=r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\shallow_ref.gb"
+#     # rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo.gb"
+#     # rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo2.gb"
+#     # rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo2"
+#
+#
+#     rtfa=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\ITS_ref.fasta"
+#     # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo1"
+#     rtfa=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\ref_Brassicaceae"
+#
+#
+#     soft_boundary = 20
+#     max_length = 5000
+#     min_length = 0
+#     reference_database = "reference_database"
+#     thread_number=4
+#
+#     configuration_information = {"out_dir": out_dir, "rtfa": rtfa, "rtgb": rtgb, "soft_boundary": soft_boundary,
+#                                  "max_length": max_length, "min_length": min_length,
+#                                  "reference_database": reference_database,
+#                                  "thread_number":thread_number}
+#
+#     # my_bulid_reference_database_pipeline(configuration_information)
+#
+#     target1 = Extract_reference(configuration_information)
+#     target1.extract_reference_from_gb_parallel()
+#
+#     # target1 = Extract_reference(configuration_information)
+#     # target1.extract_reference_from_fasta()
+#
+#
+#
+#     t2 = time.time()
+#     print(t2 - t1)
 
 
 

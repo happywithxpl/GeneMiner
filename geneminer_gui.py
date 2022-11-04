@@ -243,7 +243,7 @@ def geneminer_GUI():
         # -rtfa
         [sg.Text('Ref. (fasta):', size=(11, 1), justification='right', font=("Arial", 12)),
          sg.Input(key='-rtfa-', size=(20, 1), font=("Arial", 12), expand_x=True,
-                  tooltip="References of target sequences, only support fasta format",
+                  tooltip="References of target sequences, only support FASTA format",
                   readonly=False, ),
          sg.FileBrowse("File", font=("Arial", 12), target='-rtfa-', file_types=(
              ("rtfa", "*.fasta"), ("rtfa", "*.fa"), ("rtfa", "*.fas"), ("rtfa", "*.FASTA"), ("rtfa", "*.FAS"),
@@ -307,11 +307,11 @@ def geneminer_GUI():
     others_frame = [
         [
             sg.Text('Boundary:', size=(8, 1), justification='right', font=("Arial", 12)),
-            sg.Input(0, key='-b-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="The length of the extension along both sides of the target sequence [default = 0]"),
+            sg.Input(75, key='-b-', size=(6, 1), font=("Arial", 12), expand_x=False,
+                     tooltip="The length of the extension along both sides of the target sequence [default = 75]"),
             sg.Text('Min:', size=(8, 1), justification='right', font=("Arial", 12)),
-            sg.Input(300, key='-min-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="The minimum length of contigs to be retained [default = 300]"),
+            sg.Input(0, key='-min-', size=(6, 1), font=("Arial", 12), expand_x=False,
+                     tooltip="The minimum length of contigs to be retained [default = 0]"),
             sg.Text('Max:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(5000, key='-max-', size=(6, 1), font=("Arial", 12), expand_x=False,
                      tooltip="The maximum length of contigs to be retained [default = 5000]"),
@@ -319,8 +319,8 @@ def geneminer_GUI():
 
         [
             sg.Text('min_ratio:', size=(8, 1), justification='right', font=("Arial", 12)),
-            sg.Input(1.0, key='-limit_min-', size=(6, 1), font=("Arial", 12), expand_x=False,
-                     tooltip="The minimum ratio of contig length to reference average length [default = 1.0]"),
+            sg.Input(0.9, key='-limit_min-', size=(6, 1), font=("Arial", 12), expand_x=False,
+                     tooltip="The minimum ratio of contig length to reference average length [default = 0.9]"),
             sg.Text('max_ratio:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(2.0, key='-limit_max-', size=(6, 1), font=("Arial", 12), expand_x=False,
                      tooltip="The maximum ratio of contig length to reference average length [default = 2.0]"),
@@ -512,7 +512,7 @@ def geneminer_GUI():
             if values["-min-"]:
                 args.min = int(values["-min-"])
             else:
-                args.min = 300
+                args.min = 0
             if values["-max-"]:
                 args.max = int(values["-max-"])
             else:
@@ -521,7 +521,7 @@ def geneminer_GUI():
             if values["-limit_min-"]:
                 args.limit_min_length = float(values["-limit_min-"])
             else:
-                args.limit_min_length = 1.0
+                args.limit_min_length = 0.9
             if values["-limit_max-"]:
                 args.limit_max_length = float(values["-limit_max-"])
             else:
@@ -531,7 +531,7 @@ def geneminer_GUI():
             if values["-b-"]:
                 args.soft_boundary = int(values["-b-"])
             else:
-                args.soft_boundary = 0
+                args.soft_boundary = 75
 
 
             if values["-t-"]:
@@ -576,10 +576,10 @@ def geneminer_GUI():
 
 
             #others
-            window['-b-'].update("0")
-            window['-min-'].update("300")
+            window['-b-'].update("75")
+            window['-min-'].update("0")
             window['-max-'].update("5000")
-            window['-limit_min-'].update("1.0")
+            window['-limit_min-'].update("0.9")
             window['-limit_max-'].update("2.0")
             window['-t-'].update("auto")
             # window['-cbscaffold-'].update(False)
@@ -613,9 +613,9 @@ def geneminer_GUI():
             args.bootstrap_number=10
             #others
             args.soft_boundary = 0
-            args.min = 300
+            args.min = 0
             args.max = 5000
-            args.limit_max_length=1.0
+            args.limit_max_length=0.9
             args.limit_max_length=2.0
             args.thread = 'auto'
             # args.scaffold = False
@@ -632,8 +632,8 @@ def geneminer_GUI():
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal_handler)  # 检测函数终止退出（ctrl+c） #必须放在主程序中
     multiprocessing.freeze_support()  # windows上Pyinstaller打包多进程程序需要添加特殊指令
+    signal.signal(signal.SIGINT, signal_handler)  # 检测函数终止退出（ctrl+c） #必须放在主程序中
     set_value("my_gui_flag", 0)  # 用于判定脚本是否跑完，还可以防止run双击覆盖事件
     parser = argparse.ArgumentParser(usage="%(prog)s <-1 -2|-s>  <-rtfa|-rtgb>  <-o>  [options]",
                                      description="GeneMiner: a software for extracting phylogenetic markers from next generation sequencing data\n"
@@ -689,8 +689,8 @@ if __name__ == "__main__":
                                        help='''limit of the k-mer count [default = auto]''', required=False,
                                        default='auto')
     advanced_option_group.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
-                                       help='''Minimum ratio of the recovered target gene(s) to the reference's average length [default = 1.0]''',
-                                       required=False, default=1.0)
+                                       help='''Minimum ratio of the recovered target gene(s) to the reference's average length [default = 0.9]''',
+                                       required=False, default=0.9)
     advanced_option_group.add_argument('-limit_max_ratio', metavar='', dest='limit_max_length', type=float,
                                        help='''Maximum ratio of the recovered target gene(s) to the reference's average length [default = 2.0]''',
                                        required=False, default=2.0)
@@ -712,8 +712,8 @@ if __name__ == "__main__":
                                        help="Number of threads [default = auto ]",
                                        default="auto", metavar="")
     advanced_option_group.add_argument("-b", "--boundary", dest="soft_boundary",
-                                       help="Length of the extension along both sides of the target gene [default = 0]",
-                                       default=0, type=int, metavar="")
+                                       help="Length of the extension along both sides of the target gene [default = 75]",
+                                       default=75, type=int, metavar="")
 
     advanced_option_group.add_argument("-bn", "--bootstrap", dest="bootstrap_number", type=int,
                                        help="Specify the bootstrap number. Evaluate the assembly results based on the base substitution model and repeated resampling",
