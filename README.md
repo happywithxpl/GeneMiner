@@ -57,9 +57,9 @@ cat logName | xargs rm -rf
  Download the source distribution from the [release](https://github.com/bpp/bpp/releases) and  install dependencies:
 
 ```shell
-wget https://github.com/happywithxpl/Geneminer/geneminer-1.0.0-linux-x86_64.tar.gz
-tar geneminer_v1.0.0.tar.gz
-cd  GeneMiner_v1.0.0
+wget -c https://github.com/happywithxpl/GeneMiner/releases/download/v1.0.0/GeneMiner_v1.0.0_linux.tar.gz
+tar GeneMiner_v1.0.0_linux.tar.gz
+cd  GeneMiner
 python setup.py install --record logName --user
 geneminer.py -h
 ```
@@ -79,8 +79,8 @@ If both of the above methods fail or you want to have a deeper control of GeneMi
 - Download the GeneMiner's distribution from  [here](:https://github.com/happywithxpl/GeneMiner/releases).
 
 ```shell
-wget https://github.com/happywithxpl/GeneMiner/geneminer-1.0.0-linux-x86_64.tar.gz `
-tar -zvxf geneminer-1.0.0-linux-x86_64.tar.gz
+wget -c https://github.com/happywithxpl/GeneMiner/releases/download/v1.0.0/GeneMiner_v1.0.0_linux.tar.gz
+tar GeneMiner_v1.0.0_linux.tar.gz
 ```
 
 - Use the following commands to make `geneminer.py`  executable.
