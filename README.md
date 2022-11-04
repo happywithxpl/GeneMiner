@@ -227,7 +227,7 @@ The output directory contains  `reference_database`、`filtered_out `、`assembl
 
 # User manual
 
-A more complete manual is here: https://github.com/happywithxpl/GeneMiner/blob/main/GeneMiner_User_Guide.md
+A more complete manual is here: https://github.com/happywithxpl/GeneMiner/blob/main/GeneMiner_User_Guide.pdf
 
 # Contact
 
