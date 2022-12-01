@@ -196,7 +196,7 @@ Click on the `Results` button to view the results after the GeneMiner has comple
 **Clear the screen**
 Click on the `Clear` botton
 
-**Reset parameters **
+**Reset parameters**
 Click on the `Reset` botton and all parameters will be reset to default parameters.
 WorkFlow: Reset ==>> Enter new parameters ==>> Run
 
