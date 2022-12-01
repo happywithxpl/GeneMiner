@@ -31,7 +31,7 @@ class Extract_reference():
     def __init__(self,configuration_information):
 
         self.configuration_information=configuration_information  #包含各级文件名字信息
-        self.out_dir=configuration_information["out_dir"]  #最大一级的输出文件夹
+        self.out_dir=configuration_information["out"]  #最大一级的输出文件夹
         self.rtfa=configuration_information["rtfa"]                   #参考基因组
         self.rtgb = configuration_information["rtgb"]  # 参考基因组
         # self.soft_boundary=configuration_information["soft_boundary"] #软边界
@@ -84,7 +84,6 @@ class Extract_reference():
             task_pool.append(executor.submit(self.extract_reference_from_gb,file))
         for i in task_pool:
             results.append(i.result())
-
         if not results:
             return 0
 
@@ -327,7 +326,7 @@ def my_bulid_reference_database_pipeline(configuration_information):
 
 # if __name__ == '__main__':
 #     t1 = time.time()
-#     out_dir = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\shallow"
+#     out = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\shallow"
 #     rtgb=r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\shallow_ref.gb"
 #     # rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo.gb"
 #     # rtgb=r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\demo2.gb"
@@ -345,7 +344,7 @@ def my_bulid_reference_database_pipeline(configuration_information):
 #     reference_database = "reference_database"
 #     thread_number=4
 #
-#     configuration_information = {"out_dir": out_dir, "rtfa": rtfa, "rtgb": rtgb, "soft_boundary": soft_boundary,
+#     configuration_information = {"out": out, "rtfa": rtfa, "rtgb": rtgb, "soft_boundary": soft_boundary,
 #                                  "max_length": max_length, "min_length": min_length,
 #                                  "reference_database": reference_database,
 #                                  "thread_number":thread_number}

@@ -65,7 +65,7 @@ def combine_csv_info(csv_info_list, bn=False):
 class PackResultsPipeline():
     def __init__(self, configuration_information):
         self.configuration_information = configuration_information
-        self.out_dir = configuration_information["out_dir"]
+        self.out_dir = configuration_information["out"]
         self.filtered_out = configuration_information["filtered_out"]
         self.assembled_out = configuration_information["assembled_out"]
         self.boostrap_out = configuration_information["bootstrap_out"]
@@ -136,11 +136,11 @@ def my_pack_results_pipeline_main(configuration_information):
 #     '''
 #     for bootstrap
 #     '''
-#     # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\demo"
+#     # out = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\demo"
 #     # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\cp_gene"
 #     # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
 #
-#     # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\matk_bootstrap"
+#     # out = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\matk_bootstrap"
 #     # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\matk_ref"
 #     # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
 #
@@ -148,7 +148,7 @@ def my_pack_results_pipeline_main(configuration_information):
 #     '''
 #     for pack_results
 #     '''
-#     out_dir = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\xpl1"
+#     out = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\xpl1"
 #     rtfa = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_gene"
 #     rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
 #
@@ -181,7 +181,7 @@ def my_pack_results_pipeline_main(configuration_information):
 #
 #     # 其他信息
 #     my_software_name = "GM"
-#     configuration_information = {"out_dir": out_dir,
+#     configuration_information = {"out": out,
 #                                  "data1": data1, "data2": data2, "single": single,
 #                                  "rtfa": rtfa, "rtgb": rtgb,
 #                                  "k1": k1, "k2": k2, "thread_number": thread_number,

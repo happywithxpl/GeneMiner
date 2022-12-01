@@ -196,7 +196,7 @@ class BootstrapPipeLine():
         self.data1=configuration_information["data1"]
         self.data2=configuration_information["data2"]
         self.single=configuration_information["single"]
-        self.out_dir = configuration_information["out_dir"]
+        self.out_dir = configuration_information["out"]
 
         self.k1=configuration_information["k1"]
         self.k2=configuration_information["k2"]
@@ -239,7 +239,7 @@ class BootstrapPipeLine():
 
 
         #二级路径
-        self.boostrap_out_reference_database_path=os.path.join(self.out_dir,self.boostrap_out,self.reference_database) #out_dir\bootstrap_out\reference_database
+        self.boostrap_out_reference_database_path=os.path.join(self.out_dir,self.boostrap_out,self.reference_database) #out\bootstrap_out\reference_database
         self.boostrap_out_filtered_out_path=os.path.join(self.out_dir,self.boostrap_out,self.filtered_out)
         self.boostrap_out_assembled_out_path = os.path.join(self.out_dir, self.boostrap_out, self.assembled_out)
         self.boostrap_out_GM_results_path = os.path.join(self.out_dir, self.boostrap_out, self.GM_results)
@@ -368,7 +368,7 @@ class BootstrapPipeLine():
         filter_configuration_information = {
             "data1": data1, "data2": data2, "single": single,
             "thread_number": thread_number, "k1": k1,
-            "out_dir": boostrap_out_filtered_out_path, "step_length": step_length,
+            "out": boostrap_out_filtered_out_path, "step_length": step_length,
             "reference": boostrap_out_reference_database_path, "data_size": data_size,
             "quiet":quiet
         }
@@ -402,7 +402,7 @@ class BootstrapPipeLine():
             "limit_min_length": limit_min_length, "limit_max_length": limit_max_length,
             "change_seed": change_seed,
             "scaffold_or_not": scaffold_or_not,
-            "out_dir": out_dir,
+            "out": out_dir,
             "quiet":quiet,
             "soft_boundary": soft_boundary
         }
@@ -542,7 +542,7 @@ def my_bootstrap_pipeline_main(configuration_information):
 #     data1 = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_100w.fq"
 #     data2 = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_100w.fq"
 #     single = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\data1_100w.fq"
-#     out_dir = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_out"
+#     out = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_out"
 #     rtfa = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\cp_gene"
 #     rtgb = r"E:\Computer\python\GeneMiner\eeeeeeeee10 重构bootstrap\example\chuanxiong.gb"
 #
@@ -553,7 +553,7 @@ def my_bootstrap_pipeline_main(configuration_information):
 #     # single = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\A_thaliana_s_2g_single.fastq"
 #
 #
-#     # out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\geneminer_2g_t20_k2931_bn100_003"
+#     # out = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\geneminer_2g_t20_k2931_bn100_003"
 #     # rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\ref_Brassicaceae"
 #     # rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
 #
@@ -589,7 +589,7 @@ def my_bootstrap_pipeline_main(configuration_information):
 #
 #     #其他信息
 #     my_software_name = "GM"
-#     configuration_information = {"out_dir": out_dir,
+#     configuration_information = {"out": out,
 #                                  "data1": data1, "data2": data2, "single": single,
 #                                  "rtfa": rtfa, "rtgb": rtgb,
 #                                  "k1": k1, "k2": k2, "thread_number": thread_number,

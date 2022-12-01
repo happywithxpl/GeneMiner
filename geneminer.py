@@ -97,7 +97,7 @@ def main(args):
     # 校验信息
     check_python_version()
     out_dir = check_out_dir(out_dir)  # 输出文件夹检测
-    set_value("out_dir", out_dir)
+    set_value("out", out_dir)
 
     check_input(data1, data2, single)
     check_reference(target_reference_fa, target_reference_gb)
@@ -150,7 +150,7 @@ def main(args):
                  "bootstrap": bootstrap_information[0],
                  "bootstrap number": bootstrap_information[1],
                  }
-    configuration_information = {"out_dir": out_dir,
+    configuration_information = {"out": out_dir,
                                  "data1": data1, "data2": data2, "single": single,
                                  "rtfa": target_reference_fa, "rtgb": target_reference_gb,
                                  "k1": k1, "k2": k2, "thread_number": thread_number,
@@ -196,9 +196,9 @@ def main(args):
     whole_time = format(t2 - t1, ".2f")
 
     if recovered_genes > 0:
-        message = "Thanks for using GeneMiner! GeneMiner has successfully mined {} target gene in {}s.".format(
+        message = "Thank you for using GeneMiner! GeneMiner has successfully mined {} target gene in {}s.".format(
             recovered_genes,
-            whole_time) if recovered_genes == 1 else "Thanks for using GeneMiner! GeneMiner has successfully mined {} target genes in {}s.".format(
+            whole_time) if recovered_genes == 1 else "Thank you for using GeneMiner! GeneMiner has successfully mined {} target genes in {}s.".format(
             recovered_genes, whole_time)
     else:
         message = "GeneMiner has failed to mine the target gene within {}s. Please check the manual for a solution.".format(
@@ -211,8 +211,8 @@ if __name__ == "__main__":
     # multiprocessing.freeze_support()  # windows上Pyinstaller打包多进程程序需要添加特殊指令
     # set_value("my_gui_flag", 0)  # 用于判定脚本是否跑完，还可以防止run双击覆盖事件
     parser = argparse.ArgumentParser(usage="%(prog)s <-1 -2|-s>  <-rtfa|-rtgb>  <-o>  [options]",
-                                     description="GeneMiner: a software for extracting phylogenetic markers from next generation sequencing data\n"
-                                                 "Version: 1.0.0\n"
+                                     description="GeneMiner: a tool for extracting phylogenetic markers from next-generation sequencing data\n"
+                                                 "Version: 1.0.1\n"
                                                  "Copyright (C) 2022 Pulin Xie\n"
                                                  "Please contact <xiepulin@stu.edu.scu.cn> if you have any questions",
 
@@ -255,13 +255,13 @@ if __name__ == "__main__":
                                        type=int, metavar="")
 
     advanced_option_group.add_argument("-d", "--data", dest="data_size",
-                                       help="Specify the number of reads to reduce raw data. If you want to use all the data, you can set as 'all' [default = 'all']",
+                                       help="Specify the number of actually used reads to reduce the computational burden (e.g. 10000000)\nSet to all if you want to use all the data [default = all]",
                                        default='all', metavar="")
 
     advanced_option_group.add_argument("-step_length", metavar="", dest="step_length", type=int,
-                                       help="Step length of the sliding window on the reads [default = 4]", default=4)
+                                       help="Length of the interval when splitting the reads into k-mers [default = 4]", default=4)
     advanced_option_group.add_argument('-limit_count', metavar='', dest='limit_count',
-                                       help='''limit of the k-mer count [default = auto]''', required=False,
+                                       help='''The minimum number of times a k-mer should appear in reads,\nused to remove likely erroneous and low-abundance k-mers [default = auto]''', required=False,
                                        default='auto')
     advanced_option_group.add_argument('-limit_min_ratio', metavar='', dest='limit_min_length', type=float,
                                        help='''Minimum ratio of the recovered target gene(s) to the reference's average length [default = 0.9]''',
@@ -273,7 +273,7 @@ if __name__ == "__main__":
     advanced_option_group.add_argument("-change_seed", metavar="", dest="change_seed", type=int,
                                        help='''Times of changing seed [default = 32]''', required=False,
                                        default=32)
-    advanced_option_group.add_argument('-scaffold', metavar="", dest="scaffold", type=str, help='''Make scaffold''',
+    advanced_option_group.add_argument('-scaffold', metavar="", dest="scaffold", type=str, help='''Make scaffolds (in beta)''',
                                        default=False)
     advanced_option_group.add_argument("-max", dest="max",
                                        help="The maximum length of contigs to be retained [default = 5000]",
@@ -284,15 +284,15 @@ if __name__ == "__main__":
                                        default=0,
                                        type=int, metavar="")
     advanced_option_group.add_argument("-t", "--thread",
-                                       help="Number of threads [default = auto ]",
+                                       help="Number of threads [default = auto]",
                                        default="auto", metavar="")
     advanced_option_group.add_argument("-b", "--boundary", dest="soft_boundary",
-                                       help="Length of the extension along both sides of the target gene [default = 75]",
+                                       help="Length of the extension along both sides of the recovered target gene\nSet to a large value (e.g. 10000) if you want to retain the complete assembly\nRecommended length is 0.5 * reads length [default = 75]",
                                        default=75, type=int, metavar="")
 
     advanced_option_group.add_argument("-bn", "--bootstrap", dest="bootstrap_number", type=int,
-                                       help="Specify the bootstrap number. Evaluate the assembly results based on the base substitution model and repeated resampling",
-                                       metavar="")
+                                       help="Specify the bootstrap number [default = 50]\nEvaluate the assembly results based on the base substitution model and repeated resampling",
+                                       default=50,metavar="")
     args = parser.parse_args()
 
     main(args)

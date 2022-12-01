@@ -32,7 +32,7 @@ class CorePipeLine():
         self.data1=configuration_information["data1"]
         self.data2=configuration_information["data2"]
         self.single=configuration_information["single"]
-        self.out_dir = configuration_information["out_dir"]
+        self.out_dir = configuration_information["out"]
 
         self.k1=configuration_information["k1"]
         self.k2=configuration_information["k2"]
@@ -82,7 +82,7 @@ class CorePipeLine():
         filter_configuration_information={
             "data1":data1,"data2":data2,"single":single,
             "thread_number":thread_number,"k1":k1,
-            "out_dir":filtered_out_path,"step_length":step_length,
+            "out":filtered_out_path,"step_length":step_length,
             "reference":reference_database_path,"data_size":data_size,
             "quiet":quiet
         }
@@ -117,7 +117,7 @@ class CorePipeLine():
             "limit_min_length": limit_min_length, "limit_max_length": limit_max_length,
             "change_seed": change_seed,
             "scaffold_or_not": scaffold_or_not,
-            "out_dir": out_dir,
+            "out": out_dir,
             "quiet":quiet,
             "soft_boundary": soft_boundary
         }
@@ -176,7 +176,7 @@ class CorePipeLine():
 #     data2 = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\data1_100w.fq"
 #     single = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\data1_100w.fq"
 #
-#     out_dir = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\cp_out"
+#     out = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\cp_out"
 #     rtfa = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeeee10 重构bootstrap\example\cp_gene"
 #     rtgb = r"D:\Happy_life_and_work\scu\python\Gene_Miner\eeeeeeee9 重构filter\example\ref_gb\chuanxiong.gb"
 #
@@ -219,7 +219,7 @@ class CorePipeLine():
 #     my_software_name = "GM"
 #
 #
-#     configuration_information = {"out_dir": out_dir,
+#     configuration_information = {"out": out,
 #                                  "data1": data1, "data2": data2, "single": single,
 #                                  "rtfa": rtfa, "rtgb": rtgb,
 #                                  "k1": k1, "k2": k2, "thread_number": thread_number,

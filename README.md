@@ -1,7 +1,7 @@
 
 # Overview
 
-GeneMiner is a software for extracting phylogenetic markers from next-generation sequencing (NGS) data. (i) With GeneMiner, users can accurately and efficiently obtain large numbers of target gene fragments from NGS data at a meager cost. For example, extraction of all or part of mitochondrial/chloroplast genes and highly repetitive regions (e.g., nrDNA) in the nuclear genome from genome skimming data. Single-low copy genes can also be extracted from transcriptome sequencing data, etc.GeneMiner broadens the choice of phylogenetic markers from the most basic data level. (ii) We propose a novel verification method based on the base substitution model and repetitive resampling, which can statistically evaluate the impact of the reference on the assembly. (iii) GeneMiner provides a cross-platform graphical interface and can be easily docked to downstream phylogenetic analysis processes. In addition, GeneMiner can be applied to the research of DNA barcode extraction, customs quarantine, specific functional gene exploration, and other research, which has broad application prospects.
+GeneMiner is a software for extracting phylogenetic markers from next-generation sequencing (NGS) data. (i) With GeneMiner, users can accurately and efficiently obtain a large number of phylogenetic markers  from NGS data at an economical cost. For example, extract all or part of mitochondrial/chloroplast genes and highly repetitive regions (e.g., nrDNA) in the nuclear genome from genome skimming data. Extract single-to-low-copy genes from transcriptome sequencing data, etc. GeneMiner broadens the choice of phylogenetic markers from the most basic data level. (ii) GeneMiner proposes a novel verification method based on the base substitution model and repetitive resampling, which can statistically evaluate the impact of the reference on the assembly. (iii) GeneMiner provides a cross-platform graphical interface and can be easily docked to downstream phylogenetic analysis processes. In addition, GeneMiner can be applied to the research of DNA barcode extraction, customs quarantine, specific functional gene exploration, and other research, which has broad application prospects.
 
 
 
@@ -19,21 +19,21 @@ GeneMiner is an easy-to-use software written in python3, which is provided for x
 
 Users on Windows, macOS, and Linux can run GeneMiner directly from the command line. We also offer a more convenient GUI version for Windows and macOS users.
 
-## GeneMiner with GUI
+## GeneMiner with Graphical User Interface (GUI)
 
 For individuals who are not accustomed to utilizing the command line or for light use, we strongly advise using the GUI version. Download the corresponding version of the packaged GUI from [here](:https://github.com/happywithxpl/GeneMiner/releases) and double-click to run it.
 
 ![图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/GeneMiner_GUI.png)
 
-## **GeneMiner with command line**
+## **GeneMiner with command (cmd)**
 
-- option1  **Cloning the repository**
+- option1  **Cloning the GitHub repository**
 - option2  **Source code installation**
 - option3  **Flexible construction**
 
 
 
-**Cloning the repository**  (support)
+**Cloning the GitHub repository**  (support)
 
 Clone GeneMiner's repository directly and build it as below:
 
@@ -58,8 +58,8 @@ cat logName | xargs rm -rf
 
 ```shell
 wget -c https://github.com/happywithxpl/GeneMiner/releases/download/v1.0.0/GeneMiner_v1.0.0_linux.tar.gz
-tar GeneMiner_v1.0.0_linux.tar.gz
-cd  GeneMiner
+tar GeneMiner_v1.0.1_linux.tar.gz
+cd  GeneMiner_v1.0.1_linux
 python setup.py install --record logName --user
 geneminer.py -h
 ```
@@ -80,13 +80,13 @@ If both of the above methods fail or you want to have a deeper control of GeneMi
 
 ```shell
 wget -c https://github.com/happywithxpl/GeneMiner/releases/download/v1.0.0/GeneMiner_v1.0.0_linux.tar.gz
-tar GeneMiner_v1.0.0_linux.tar.gz
+tar GeneMiner_v1.0.1_linux.tar.gz
 ```
 
 - Use the following commands to make `geneminer.py`  executable.
 
 ```shell
-cd geneminer-1.0.0
+cd GeneMiner_v1.0.1_linux
 chmod 755 geneminer.py
 ```
 
@@ -154,25 +154,27 @@ geneminer.py -1 skimming_data1.fq.gz  -2 skimming_data2.fq.gz -rtfa shallow_ref/
 
 `max`: The maximum length of recovered target genes to be retained [default = 5000]
 
-`limit_count`: Minimum threshold for the k-mer count to remove erroneous and low richness k-mers  [default=auto]
+`limit_count`: The minimum number of times a k-mer should appear in reads, used to remove likely erroneous and 
+
+​                          low-abundance k-mers [default = auto]
 
 `-t`:   The number of threads
 
-`-bn`:   Specify the bootstrap number. Evaluate the results based on repetitive resampling and base substitution model.
+`-bn`:   Specify the bootstrap number. Evaluate the assembly results based on repeated resampling and base substitution model.
 
 
 
 - Mining Angiosperms353 genes from  transcriptome data
 
 ```shell
-geneminer.py -1 Arabidopsis_thaliana_sim1.fq.gz -2 Arabidopsis_thaliana_sim2.fq.gzz -rtfa ref_Arabidopsis_353 -k1 29 -k2 41 -t 4 -limit_count 2 -b 75 -o Angiosperm353
+geneminer.py -1 Arabidopsis_thaliana_sim1.fq.gz -2 Arabidopsis_thaliana_sim2.fq.gz -rtfa ref_Arabidopsis_353 -k1 29 -k2 41 -t 4 -limit_count auto -b 10000 -o Angiosperm353
 ```
 
 `k1`:  Length of kmer for filtering reads [default = 29]
 
 `k2`:  Length of kmer for assembling reads [default = 41]
 
-`-b`:  Length of the extension along both sides of the target gene [default = 75]
+`-b`:  Length of the extension along both sides of the recovered target gene. Set to a large value (e.g. 10000) if you want to retain  		 the complete assembly. Recommended length is 0.5 * reads length [default = 75]
 
 
 
@@ -245,7 +247,7 @@ Please check [Geneminer's homepage](https://github.com/happywithxpl/GeneMiner) f
 
 When you use GeneMiner please cite:
 
-**GeneMiner : a software for extracting phylogenetic markers from next-generation sequencing data**
+**GeneMiner : a tool for extracting phylogenetic markers from next-generation sequencing data**
 
 
 

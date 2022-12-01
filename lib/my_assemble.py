@@ -1596,7 +1596,7 @@ def my_assemble_main(configuration_information):
     limit_max_length = configuration_information["limit_max_length"]
     change_seed = configuration_information["change_seed"]
     scaffold_or_not = configuration_information["scaffold_or_not"]
-    out_dir = configuration_information["out_dir"]
+    out_dir = configuration_information["out"]
     quiet = configuration_information["quiet"]
     soft_boundary = configuration_information["soft_boundary"]
 
@@ -1701,7 +1701,7 @@ if __name__ == '__main__':
         "limit_min_length": limit_min_length, "limit_max_length": limit_max_length,
         "change_seed": change_seed,
         "scaffold_or_not": scaffold_or_not,
-        "out_dir": "",
+        "out": "",
         "quiet": quiet,
         "soft_boundary": soft_boundary
 
