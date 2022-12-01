@@ -21,7 +21,7 @@ Users on Windows, macOS, and Linux can run GeneMiner directly from the command l
 
 ## GeneMiner with Graphical User Interface (GUI)
 
-For individuals who are not accustomed to utilizing the command line or for light use, we strongly advise using the GUI version. Download the corresponding version of the packaged GUI from [here](:https://github.com/happywithxpl/GeneMiner/releases) and double-click to run it.
+For individuals who are not accustomed to utilizing the command line or for light use, we strongly advise using the GUI version. Download the corresponding version of the packaged GUI from [here](https://github.com/happywithxpl/GeneMiner/releases) and double-click to run it.
 
 ![图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/GeneMiner_GUI.png)
 
@@ -54,7 +54,7 @@ cat logName | xargs rm -rf
 
 **Source code installation**
 
- Download the source distribution from the [release](https://github.com/bpp/bpp/releases) and  install dependencies:
+ Download the source distribution from the [release](https://github.com/happywithxpl/GeneMiner/releases) and  install dependencies:
 
 ```shell
 wget -c https://github.com/happywithxpl/GeneMiner/releases/download/v1.0.0/GeneMiner_v1.0.0_linux.tar.gz
@@ -76,7 +76,7 @@ cat logName | xargs rm -rf
 
 If both of the above methods fail or you want to have a deeper control of GeneMiner, you can use a more flexible method.
 
-- Download the GeneMiner's distribution from  [here](:https://github.com/happywithxpl/GeneMiner/releases).
+- Download the GeneMiner's distribution from  [here](https://github.com/happywithxpl/GeneMiner/releases).
 
 ```shell
 wget -c https://github.com/happywithxpl/GeneMiner/releases/download/v1.0.0/GeneMiner_v1.0.0_linux.tar.gz
@@ -187,6 +187,7 @@ For GeneMiner-GUI, you must set `Data1`, `Data2` or `Single reads` under the `Da
 ![图片](https://github.com/happywithxpl/GeneMiner-Test/blob/main/Run_GeneMiner_GUI.png)
 
 **Run**
+
 Set the parameters, then click on the `Run` botton
 
 **View Results**
