@@ -191,19 +191,25 @@ For GeneMiner-GUI, you must set `Data1`, `Data2` or `Single reads` under the `Da
 Set the parameters, then click on the `Run` botton
 
 **View Results**
+
 Click on the `Results` button to view the results after the GeneMiner has completed
 
 **Clear the screen**
+
 Click on the `Clear` botton
 
 **Reset parameters**
+
 Click on the `Reset` botton and all parameters will be reset to default parameters.
+
 WorkFlow: Reset ==>> Enter new parameters ==>> Run
 
 Note: Do not click on the  `Reset` botton while the program is running
 
 **Close GeneMiner**
+
 Click on the `Close` botton
+
 Note: If closing GeneMiner's GUI does not kill the scripts in the background, you can open Task Manager to close GeneMiner's tasks.
 
 
