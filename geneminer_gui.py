@@ -299,7 +299,7 @@ def geneminer_GUI():
         [
             sg.Text('Bootstrap:', size=(8, 1), justification='right', font=("Arial", 12)),
             sg.Input(50, key='-bn-', size=(6, 1), font=("Arial", 12), expand_x=False, readonly=False,
-                     tooltip="Specify the bootstrap number [default = 50]\nEvaluate the assembly results based on the base substitution model and repeated resampling"),
+                     tooltip="Specify the bootstrap number\nEvaluate the assembly results based on the base substitution model and repeated resampling"),
             sg.CB(' ', font=("Arial", 12), size=(3, 1), key='-cbbn-', enable_events=True)
         ],
 
@@ -721,8 +721,8 @@ if __name__ == "__main__":
                                        default=75, type=int, metavar="")
 
     advanced_option_group.add_argument("-bn", "--bootstrap", dest="bootstrap_number", type=int,
-                                       help="Specify the bootstrap number [default = 50]\nEvaluate the assembly results based on the base substitution model and repeated resampling",
-                                       default=50, metavar="")
+                                       help="Specify the bootstrap number\nEvaluate the assembly results based on the base substitution model and repeated resampling",
+                                       metavar="")
     args = parser.parse_args()
 
     # main(args)

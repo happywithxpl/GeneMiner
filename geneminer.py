@@ -291,8 +291,8 @@ if __name__ == "__main__":
                                        default=75, type=int, metavar="")
 
     advanced_option_group.add_argument("-bn", "--bootstrap", dest="bootstrap_number", type=int,
-                                       help="Specify the bootstrap number [default = 50]\nEvaluate the assembly results based on the base substitution model and repeated resampling",
-                                       default=50,metavar="")
+                                       help="Specify the bootstrap number\nEvaluate the assembly results based on the base substitution model and repeated resampling",
+                                       metavar="")
     args = parser.parse_args()
 
     main(args)
