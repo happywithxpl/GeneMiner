@@ -131,7 +131,7 @@ def mutate(dna,nuc_model):
     dna=bytearray(dna,"utf-8")
     for index in range(len(dna)):
         rate_list=nuc_model[chr(dna[index])]
-        rand_num=random.random()
+        rand_num=random.random() #0-1 将概率转为区间
         for j in range(4):
             if rand_num <rate_list[j]:
                 dna[index]=ord(("A","T","C","G")[j])
@@ -291,12 +291,6 @@ class BootstrapPipeLine():
         name_list = []
         length = len(sorted_list)  # 144
         name_list.append(sorted_list[int(length/2)][0])  # 取kmercount中位数
-
-
-
-
-
-
 
         # 获得一致度，变异度
         ref_seq = get_seq_from_name(ref_path, name_list)

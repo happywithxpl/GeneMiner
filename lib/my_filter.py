@@ -840,7 +840,8 @@ def my_filter_main(configuration_information):
     combine_flag = 1  #合并多线程输出的结果
 
     if sys.platform in ('darwin'):
-        multiprocessing.set_start_method('fork')
+        # multiprocessing.set_start_method('fork')
+        multiprocessing.set_start_method('fork', force=True) #macos
     if data1 and data2:
         if sys.platform in ("win32") and size >= ref_limit_size or thread == 1:
             reads_length = get_reads_length(data1)

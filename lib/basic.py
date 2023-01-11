@@ -358,7 +358,7 @@ def get_identity(seq1, seq2):  # seq1 seq2(ref)
 
 '''
 gap compress and free end
-get mutation model
+get mutation model ==》》 
 '''
 def get_identity_and_mutate_model(seq1,seq2):
     # 打分矩阵 Global alignment with free end gaps   5/-4/-12/-3 (65%)   1/-1/-3/-2 (75%)
@@ -408,7 +408,7 @@ def get_identity_and_mutate_model(seq1,seq2):
     if mutate_a_number !=0:
         mutate_aa,mutate_at,mutate_ac,mutate_ag = mutate_number_dict["AA"]/mutate_a_number, (mutate_number_dict["AA"]+mutate_number_dict["AT"])/mutate_a_number,(mutate_number_dict["AA"]+mutate_number_dict["AT"]+mutate_number_dict["AC"])/mutate_a_number,1
     else:
-        mutate_aa,mutate_at,mutate_ac,mutate_ag = 0,0,0,1
+        mutate_aa,mutate_at,mutate_ac,mutate_ag = 0,0,0,1  #累计概率的方法。 将A转换为A/T/C/G的概率转 换为其落在0-1区间的范围来描述概率，优化计算过程
     if mutate_t_number !=0:
         mutate_ta,mutate_tt,mutate_tc,mutate_tg=mutate_number_dict["TA"]/mutate_t_number,(mutate_number_dict["TA"] + mutate_number_dict["TT"])/mutate_t_number,( mutate_number_dict["TA"] + mutate_number_dict["TT"] + mutate_number_dict["TC"])/mutate_t_number,1
     else:
