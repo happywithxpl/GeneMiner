@@ -109,7 +109,7 @@ geneminer.py -h
 
 # Running GeneMiner
 
-GeneMiner takes the reference sequences and FASTQ format sequencing files as input and the recovered phylogenetic markers as output. We have prepared a simulated dataset of `Arabidopsis thaliana` to help you quickly grasp the main usage of GeneMiner. You can download them from [here](https://github.com/happywithxpl/GeneMiner-Test/tree/main/Demo).
+GeneMiner takes the reference sequences and FASTQ format sequencing files as input and the recovered phylogenetic markers as output. We have prepared a simulated dataset of `Arabidopsis thaliana` to help you quickly grasp the main usage of GeneMiner. You can download them from [GeneMiner-Demo](https://github.com/happywithxpl/GeneMiner-Demo) or [here](https://github.com/happywithxpl/GeneMiner-Test/tree/main/Demo) .
 
 
 
@@ -192,7 +192,11 @@ Set the parameters, then click on the `Run` botton
 
 **View Results**
 
-Click on the `Results` button to view the results after the GeneMiner has completed
+Click on the `Results` button to view the results after the GeneMiner has completed. 
+
+Don't worry if you notice that the output text box in the GUI appears to be "paused." It's because some steps are time-consuming (e.g., filtering reads and assembly). You can click on the `Results` button to check the exact progress . To avoid interrupting the program, do not attempt to read or write the existing files. 
+
+According to the processing order of GeneMiner, it will generate: `reference_database <folder>  `，`filtered_out <folder>`，`assembled_out <folder>`，`GM_results <folder>`，`bootstrap_out <folder> `（if using the `-bn` parameter),`results.csv <file>` in order.
 
 **Clear the screen**
 
