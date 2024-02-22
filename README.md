@@ -1,3 +1,5 @@
+# Note
+The latest site has migrated to https://github.com/sculab/GeneMiner
 
 # Overview
 
